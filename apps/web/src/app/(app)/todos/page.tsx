@@ -1,11 +1,14 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useTodoStore } from '@/stores/todo-store'
 import { TodoTree } from '@/components/todo/todo-tree'
 import { TodoCreateForm } from '@/components/todo/todo-create-form'
 import { EmptyState } from '@/components/todo/empty-state'
+import { cn } from '@/lib/utils'
 import { Plus, RefreshCw } from 'lucide-react'
+
+type SortMode = 'default' | 'dueDate'
 
 function TodoSkeleton() {
   return (
@@ -25,15 +28,55 @@ export default function TodosPage() {
   const loading = useTodoStore((s) => s.loading)
   const error = useTodoStore((s) => s.error)
   const fetchTodos = useTodoStore((s) => s.fetchTodos)
+  const [sortMode, setSortMode] = useState<SortMode>('default')
 
   useEffect(() => {
     fetchTodos()
   }, [fetchTodos])
 
+  const handleSortChange = (mode: SortMode) => {
+    if (mode === sortMode) return
+    setSortMode(mode)
+    if (mode === 'dueDate') {
+      fetchTodos({ sort: 'dueDate' })
+    } else {
+      fetchTodos()
+    }
+  }
+
   return (
     <div className="mx-auto max-w-2xl">
       <div className="flex items-center justify-between px-4 py-4">
         <h1 className="text-2xl font-bold">Todos</h1>
+      </div>
+
+      <div className="flex gap-2 px-4 pb-3">
+        <button
+          data-testid="sort-default"
+          data-active={sortMode === 'default' ? 'true' : 'false'}
+          onClick={() => handleSortChange('default')}
+          className={cn(
+            'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+            sortMode === 'default'
+              ? 'bg-indigo-500 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+          )}
+        >
+          デフォルト順
+        </button>
+        <button
+          data-testid="sort-dueDate"
+          data-active={sortMode === 'dueDate' ? 'true' : 'false'}
+          onClick={() => handleSortChange('dueDate')}
+          className={cn(
+            'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+            sortMode === 'dueDate'
+              ? 'bg-indigo-500 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+          )}
+        >
+          期限順
+        </button>
       </div>
 
       {loading && <TodoSkeleton />}
