@@ -1,10 +1,15 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { getConfig } from "./lib/config.js";
+import { getConfig, hasHelpFlag, showHelp } from "./lib/config.js";
 import { ApiClient } from "./lib/api-client.js";
 import { registerTools } from "./tools/index.js";
 
 async function main() {
+  if (hasHelpFlag()) {
+    console.log(showHelp());
+    process.exit(0);
+  }
+
   const config = getConfig();
 
   if (!config.apiKey) {

@@ -1,7 +1,14 @@
 {
   "name": "todo-with-any-ai-mcp",
   "version": "0.1.0",
-  "private": true,
+  "description": "MCP server for todo-with-any-ai - manage todos from any AI agent",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tokikata/todo-with-any-ai.git",
+    "directory": "packages/mcp-server"
+  },
+  "keywords": ["mcp", "todo", "ai", "claude", "chatgpt"],
   "main": "dist/index.js",
   "bin": {
     "todo-with-any-ai-mcp": "./dist/index.js"
@@ -16,6 +23,10 @@
   "engines": {
     "node": ">=18"
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.28.0",
     "zod": "^4.3.6"
