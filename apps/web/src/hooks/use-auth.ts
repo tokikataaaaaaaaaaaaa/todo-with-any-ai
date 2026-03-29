@@ -1,39 +1,13 @@
 'use client'
 
-import { useEffect } from 'react'
-import { onAuthStateChanged, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, type User } from 'firebase/auth'
+import { signInWithPopup, signInWithRedirect, signOut } from 'firebase/auth'
 import { auth, githubProvider, googleProvider } from '@/lib/firebase'
 import { useAuthStore } from '@/stores/auth-store'
 
 export function useAuth() {
-  const { user, loading, setUser, setLoading } = useAuthStore()
+  const { user, loading } = useAuthStore()
 
-  useEffect(() => {
-    if (!auth) {
-      setLoading(false)
-      return
-    }
-
-    // Handle redirect result (for mobile signInWithRedirect)
-    getRedirectResult(auth).catch(() => {
-      // Ignore errors - onAuthStateChanged will handle the state
-    })
-
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser: User | null) => {
-      if (firebaseUser) {
-        setUser({
-          uid: firebaseUser.uid,
-          displayName: firebaseUser.displayName,
-          email: firebaseUser.email,
-        })
-      } else {
-        setUser(null)
-      }
-      setLoading(false)
-    })
-
-    return () => unsubscribe()
-  }, [setUser, setLoading])
+  // Auth state is managed by AuthProvider - no duplicate listener here
 
   const isMobile = typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
