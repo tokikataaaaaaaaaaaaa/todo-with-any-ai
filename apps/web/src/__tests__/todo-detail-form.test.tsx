@@ -26,10 +26,15 @@ const baseTodo: Todo = {
   updatedAt: '2026-01-01T00:00:00Z',
 }
 
+const PROJECT_A = 'project-a'
+
 const allTodos: Todo[] = [
-  baseTodo,
-  { ...baseTodo, id: 'todo-2', title: 'Parent Todo' },
-  { ...baseTodo, id: 'todo-3', title: 'Another Todo' },
+  { ...baseTodo, projectId: PROJECT_A },
+  { ...baseTodo, id: 'todo-2', title: 'Parent Todo', projectId: PROJECT_A },
+  { ...baseTodo, id: 'todo-3', title: 'Another Todo', projectId: PROJECT_A },
+  { ...baseTodo, id: 'todo-4', title: 'Different Project Todo', projectId: 'project-b' },
+  { ...baseTodo, id: 'todo-5', title: 'Completed Todo', projectId: PROJECT_A, completed: true },
+  { ...baseTodo, id: 'todo-6', title: 'Child of Current', projectId: PROJECT_A, parentId: 'todo-1' },
 ]
 
 describe('TodoDetailForm', () => {
@@ -42,12 +47,12 @@ describe('TodoDetailForm', () => {
     mockOnDelete.mockResolvedValue(undefined)
   })
 
-  function renderForm(todoOverrides?: Partial<Todo>) {
-    const todo = { ...baseTodo, ...todoOverrides }
+  function renderForm(todoOverrides?: Partial<Todo>, todosOverride?: Todo[]) {
+    const todo = { ...baseTodo, projectId: PROJECT_A, ...todoOverrides }
     return render(
       <TodoDetailForm
         todo={todo}
-        allTodos={allTodos}
+        allTodos={todosOverride ?? allTodos}
         onSave={mockOnSave}
         onDelete={mockOnDelete}
       />
@@ -92,28 +97,12 @@ describe('TodoDetailForm', () => {
     })
   })
 
-  describe('category chip selector', () => {
-    it('should render all category chips', () => {
+  describe('category section removed', () => {
+    it('should not render category chips', () => {
       renderForm()
-      expect(screen.getByRole('button', { name: /work/i })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /personal/i })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /shopping/i })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /health/i })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /study/i })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /idea/i })).toBeInTheDocument()
-    })
-
-    it('should highlight selected category', () => {
-      renderForm({ categoryIcon: 'work' })
-      const workChip = screen.getByRole('button', { name: /work/i })
-      expect(workChip).toHaveAttribute('data-selected', 'true')
-    })
-
-    it('should allow toggling category off', () => {
-      renderForm({ categoryIcon: 'work' })
-      const workChip = screen.getByRole('button', { name: /work/i })
-      fireEvent.click(workChip)
-      expect(workChip).toHaveAttribute('data-selected', 'false')
+      expect(screen.queryByText('カテゴリ')).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /work/i })).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /personal/i })).not.toBeInTheDocument()
     })
   })
 
@@ -149,8 +138,32 @@ describe('TodoDetailForm', () => {
       const select = screen.getByLabelText(/親Todo/i) as HTMLSelectElement
       const options = Array.from(select.options).map((o) => o.value)
       expect(options).not.toContain('todo-1')
+    })
+
+    it('should only show todos from the same project', () => {
+      renderForm()
+      const select = screen.getByLabelText(/親Todo/i) as HTMLSelectElement
+      const options = Array.from(select.options).map((o) => o.value)
+      // todo-4 is in project-b, should not appear
+      expect(options).not.toContain('todo-4')
+      // todo-2 is in project-a, should appear
       expect(options).toContain('todo-2')
-      expect(options).toContain('todo-3')
+    })
+
+    it('should exclude completed todos from parent options', () => {
+      renderForm()
+      const select = screen.getByLabelText(/親Todo/i) as HTMLSelectElement
+      const options = Array.from(select.options).map((o) => o.value)
+      // todo-5 is completed, should not appear
+      expect(options).not.toContain('todo-5')
+    })
+
+    it('should exclude descendants to prevent circular reference', () => {
+      renderForm()
+      const select = screen.getByLabelText(/親Todo/i) as HTMLSelectElement
+      const options = Array.from(select.options).map((o) => o.value)
+      // todo-6 is a child of todo-1 (current), should not appear
+      expect(options).not.toContain('todo-6')
     })
   })
 

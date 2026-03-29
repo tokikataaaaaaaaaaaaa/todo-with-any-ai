@@ -3,14 +3,22 @@
 import { useState, useMemo } from 'react'
 import type { Todo, UpdateTodo, UrgencyLevel, Project } from '@todo-with-any-ai/shared'
 
-const CATEGORIES = [
-  { value: 'work', label: 'work' },
-  { value: 'personal', label: 'personal' },
-  { value: 'shopping', label: 'shopping' },
-  { value: 'health', label: 'health' },
-  { value: 'study', label: 'study' },
-  { value: 'idea', label: 'idea' },
-] as const
+function isDescendant(candidateId: string, ancestorId: string, allTodos: Todo[]): boolean {
+  const visited = new Set<string>()
+  const queue = allTodos.filter((t) => t.parentId === ancestorId).map((t) => t.id)
+  while (queue.length > 0) {
+    const current = queue.pop()!
+    if (visited.has(current)) continue
+    visited.add(current)
+    if (current === candidateId) return true
+    for (const t of allTodos) {
+      if (t.parentId === current && !visited.has(t.id)) {
+        queue.push(t.id)
+      }
+    }
+  }
+  return false
+}
 
 interface TodoDetailFormProps {
   todo: Todo
@@ -31,7 +39,6 @@ export function TodoDetailForm({
 }: TodoDetailFormProps) {
   const [title, setTitle] = useState(todo.title)
   const [completed, setCompleted] = useState(todo.completed)
-  const [categoryIcon, setCategoryIcon] = useState(todo.categoryIcon)
   const [dueDate, setDueDate] = useState(todo.dueDate ?? '')
   const [parentId, setParentId] = useState(todo.parentId ?? '')
   const [urgencyLevelId, setUrgencyLevelId] = useState(todo.urgencyLevelId ?? '')
@@ -39,27 +46,32 @@ export function TodoDetailForm({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const parentOptions = useMemo(
-    () => allTodos.filter((t) => t.id !== todo.id),
-    [allTodos, todo.id]
+    () =>
+      allTodos.filter(
+        (t) =>
+          t.id !== todo.id &&
+          !isDescendant(t.id, todo.id, allTodos) &&
+          t.completed === false &&
+          t.projectId === todo.projectId
+      ),
+    [allTodos, todo.id, todo.projectId]
   )
 
   const hasChanges = useMemo(() => {
     return (
       title !== todo.title ||
       completed !== todo.completed ||
-      categoryIcon !== todo.categoryIcon ||
       (dueDate || null) !== (todo.dueDate || null) ||
       (parentId || null) !== (todo.parentId || null) ||
       (urgencyLevelId || null) !== (todo.urgencyLevelId || null) ||
       (projectId || null) !== (todo.projectId || null)
     )
-  }, [title, completed, categoryIcon, dueDate, parentId, urgencyLevelId, projectId, todo])
+  }, [title, completed, dueDate, parentId, urgencyLevelId, projectId, todo])
 
   const handleSave = () => {
     onSave({
       title,
       completed,
-      categoryIcon: categoryIcon ?? undefined,
       dueDate: dueDate || null,
       parentId: parentId || null,
       urgencyLevelId: urgencyLevelId || null,
@@ -83,35 +95,6 @@ export function TodoDetailForm({
           onChange={(e) => setTitle(e.target.value)}
           className="flex-1 border-b border-[var(--border)] bg-transparent py-1 text-lg font-medium outline-none focus:border-[var(--accent)]"
         />
-      </div>
-
-      {/* Category */}
-      <div>
-        <label className="mb-2 block text-sm font-medium text-[var(--text-secondary)]">
-          カテゴリ
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {CATEGORIES.map((cat) => {
-            const selected = categoryIcon === cat.value
-            return (
-              <button
-                key={cat.value}
-                type="button"
-                role="button"
-                aria-label={cat.label}
-                data-selected={selected ? 'true' : 'false'}
-                onClick={() => setCategoryIcon(selected ? null : cat.value)}
-                className={`rounded-full px-3 py-1 text-sm transition-colors ${
-                  selected
-                    ? 'bg-[var(--color-primary)] text-white'
-                    : 'bg-[var(--bg-raised)] text-[var(--text)] hover:bg-[var(--bg-raised)]'
-                }`}
-              >
-                {cat.label}
-              </button>
-            )
-          })}
-        </div>
       </div>
 
       {/* Urgency Level */}
@@ -219,7 +202,7 @@ export function TodoDetailForm({
             type="button"
             aria-label="削除"
             onClick={() => setShowDeleteConfirm(true)}
-            className="w-full rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-[var(--error)] transition-colors hover:bg-[var(--accent-light)] dark:border-red-900"
+            className="w-full rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--error)] transition-colors hover:bg-[var(--accent-light)]"
           >
             削除
           </button>
