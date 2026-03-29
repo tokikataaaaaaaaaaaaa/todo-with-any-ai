@@ -4,6 +4,7 @@ import { useEffect, type ReactNode } from 'react'
 import { onAuthStateChanged, getRedirectResult, type User } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
 import { useAuthStore } from '@/stores/auth-store'
+import { useSnackbarStore } from '@/stores/snackbar-store'
 
 interface AuthProviderProps {
   children: ReactNode
@@ -11,6 +12,7 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const { setUser, setLoading } = useAuthStore()
+  const addMessage = useSnackbarStore((s) => s.addMessage)
 
   useEffect(() => {
     if (!auth) {
@@ -31,6 +33,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             displayName: result.user.displayName,
             email: result.user.email,
           })
+          addMessage('success', 'ログインしました')
           setLoading(false)
         }
       })

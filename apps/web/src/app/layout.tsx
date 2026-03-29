@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AuthProvider } from "@/components/auth/auth-provider";
+import { SnackbarProvider } from "@/components/ui/snackbar-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,7 +16,10 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <SnackbarProvider />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

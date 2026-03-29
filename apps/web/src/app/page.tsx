@@ -3,10 +3,12 @@
 import { useEffect, useState } from 'react'
 import { Sparkles, Github } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
+import { useSnackbarStore } from '@/stores/snackbar-store'
 
 export default function LoginPage() {
   const { user, loading, loginWithGithub, loginWithGoogle } = useAuth()
   const [error, setError] = useState<string | null>(null)
+  const addMessage = useSnackbarStore((s) => s.addMessage)
 
   useEffect(() => {
     if (!loading && user) {
@@ -19,8 +21,11 @@ export default function LoginPage() {
     setError(null)
     try {
       await loginWithGithub()
+      addMessage('success', 'ログインしました')
+      window.location.href = '/todos'
     } catch {
       setError('ログインに失敗しました。もう一度お試しください。')
+      addMessage('error', 'ログインに失敗しました。もう一度お試しください。')
     }
   }
 
@@ -28,8 +33,11 @@ export default function LoginPage() {
     setError(null)
     try {
       await loginWithGoogle()
+      addMessage('success', 'ログインしました')
+      window.location.href = '/todos'
     } catch {
       setError('ログインに失敗しました。もう一度お試しください。')
+      addMessage('error', 'ログインに失敗しました。もう一度お試しください。')
     }
   }
 
