@@ -1,32 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Serif+JP:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
 @import "tailwindcss";
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --color-primary: #6366F1;
-  --color-primary-hover: #4F46E5;
-  --color-primary-light: #EEF2FF;
+  /* Paper & Ink - Light */
+  --bg: #FAF8F5;
+  --bg-surface: #FFFFFF;
+  --bg-raised: #F5F2EE;
+  --border: #E8E4DE;
+  --border-strong: #D4CFC8;
+  --text: #1A1A1A;
+  --text-secondary: #6B6560;
+  --text-muted: #9A9590;
+  --primary: #1A1A1A;
+  --accent: #C4453C;
+  --accent-light: #F5E6E5;
+  --success: #2E5C3F;
+  --success-light: #E5F0EA;
+  --warning: #D4A017;
+  --error: #C4453C;
+  --info: #234B6E;
+
+  /* Project colors */
+  --project-shu: #C4453C;
+  --project-matcha: #2E5C3F;
+  --project-ai: #234B6E;
+  --project-yamabuki: #D4A017;
+  --project-sumi: #1A1A1A;
+
+  /* Typography */
+  --font-display: 'Noto Serif JP', serif;
+  --font-body: 'Noto Sans JP', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Spacing */
+  --tree-indent: 24px;
+
+  /* Radius */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --color-primary: #818CF8;
-    --color-primary-hover: #6366F1;
-    --color-primary-light: #1E1B4B;
-  }
+.dark {
+  --bg: #0F0E0C;
+  --bg-surface: #1A1816;
+  --bg-raised: #221F1C;
+  --border: #2A2622;
+  --border-strong: #3A3632;
+  --text: #E8E4DE;
+  --text-secondary: #8A8580;
+  --text-muted: #5A5550;
+  --primary: #E8E4DE;
+  --accent: #E05A50;
+  --accent-light: #2A1A18;
+  --success: #4A9668;
+  --success-light: #1A2A20;
+  --warning: #E8B830;
+  --error: #E05A50;
+  --info: #4B8BC2;
+
+  --project-shu: #E05A50;
+  --project-matcha: #4A9668;
+  --project-ai: #4B8BC2;
+  --project-yamabuki: #E8B830;
+  --project-sumi: #E8E4DE;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Washi texture */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.15;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.12'/%3E%3C/svg%3E");
+}
+
+.dark body::before {
+  opacity: 0.08;
 }

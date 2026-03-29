@@ -124,6 +124,9 @@ importers:
         specifier: ^7.2.2
         version: 7.2.2(firebase-admin@13.7.0)
     devDependencies:
+      '@todo-with-any-ai/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@types/node':
         specifier: ^25.5.0
         version: 25.5.0

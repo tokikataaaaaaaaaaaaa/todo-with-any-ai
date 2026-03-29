@@ -3,21 +3,10 @@ import { cors } from 'hono/cors'
 import { errorHandler } from './middleware/error-handler'
 import { authMiddleware } from './middleware/firebase-auth'
 import { rateLimiter } from './middleware/rate-limiter'
-import { todosRoute, setTodoService } from './routes/todos'
-import { authRoute, setApiKeyService } from './routes/auth'
-import { projectsRoute, setProjectService } from './routes/projects'
-import { TodoService } from './services/todo-service'
-import { ApiKeyService } from './services/api-key-service'
-import { ProjectService } from './services/project-service'
-import { urgencyLevelsRoute, setUrgencyLevelService } from './routes/urgency-levels'
-import { UrgencyLevelService } from './services/urgency-level-service'
-import { db } from './lib/firebase'
-
-// Initialize service instances with Firestore
-setTodoService(new TodoService(db))
-setApiKeyService(new ApiKeyService(db))
-setProjectService(new ProjectService(db))
-setUrgencyLevelService(new UrgencyLevelService(db))
+import { todosRoute } from './routes/todos'
+import { authRoute } from './routes/auth'
+import { projectsRoute } from './routes/projects'
+import { urgencyLevelsRoute } from './routes/urgency-levels'
 
 const app = new Hono().basePath('/api')
 

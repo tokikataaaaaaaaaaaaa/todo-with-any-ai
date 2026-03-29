@@ -168,8 +168,8 @@ export default function CalendarPage() {
           onClick={resetFilters}
           className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
             allActive
-              ? 'bg-[var(--color-primary)] text-white'
-              : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
+              ? 'bg-[var(--primary)] text-[var(--bg)]'
+              : 'bg-[var(--bg-raised)] text-[var(--text-secondary)]'
           }`}
         >
           All
@@ -184,8 +184,8 @@ export default function CalendarPage() {
               onClick={() => toggleProjectFilter(project.id)}
               className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                 isActive
-                  ? 'bg-[var(--color-primary)] text-white'
-                  : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
+                  ? 'bg-[var(--primary)] text-[var(--bg)]'
+                  : 'bg-[var(--bg-raised)] text-[var(--text-secondary)]'
               }`}
             >
               {project.emoji} {project.name}
@@ -200,7 +200,7 @@ export default function CalendarPage() {
           <button
             data-testid="prev-month-btn"
             onClick={goToPrevMonth}
-            className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+            className="rounded-[var(--radius-lg)] p-1.5 text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-raised)]"
             aria-label="Previous month"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -209,7 +209,7 @@ export default function CalendarPage() {
           <button
             data-testid="next-month-btn"
             onClick={goToNextMonth}
-            className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+            className="rounded-[var(--radius-lg)] p-1.5 text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-raised)]"
             aria-label="Next month"
           >
             <ChevronRight className="h-5 w-5" />
@@ -218,14 +218,14 @@ export default function CalendarPage() {
         <button
           data-testid="today-btn"
           onClick={goToToday}
-          className="rounded-lg px-2.5 py-1 text-xs font-medium text-[var(--color-primary)] transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800"
+          className="rounded-[var(--radius-lg)] px-2.5 py-1 text-xs font-medium text-[var(--accent)] transition-colors hover:bg-[var(--bg-raised)]"
         >
           Today
         </button>
       </div>
 
       {/* Day-of-week headers */}
-      <div className="grid grid-cols-7 text-center text-xs font-medium text-zinc-500 dark:text-zinc-400">
+      <div className="grid grid-cols-7 text-center text-xs font-medium text-[var(--text-muted)]">
         {dayHeaders.map((day) => (
           <div key={day} className="py-1">
             {day}
@@ -248,14 +248,14 @@ export default function CalendarPage() {
               data-testid={`day-cell-${day.dateStr}`}
               data-today={day.isToday ? 'true' : undefined}
               data-outside={!day.isCurrentMonth ? 'true' : undefined}
-              className={`min-h-[4rem] rounded-md border p-1 text-xs ${
+              className={`min-h-[4rem] rounded-[var(--radius-md)] border p-1 text-xs ${
                 day.isToday
-                  ? 'border-[var(--color-primary)] ring-1 ring-[var(--color-primary)]'
-                  : 'border-zinc-200 dark:border-zinc-800'
+                  ? 'border-[var(--accent)] ring-1 ring-[var(--accent)]'
+                  : 'border-[var(--border)]'
               } ${
                 !day.isCurrentMonth
-                  ? 'text-zinc-300 dark:text-zinc-700'
-                  : 'text-zinc-900 dark:text-zinc-100'
+                  ? 'text-[var(--text-muted)]'
+                  : 'text-[var(--text)]'
               }`}
             >
               <div className="mb-0.5 text-right font-medium">
@@ -278,8 +278,8 @@ export default function CalendarPage() {
                         data-completed={todo.completed ? 'true' : 'false'}
                         className={`truncate rounded px-1 py-0.5 text-[10px] leading-tight border-l-2 ${
                           todo.completed
-                            ? 'line-through text-zinc-400'
-                            : 'text-zinc-700 dark:text-zinc-300'
+                            ? 'line-through text-[var(--text-muted)]'
+                            : 'text-[var(--text)]'
                         }`}
                         style={{ borderLeftColor: color }}
                       >
@@ -289,7 +289,7 @@ export default function CalendarPage() {
                   )
                 })}
                 {overflowCount > 0 && (
-                  <div className="text-[10px] text-zinc-400">
+                  <div className="text-[10px] text-[var(--text-muted)]">
                     +{overflowCount}
                   </div>
                 )}

@@ -42,13 +42,13 @@ export default function SettingsPage() {
           type="button"
           aria-label="戻る"
           onClick={() => router.back()}
-          className="flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200"
+          className="flex items-center gap-1 text-sm text-[var(--text-secondary)] hover:text-[var(--text)]"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
-        <h1 className="text-lg font-semibold">設定</h1>
+        <h1 className="text-lg font-semibold" style={{ fontFamily: 'var(--font-display)' }}>設定</h1>
       </div>
 
       {/* API Keys Section */}
@@ -57,19 +57,19 @@ export default function SettingsPage() {
 
         {loading && (
           <div data-testid="api-keys-loading" className="space-y-3">
-            <div className="h-16 animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-800" />
-            <div className="h-16 animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-800" />
+            <div className="h-16 animate-pulse rounded-[var(--radius-lg)] bg-[var(--bg-raised)]" />
+            <div className="h-16 animate-pulse rounded-[var(--radius-lg)] bg-[var(--bg-raised)]" />
           </div>
         )}
 
         {error && (
-          <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-950 dark:text-red-400">
+          <div className="mb-4 rounded-[var(--radius-lg)] bg-[var(--accent-light)] p-3 text-sm text-[var(--error)]">
             {error}
           </div>
         )}
 
         {!loading && keys.length === 0 && !error && (
-          <p className="mb-4 text-sm text-zinc-500">APIキーがありません</p>
+          <p className="mb-4 text-sm text-[var(--text-muted)]">APIキーがありません</p>
         )}
 
         {!loading && keys.length > 0 && (
@@ -83,24 +83,24 @@ export default function SettingsPage() {
         <button
           type="button"
           onClick={() => setShowCreateDialog(true)}
-          className="w-full rounded-lg border border-dashed border-zinc-300 px-4 py-2.5 text-sm font-medium text-zinc-600 transition-colors hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] dark:border-zinc-700 dark:text-zinc-400"
+          className="w-full rounded-[var(--radius-lg)] border border-dashed border-[var(--border-strong)] px-4 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
         >
           + APIキーを発行する
         </button>
       </section>
 
       {/* Account Section */}
-      <section className="border-t border-zinc-200 pt-6 dark:border-zinc-700">
+      <section className="border-t border-[var(--border)] pt-6">
         <h2 className="mb-4 text-base font-semibold">アカウント</h2>
-        <div className="mb-4 rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        <div className="mb-4 rounded-[var(--radius-lg)] border border-[var(--border)] p-4">
+          <p className="text-sm text-[var(--text-secondary)]">
             {user?.email ?? 'unknown'}
           </p>
         </div>
         <button
           type="button"
           onClick={handleLogout}
-          className="w-full rounded-lg border border-zinc-200 px-4 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+          className="w-full rounded-[var(--radius-lg)] border border-[var(--border)] px-4 py-2.5 text-sm font-medium text-[var(--text)] transition-colors hover:bg-[var(--bg-raised)]"
         >
           ログアウト
         </button>

@@ -6,37 +6,37 @@ import type { Project } from '@todo-with-any-ai/shared'
 import { Plus, Pencil, RefreshCw } from 'lucide-react'
 
 const COLOR_OPTIONS = [
-  '#6366F1', // Indigo
-  '#E11D48', // Rose
-  '#D97706', // Amber
-  '#059669', // Emerald
-  '#0284C7', // Sky
+  '#C4453C', // Shu
+  '#2E5C3F', // Matcha
+  '#234B6E', // Ai
+  '#D4A017', // Yamabuki
+  '#1A1A1A', // Sumi
   '#7C3AED', // Violet
   '#EA580C', // Orange
   '#52525B', // Zinc
 ]
 
 const EMOJI_PRESETS = [
-  '\u{1F4BC}', // 💼
-  '\u{1F3E0}', // 🏠
-  '\u{1F6D2}', // 🛒
-  '\u{1F4AA}', // 💪
-  '\u{1F4DA}', // 📚
-  '\u{1F4A1}', // 💡
-  '\u{1F3AF}', // 🎯
-  '\u{1F527}', // 🔧
-  '\u{1F4F1}', // 📱
-  '\u{1F3A8}', // 🎨
-  '\u{1F3C3}', // 🏃
-  '\u{1F37D}\u{FE0F}', // 🍽️
-  '\u{1F4CA}', // 📊
-  '\u{1F3B5}', // 🎵
-  '\u{2708}\u{FE0F}', // ✈️
-  '\u{1F431}', // 🐱
-  '\u{1F31F}', // 🌟
-  '\u{1F52C}', // 🔬
-  '\u{1F4DD}', // 📝
-  '\u{1F3B2}', // 🎲
+  '\u{1F4BC}', // briefcase
+  '\u{1F3E0}', // house
+  '\u{1F6D2}', // cart
+  '\u{1F4AA}', // muscle
+  '\u{1F4DA}', // books
+  '\u{1F4A1}', // bulb
+  '\u{1F3AF}', // target
+  '\u{1F527}', // wrench
+  '\u{1F4F1}', // phone
+  '\u{1F3A8}', // art
+  '\u{1F3C3}', // runner
+  '\u{1F37D}\u{FE0F}', // plate
+  '\u{1F4CA}', // chart
+  '\u{1F3B5}', // music
+  '\u{2708}\u{FE0F}', // plane
+  '\u{1F431}', // cat
+  '\u{1F31F}', // star
+  '\u{1F52C}', // microscope
+  '\u{1F4DD}', // memo
+  '\u{1F3B2}', // dice
 ]
 
 function ProjectSkeleton() {
@@ -45,7 +45,7 @@ function ProjectSkeleton() {
       {[1, 2, 3].map((i) => (
         <div
           key={i}
-          className="flex h-14 animate-pulse items-center gap-3 rounded-lg bg-gray-100 dark:bg-gray-800"
+          className="flex h-14 animate-pulse items-center gap-3 rounded-[var(--radius-lg)] bg-[var(--bg-raised)]"
         />
       ))}
     </div>
@@ -85,8 +85,8 @@ function ProjectDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-zinc-900">
-        <h3 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+      <div className="mx-4 w-full max-w-md rounded-[var(--radius-lg)] bg-[var(--bg-surface)] p-6 shadow-xl">
+        <h3 className="mb-4 text-lg font-semibold text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>
           {title}
         </h3>
 
@@ -98,13 +98,13 @@ function ProjectDialog({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="プロジェクト名"
-              className="w-full rounded-lg border border-zinc-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-indigo-500 dark:border-zinc-700"
+              className="w-full rounded-[var(--radius-lg)] border border-[var(--border)] bg-transparent px-3 py-2 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
             />
           </div>
 
           {/* Color picker */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            <label className="mb-2 block text-sm font-medium text-[var(--text-secondary)]">
               カラー
             </label>
             <div className="flex flex-wrap gap-2">
@@ -116,7 +116,7 @@ function ProjectDialog({
                   onClick={() => setColor(c)}
                   className={`h-8 w-8 rounded-full border-2 transition-all ${
                     color === c
-                      ? 'border-zinc-900 scale-110 dark:border-white'
+                      ? 'border-[var(--text)] scale-110'
                       : 'border-transparent'
                   }`}
                   style={{ backgroundColor: c }}
@@ -128,7 +128,7 @@ function ProjectDialog({
 
           {/* Emoji picker */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            <label className="mb-2 block text-sm font-medium text-[var(--text-secondary)]">
               アイコン
             </label>
             <div className="flex flex-wrap gap-1.5">
@@ -138,10 +138,10 @@ function ProjectDialog({
                   type="button"
                   data-testid={`emoji-option-${e}`}
                   onClick={() => setEmoji(e)}
-                  className={`flex h-9 w-9 items-center justify-center rounded-lg text-lg transition-all ${
+                  className={`flex h-9 w-9 items-center justify-center rounded-[var(--radius-lg)] text-lg transition-all ${
                     emoji === e
-                      ? 'bg-indigo-100 ring-2 ring-indigo-500 dark:bg-indigo-900'
-                      : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                      ? 'bg-[var(--accent-light)] ring-2 ring-[var(--accent)]'
+                      : 'hover:bg-[var(--bg-raised)]'
                   }`}
                 >
                   {e}
@@ -156,14 +156,14 @@ function ProjectDialog({
           <button
             type="button"
             onClick={handleSubmit}
-            className="flex-1 rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-600"
+            className="flex-1 rounded-[var(--radius-lg)] bg-[var(--primary)] px-4 py-2 text-sm font-medium text-[var(--bg)] hover:opacity-90"
           >
             {submitLabel}
           </button>
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            className="flex-1 rounded-[var(--radius-lg)] border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--text)] hover:bg-[var(--bg-raised)]"
           >
             キャンセル
           </button>
@@ -171,32 +171,32 @@ function ProjectDialog({
 
         {/* Delete in edit mode */}
         {onDelete && (
-          <div className="mt-4 border-t border-zinc-200 pt-4 dark:border-zinc-700">
+          <div className="mt-4 border-t border-[var(--border)] pt-4">
             {!showDeleteConfirm ? (
               <button
                 type="button"
                 onClick={() => setShowDeleteConfirm(true)}
-                className="w-full rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950"
+                className="w-full rounded-[var(--radius-lg)] border border-[var(--error)]/30 px-4 py-2 text-sm font-medium text-[var(--error)] hover:bg-[var(--accent-light)]"
               >
                 削除
               </button>
             ) : (
               <div className="space-y-3">
-                <p className="text-sm text-red-600 dark:text-red-400">
+                <p className="text-sm text-[var(--error)]">
                   本当に削除しますか？
                 </p>
                 <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={onDelete}
-                    className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+                    className="flex-1 rounded-[var(--radius-lg)] bg-[var(--error)] px-4 py-2 text-sm font-medium text-white hover:opacity-90"
                   >
                     確認
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowDeleteConfirm(false)}
-                    className="flex-1 rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                    className="flex-1 rounded-[var(--radius-lg)] border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--text)] hover:bg-[var(--bg-raised)]"
                   >
                     キャンセル
                   </button>
@@ -246,12 +246,12 @@ export default function ProjectsPage() {
   return (
     <div className="mx-auto max-w-2xl">
       <div className="flex items-center justify-between px-4 py-4">
-        <h1 className="text-2xl font-bold">Projects</h1>
+        <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>Projects</h1>
         <button
           type="button"
           aria-label="新規プロジェクト"
           onClick={() => setShowCreateDialog(true)}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-500 text-white hover:bg-indigo-600"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--primary)] text-[var(--bg)] hover:opacity-90"
         >
           <Plus className="h-4 w-4" />
         </button>
@@ -260,11 +260,11 @@ export default function ProjectsPage() {
       {loading && <ProjectSkeleton />}
 
       {error && (
-        <div className="mx-4 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
-          <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
+        <div className="mx-4 rounded-[var(--radius-lg)] border border-[var(--error)]/20 bg-[var(--accent-light)] p-4">
+          <p className="text-sm text-[var(--error)]">{error}</p>
           <button
             onClick={() => fetchProjects()}
-            className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-red-700 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+            className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-[var(--error)] hover:opacity-80"
           >
             <RefreshCw className="h-3 w-3" />
             Retry
@@ -274,7 +274,7 @@ export default function ProjectsPage() {
 
       {!loading && !error && projects.length === 0 && (
         <div className="px-4 py-12 text-center">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm text-[var(--text-muted)]">
             プロジェクトがありません
           </p>
         </div>
@@ -285,21 +285,21 @@ export default function ProjectsPage() {
           {projects.map((project) => (
             <div
               key={project.id}
-              className="flex items-center gap-3 rounded-lg border border-zinc-100 p-3 dark:border-zinc-800"
+              className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] p-3"
             >
               <span className="text-xl">{project.emoji}</span>
               <div
                 className="h-3 w-3 rounded-full"
                 style={{ backgroundColor: project.color }}
               />
-              <span className="flex-1 text-sm font-medium text-zinc-900 dark:text-zinc-100">
+              <span className="flex-1 text-sm font-medium text-[var(--text)]">
                 {project.name}
               </span>
               <button
                 type="button"
                 data-testid={`edit-project-${project.id}`}
                 onClick={() => setEditingProject(project)}
-                className="flex h-7 w-7 items-center justify-center rounded text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+                className="flex h-7 w-7 items-center justify-center rounded text-[var(--text-muted)] hover:bg-[var(--bg-raised)] hover:text-[var(--text-secondary)]"
                 aria-label={`Edit ${project.name}`}
               >
                 <Pencil className="h-3.5 w-3.5" />

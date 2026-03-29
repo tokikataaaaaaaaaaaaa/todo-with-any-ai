@@ -17,7 +17,7 @@ function TodoSkeleton() {
       {[1, 2, 3, 4, 5].map((i) => (
         <div
           key={i}
-          className="flex h-12 animate-pulse items-center gap-2 rounded-lg bg-gray-100 dark:bg-gray-800"
+          className="flex h-12 animate-pulse items-center gap-2 rounded-[var(--radius-lg)] bg-[var(--bg-raised)]"
         />
       ))}
     </div>
@@ -57,7 +57,7 @@ export default function TodosPage() {
   return (
     <div className="mx-auto max-w-2xl">
       <div className="flex items-center justify-between px-4 py-4">
-        <h1 className="text-2xl font-bold">Todos</h1>
+        <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>Todos</h1>
       </div>
 
       <div className="flex gap-2 px-4 pb-3">
@@ -66,10 +66,10 @@ export default function TodosPage() {
           data-active={sortMode === 'default' ? 'true' : 'false'}
           onClick={() => handleSortChange('default')}
           className={cn(
-            'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+            'rounded-[var(--radius-md)] px-3 py-1.5 text-sm font-medium transition-colors',
             sortMode === 'default'
-              ? 'bg-indigo-500 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+              ? 'bg-[var(--primary)] text-[var(--bg)]'
+              : 'bg-[var(--bg-raised)] text-[var(--text-secondary)] hover:bg-[var(--border)]'
           )}
         >
           デフォルト順
@@ -79,10 +79,10 @@ export default function TodosPage() {
           data-active={sortMode === 'dueDate' ? 'true' : 'false'}
           onClick={() => handleSortChange('dueDate')}
           className={cn(
-            'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+            'rounded-[var(--radius-md)] px-3 py-1.5 text-sm font-medium transition-colors',
             sortMode === 'dueDate'
-              ? 'bg-indigo-500 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+              ? 'bg-[var(--primary)] text-[var(--bg)]'
+              : 'bg-[var(--bg-raised)] text-[var(--text-secondary)] hover:bg-[var(--border)]'
           )}
         >
           期限順
@@ -97,10 +97,10 @@ export default function TodosPage() {
             data-active={filterProjectId === null ? 'true' : 'false'}
             onClick={() => setFilterProjectId(null)}
             className={cn(
-              'whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+              'whitespace-nowrap rounded-[var(--radius-md)] px-3 py-1.5 text-sm font-medium transition-colors',
               filterProjectId === null
-                ? 'bg-indigo-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                ? 'bg-[var(--primary)] text-[var(--bg)]'
+                : 'bg-[var(--bg-raised)] text-[var(--text-secondary)] hover:bg-[var(--border)]'
             )}
           >
             全て
@@ -112,10 +112,10 @@ export default function TodosPage() {
               data-active={filterProjectId === p.id ? 'true' : 'false'}
               onClick={() => setFilterProjectId(p.id)}
               className={cn(
-                'whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+                'whitespace-nowrap rounded-[var(--radius-md)] px-3 py-1.5 text-sm font-medium transition-colors',
                 filterProjectId === p.id
-                  ? 'bg-indigo-500 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                  ? 'bg-[var(--primary)] text-[var(--bg)]'
+                  : 'bg-[var(--bg-raised)] text-[var(--text-secondary)] hover:bg-[var(--border)]'
               )}
             >
               {p.emoji} {p.name}
@@ -127,11 +127,11 @@ export default function TodosPage() {
       {loading && <TodoSkeleton />}
 
       {error && (
-        <div className="mx-4 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
-          <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
+        <div className="mx-4 rounded-[var(--radius-lg)] border border-[var(--error)]/20 bg-[var(--accent-light)] p-4">
+          <p className="text-sm text-[var(--error)]">{error}</p>
           <button
             onClick={() => fetchTodos()}
-            className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-red-700 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+            className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-[var(--error)] hover:opacity-80"
           >
             <RefreshCw className="h-3 w-3" />
             Retry
@@ -153,7 +153,7 @@ export default function TodosPage() {
           )
           input?.focus()
         }}
-        className="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-500 text-white shadow-lg hover:bg-indigo-600 md:hidden"
+        className="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--accent)] text-white shadow-lg hover:opacity-90 md:hidden"
         aria-label="Add todo"
       >
         <Plus className="h-6 w-6" />

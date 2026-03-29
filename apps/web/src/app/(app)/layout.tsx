@@ -2,9 +2,10 @@
 
 import { useEffect } from 'react'
 import Link from 'next/link'
-import { Sparkles, Settings, ClipboardList, Calendar } from 'lucide-react'
+import { Settings, ClipboardList, Calendar } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useAuthStore } from '@/stores/auth-store'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 export default function AppLayout({
   children,
@@ -27,18 +28,18 @@ export default function AppLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen" data-testid="app-loading">
-        <header className="border-b border-zinc-200 p-4 dark:border-zinc-800">
+      <div className="min-h-screen bg-[var(--bg)]" data-testid="app-loading">
+        <header className="border-b border-[var(--border)] p-4">
           <nav className="flex items-center justify-between">
-            <div className="h-6 w-32 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
-            <div className="h-6 w-6 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
+            <div className="h-6 w-32 animate-pulse rounded bg-[var(--bg-raised)]" />
+            <div className="h-6 w-6 animate-pulse rounded bg-[var(--bg-raised)]" />
           </nav>
         </header>
         <main className="p-4">
           <div className="space-y-3">
-            <div className="h-10 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
-            <div className="h-10 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
-            <div className="h-10 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
+            <div className="h-10 animate-pulse rounded bg-[var(--bg-raised)]" />
+            <div className="h-10 animate-pulse rounded bg-[var(--bg-raised)]" />
+            <div className="h-10 animate-pulse rounded bg-[var(--bg-raised)]" />
           </div>
         </main>
       </div>
@@ -50,29 +51,42 @@ export default function AppLayout({
   }
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-zinc-200 p-4 dark:border-zinc-800">
+    <div className="min-h-screen bg-[var(--bg)]">
+      <header className="border-b border-[var(--border)] bg-[var(--bg-surface)]/85 backdrop-blur-sm p-4">
         <nav className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-[var(--color-primary)]" />
-            <span className="font-bold tracking-tight">todo-with-any-ai</span>
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--primary)]">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path
+                  d="M3 7.5L6 10.5L11 4"
+                  stroke="var(--bg)"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+            <span className="font-bold tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
+              Todo with Any AI
+            </span>
           </div>
           <div className="flex items-center gap-1">
+            <ThemeToggle />
             <Link
               href="/calendar"
-              className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              className="rounded-[var(--radius-md)] p-1.5 text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-raised)]"
             >
               <Calendar className="h-5 w-5" data-testid="calendar-icon" />
             </Link>
             <Link
               href="/activity"
-              className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              className="rounded-[var(--radius-md)] p-1.5 text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-raised)]"
             >
               <ClipboardList className="h-5 w-5" data-testid="activity-icon" />
             </Link>
             <Link
               href="/settings"
-              className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              className="rounded-[var(--radius-md)] p-1.5 text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-raised)]"
             >
               <Settings className="h-5 w-5" data-testid="settings-icon" />
             </Link>

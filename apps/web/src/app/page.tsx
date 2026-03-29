@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Sparkles, Github } from 'lucide-react'
+import { Github } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useSnackbarStore } from '@/stores/snackbar-store'
 
@@ -47,8 +47,6 @@ export default function LoginPage() {
       console.log('[Auth Debug] Starting GitHub login...')
       const result = await loginWithGithub()
       console.log('[Auth Debug] GitHub login result:', result ? 'success' : 'redirect')
-      // If popup succeeded, result is returned. Redirect will happen via useEffect.
-      // If redirect was used, this line won't execute (page reloads)
     } catch (e: unknown) {
       const err = e as { code?: string }
       const msg = getAuthErrorMessage(err.code)
@@ -78,20 +76,34 @@ export default function LoginPage() {
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center" data-testid="login-loading">
-        <div className="animate-pulse text-zinc-400">Loading...</div>
+      <main className="flex min-h-screen items-center justify-center bg-[var(--bg)]" data-testid="login-loading">
+        <div className="animate-pulse text-[var(--text-muted)]">Loading...</div>
       </main>
     )
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-8 px-4">
+    <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-[var(--bg)] px-4">
       <div className="flex flex-col items-center gap-4">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-8 w-8 text-[var(--color-primary)]" data-testid="logo-icon" />
-          <span className="text-2xl font-bold tracking-tight">todo-with-any-ai</span>
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--primary)]">
+            <svg width="20" height="20" viewBox="0 0 14 14" fill="none" data-testid="logo-icon">
+              <path
+                d="M3 7.5L6 10.5L11 4"
+                stroke="var(--bg)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+          <span className="text-2xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
+            todo-with-any-ai
+          </span>
         </div>
-        <p className="text-center text-zinc-500 dark:text-zinc-400">
+        {/* Accent line */}
+        <div className="h-0.5 w-16 bg-[var(--accent)]" />
+        <p className="text-center text-[var(--text-secondary)]">
           AIエージェントのためのTodoアプリ。<br />人間も使える。
         </p>
       </div>
@@ -100,7 +112,7 @@ export default function LoginPage() {
         <button
           onClick={handleGithubLogin}
           disabled={loggingIn}
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-zinc-900 text-white transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-zinc-800"
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-[var(--radius-md)] bg-[var(--primary)] text-[var(--bg)] font-medium transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           <Github className="h-5 w-5" />
           {loggingIn ? 'ログイン中...' : 'GitHubでログイン'}
@@ -109,7 +121,7 @@ export default function LoginPage() {
         <button
           onClick={handleGoogleLogin}
           disabled={loggingIn}
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-zinc-300 bg-white text-zinc-700 transition-opacity hover:opacity-90 disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-300"
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text)] font-medium transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
@@ -122,7 +134,7 @@ export default function LoginPage() {
       </div>
 
       {error && (
-        <div role="alert" className="text-sm text-red-500">
+        <div role="alert" className="text-sm text-[var(--error)]">
           {error}
         </div>
       )}
