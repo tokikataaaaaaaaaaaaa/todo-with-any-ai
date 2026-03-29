@@ -13,8 +13,9 @@ app.onError(errorHandler)
 // Health check
 app.get('/health', (c) => c.json({ status: 'ok' }))
 
-// Routes (placeholder)
+// Routes
 // app.route('/todos', todosRoute)
-// app.route('/keys', authRoute)
+import { authRoute } from './routes/auth'
+app.route('/keys', authRoute)
 
 export { app }
