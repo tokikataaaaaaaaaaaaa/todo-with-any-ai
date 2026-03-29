@@ -10,12 +10,18 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --color-primary: #6366F1;
+  --color-primary-hover: #4F46E5;
+  --color-primary-light: #EEF2FF;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --color-primary: #818CF8;
+    --color-primary-hover: #6366F1;
+    --color-primary-light: #1E1B4B;
   }
 }
 

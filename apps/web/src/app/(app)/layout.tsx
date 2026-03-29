@@ -1,16 +1,62 @@
+'use client'
+
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Sparkles, Settings } from 'lucide-react'
+import { useAuth } from '@/hooks/use-auth'
+
 export default function AppLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
+  const router = useRouter()
+  const { user, loading } = useAuth()
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/')
+    }
+  }, [user, loading, router])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen" data-testid="app-loading">
+        <header className="border-b border-zinc-200 p-4 dark:border-zinc-800">
+          <nav className="flex items-center justify-between">
+            <div className="h-6 w-32 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
+            <div className="h-6 w-6 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
+          </nav>
+        </header>
+        <main className="p-4">
+          <div className="space-y-3">
+            <div className="h-10 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
+            <div className="h-10 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
+            <div className="h-10 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return null
+  }
+
   return (
     <div className="min-h-screen">
-      <header className="border-b p-4">
-        <nav className="flex items-center gap-4">
-          <span className="font-bold">Todo with Any AI</span>
+      <header className="border-b border-zinc-200 p-4 dark:border-zinc-800">
+        <nav className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-[var(--color-primary)]" />
+            <span className="font-bold tracking-tight">todo-with-any-ai</span>
+          </div>
+          <button className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800">
+            <Settings className="h-5 w-5" data-testid="settings-icon" />
+          </button>
         </nav>
       </header>
       <main className="p-4">{children}</main>
     </div>
-  );
+  )
 }
