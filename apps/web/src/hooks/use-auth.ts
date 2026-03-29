@@ -1,32 +1,40 @@
 'use client'
 
-import { signInWithPopup, signInWithRedirect, signOut } from 'firebase/auth'
+import { signInWithPopup, signInWithRedirect, signOut, type AuthProvider } from 'firebase/auth'
 import { auth, githubProvider, googleProvider } from '@/lib/firebase'
 import { useAuthStore } from '@/stores/auth-store'
+
+async function signInWithProvider(provider: AuthProvider) {
+  if (!auth) throw new Error('Firebase is not configured')
+
+  // Try popup first, fallback to redirect if blocked
+  try {
+    const result = await signInWithPopup(auth, provider)
+    return result
+  } catch (error: unknown) {
+    const firebaseError = error as { code?: string }
+    // Popup blocked or unavailable - fallback to redirect
+    if (
+      firebaseError.code === 'auth/popup-blocked' ||
+      firebaseError.code === 'auth/popup-closed-by-user' ||
+      firebaseError.code === 'auth/cancelled-popup-request'
+    ) {
+      await signInWithRedirect(auth, provider)
+      return null
+    }
+    throw error
+  }
+}
 
 export function useAuth() {
   const { user, loading } = useAuthStore()
 
-  // Auth state is managed by AuthProvider - no duplicate listener here
-
-  const isMobile = typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-
   const loginWithGithub = async () => {
-    if (!auth) throw new Error('Firebase is not configured')
-    if (isMobile) {
-      await signInWithRedirect(auth, githubProvider)
-    } else {
-      await signInWithPopup(auth, githubProvider)
-    }
+    return signInWithProvider(githubProvider)
   }
 
   const loginWithGoogle = async () => {
-    if (!auth) throw new Error('Firebase is not configured')
-    if (isMobile) {
-      await signInWithRedirect(auth, googleProvider)
-    } else {
-      await signInWithPopup(auth, googleProvider)
-    }
+    return signInWithProvider(googleProvider)
   }
 
   const logout = async () => {

@@ -20,27 +20,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return
     }
 
-    // Process redirect result first (for signInWithRedirect on mobile)
-    // This must resolve before we trust onAuthStateChanged's initial null
-    let redirectHandled = false
-
-    getRedirectResult(auth)
-      .then((result) => {
-        redirectHandled = true
-        if (result?.user) {
-          setUser({
-            uid: result.user.uid,
-            displayName: result.user.displayName,
-            email: result.user.email,
-          })
-          addMessage('success', 'ログインしました')
-          setLoading(false)
-        }
-      })
-      .catch(() => {
-        redirectHandled = true
-      })
-
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser: User | null) => {
       if (firebaseUser) {
         setUser({
@@ -48,26 +27,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
           displayName: firebaseUser.displayName,
           email: firebaseUser.email,
         })
-        setLoading(false)
       } else {
-        // If redirect hasn't been handled yet, wait before setting null
-        // to avoid a flash of unauthenticated state
-        if (!redirectHandled) {
-          setTimeout(() => {
-            if (!useAuthStore.getState().user) {
-              setUser(null)
-              setLoading(false)
-            }
-          }, 1000)
-        } else {
-          setUser(null)
-          setLoading(false)
-        }
+        setUser(null)
       }
+      setLoading(false)
     })
 
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          addMessage('success', 'ログインしました')
+        }
+      })
+      .catch(() => {
+        // Redirect result errors are handled silently
+      })
+
     return () => unsubscribe()
-  }, [setUser, setLoading])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return <>{children}</>
 }
