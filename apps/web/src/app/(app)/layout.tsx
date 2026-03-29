@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import Link from 'next/link'
-import { Sparkles, Settings, ClipboardList } from 'lucide-react'
+import { Sparkles, Settings, ClipboardList, Calendar } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useAuthStore } from '@/stores/auth-store'
 
@@ -58,6 +58,12 @@ export default function AppLayout({
             <span className="font-bold tracking-tight">todo-with-any-ai</span>
           </div>
           <div className="flex items-center gap-1">
+            <Link
+              href="/calendar"
+              className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+            >
+              <Calendar className="h-5 w-5" data-testid="calendar-icon" />
+            </Link>
             <Link
               href="/activity"
               className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
