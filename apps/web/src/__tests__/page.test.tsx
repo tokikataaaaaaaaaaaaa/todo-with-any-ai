@@ -176,7 +176,7 @@ describe('LoginPage', () => {
   it('should have GitHub button with correct styling (dark background)', () => {
     render(<LoginPage />)
     const githubBtn = screen.getByRole('button', { name: /github/i })
-    expect(githubBtn.className).toMatch(/bg-zinc-900|bg-\[#24292f\]/)
+    expect(githubBtn.className).toMatch(/bg-zinc-900|bg-\[#24292f\]|bg-\[var\(--primary\)\]/)
   })
 
   it('should have Google button with border styling', () => {

@@ -1,9 +1,15 @@
 import { cn } from '@/lib/utils'
 
 const styles = {
-  high: 'bg-red-100 text-red-7000/20',
-  medium: 'bg-amber-100 text-amber-700/20',
-  low: 'bg-indigo-100 text-indigo-700/20',
+  high: 'bg-[var(--accent-light)] text-[var(--error)]',
+  medium: 'bg-[var(--success-light)] text-[var(--warning)]',
+  low: 'bg-[var(--bg-raised)] text-[var(--text-secondary)]',
+} as const
+
+const labels = {
+  high: '高',
+  medium: '中',
+  low: '低',
 } as const
 
 interface PriorityBadgeProps {
@@ -20,7 +26,7 @@ export function PriorityBadge({ priority }: PriorityBadgeProps) {
         styles[priority]
       )}
     >
-      {priority}
+      {labels[priority]}
     </span>
   )
 }

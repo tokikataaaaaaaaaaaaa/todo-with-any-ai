@@ -129,7 +129,7 @@ describe('ProjectsPage', () => {
     fireEvent.change(nameInput, { target: { value: 'New Project' } })
 
     // Select a color
-    const colorOption = screen.getByTestId('color-option-#E11D48')
+    const colorOption = screen.getByTestId('color-option-#C4453C')
     fireEvent.click(colorOption)
 
     // Select an emoji
@@ -142,7 +142,7 @@ describe('ProjectsPage', () => {
     await waitFor(() => {
       expect(mockCreateProject).toHaveBeenCalledWith({
         name: 'New Project',
-        color: '#E11D48',
+        color: '#C4453C',
         emoji: '🏠',
         dueDate: null,
       })

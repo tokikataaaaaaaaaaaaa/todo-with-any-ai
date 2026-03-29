@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import { useTodoStore } from '@/stores/todo-store'
+import { useAuth } from '@/hooks/use-auth'
 import { TodoDetailForm } from '@/components/todo/todo-detail-form'
 import type { Todo, UpdateTodo } from '@todo-with-any-ai/shared'
 
@@ -11,13 +12,16 @@ function TodoDetailContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const todoId = searchParams.get('id')
+  const { user, loading: authLoading } = useAuth()
   const storeTodos = useTodoStore((s) => s.todos)
   const fetchTodos = useTodoStore((s) => s.fetchTodos)
   const [todo, setTodo] = useState<Todo | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!todoId) {
+    if (!todoId || authLoading) return
+
+    if (!user) {
       setLoading(false)
       return
     }
@@ -30,10 +34,9 @@ function TodoDetailContent() {
       return
     }
 
-    // Store is empty (page reload) — fetch from API
+    // Store is empty (page reload) — fetch from API after auth is ready
     const loadTodo = async () => {
       try {
-        // Fetch all todos to populate store
         await fetchTodos()
         const updated = useTodoStore.getState().todos
         const found = updated.find((t) => t.id === todoId)
@@ -45,7 +48,7 @@ function TodoDetailContent() {
       }
     }
     loadTodo()
-  }, [todoId, storeTodos, fetchTodos])
+  }, [todoId, user, authLoading, storeTodos, fetchTodos])
 
   // Keep todo in sync with store changes
   useEffect(() => {
@@ -63,9 +66,7 @@ function TodoDetailContent() {
       const updated = { ...todo!, ...data, updatedAt: new Date().toISOString() }
       setTodo(updated)
       useTodoStore.setState((state) => ({
-        todos: state.todos.map((t) =>
-          t.id === todoId ? updated : t
-        ),
+        todos: state.todos.map((t) => t.id === todoId ? updated : t),
       }))
     } catch {
       // Error handling
@@ -86,7 +87,7 @@ function TodoDetailContent() {
     }
   }
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="flex items-center justify-center py-16">
         <div className="animate-pulse text-[var(--text-muted)]">読み込み中...</div>
