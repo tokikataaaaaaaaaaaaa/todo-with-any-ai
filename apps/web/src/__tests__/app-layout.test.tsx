@@ -111,4 +111,19 @@ describe('AppLayout (authenticated)', () => {
 
     expect(screen.getByTestId('settings-icon')).toBeInTheDocument()
   })
+
+  it('should render activity log icon in header', () => {
+    mockUseAuth.mockReturnValue({
+      user: { uid: '123', displayName: 'Test', email: 'test@test.com' },
+      loading: false,
+    })
+
+    render(
+      <AppLayout>
+        <div>Content</div>
+      </AppLayout>
+    )
+
+    expect(screen.getByTestId('activity-icon')).toBeInTheDocument()
+  })
 })
