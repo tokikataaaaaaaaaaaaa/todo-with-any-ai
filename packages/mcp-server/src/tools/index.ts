@@ -7,6 +7,10 @@ import { todosUpdate } from "./todos-update.js";
 import { todosDelete } from "./todos-delete.js";
 import { todosToggleComplete } from "./todos-toggle-complete.js";
 import { todosTree } from "./todos-tree.js";
+import { projectsList } from "./projects-list.js";
+import { projectsCreate } from "./projects-create.js";
+import { projectsUpdate } from "./projects-update.js";
+import { projectsDelete } from "./projects-delete.js";
 import type { ToolResponse } from "./types.js";
 
 /**
@@ -31,6 +35,14 @@ export async function handleToolCall(
         return await todosToggleComplete(client, args);
       case "todos_tree":
         return await todosTree(client);
+      case "projects_list":
+        return await projectsList(client);
+      case "projects_create":
+        return await projectsCreate(client, args);
+      case "projects_update":
+        return await projectsUpdate(client, args);
+      case "projects_delete":
+        return await projectsDelete(client, args);
       default:
         return {
           isError: true,
@@ -56,6 +68,8 @@ export function registerTools(server: McpServer, client: ApiClient): void {
     {
       completed: z.boolean().optional().describe("完了状態でフィルタ"),
       parentId: z.string().optional().describe("親TodoのIDでフィルタ。'null'でルートのみ"),
+      dueBefore: z.string().optional().describe("指定日以前の締切でフィルタ（YYYY-MM-DD形式）"),
+      sort: z.enum(["order", "dueDate"]).optional().describe("ソート順。'dueDate'で締切日昇順（null末尾）"),
     },
     async (args) => handleToolCall(client, "todos_list", args)
   );
@@ -115,5 +129,48 @@ export function registerTools(server: McpServer, client: ApiClient): void {
     "Todoをツリー構造で取得します。",
     {},
     async () => handleToolCall(client, "todos_tree", {})
+  );
+
+  // Project tools
+  server.tool(
+    "projects_list",
+    "プロジェクト一覧を取得します。",
+    {},
+    async () => handleToolCall(client, "projects_list", {})
+  );
+
+  server.tool(
+    "projects_create",
+    "新しいプロジェクトを作成します。",
+    {
+      name: z.string().describe("プロジェクト名（必須、50文字以内）"),
+      color: z.string().optional().describe("カラーコード（#RRGGBB形式）"),
+      emoji: z.string().optional().describe("絵文字（2文字以内）"),
+      dueDate: z.string().optional().describe("締切日（YYYY-MM-DD形式）"),
+    },
+    async (args) => handleToolCall(client, "projects_create", args)
+  );
+
+  server.tool(
+    "projects_update",
+    "既存のプロジェクトを更新します。",
+    {
+      id: z.string().describe("更新するプロジェクトのID（必須）"),
+      name: z.string().optional().describe("プロジェクト名"),
+      color: z.string().optional().describe("カラーコード（#RRGGBB形式）"),
+      emoji: z.string().optional().describe("絵文字"),
+      dueDate: z.string().optional().describe("締切日（YYYY-MM-DD形式）"),
+    },
+    async (args) => handleToolCall(client, "projects_update", args)
+  );
+
+  server.tool(
+    "projects_delete",
+    "プロジェクトを削除します。",
+    {
+      id: z.string().describe("削除するプロジェクトのID（必須）"),
+      deleteTodos: z.boolean().optional().describe("関連するTodoも削除するか（デフォルト: false）"),
+    },
+    async (args) => handleToolCall(client, "projects_delete", args)
   );
 }

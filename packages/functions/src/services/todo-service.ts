@@ -16,8 +16,13 @@ export class TodoService {
 
   async listTodos(
     userId: string,
-    filters?: { completed?: boolean; parentId?: string | null }
-  ): Promise<Todo[]> {
+    filters?: {
+      completed?: boolean
+      parentId?: string | null
+      sort?: 'order' | 'dueDate'
+      dueBefore?: string
+    }
+  ): Promise<(Todo & { childrenCount: number; completedChildrenCount: number })[]> {
     let query: FirebaseFirestore.Query = this.todosCollection(userId)
 
     if (filters) {
@@ -32,10 +37,53 @@ export class TodoService {
     query = query.orderBy('order', 'asc')
     const snapshot = await query.get()
 
-    return snapshot.docs.map((doc) => ({
+    let todos = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     })) as Todo[]
+
+    // Client-side filter: dueBefore
+    if (filters?.dueBefore) {
+      const cutoff = filters.dueBefore
+      todos = todos.filter((t) => t.dueDate !== null && t.dueDate <= cutoff)
+    }
+
+    // Client-side sort: dueDate ascending, null at end
+    if (filters?.sort === 'dueDate') {
+      todos.sort((a, b) => {
+        if (a.dueDate === null && b.dueDate === null) return 0
+        if (a.dueDate === null) return 1
+        if (b.dueDate === null) return -1
+        return a.dueDate < b.dueDate ? -1 : a.dueDate > b.dueDate ? 1 : 0
+      })
+    }
+
+    // Compute childrenCount and completedChildrenCount
+    const childrenCountMap = new Map<string, number>()
+    const completedChildrenCountMap = new Map<string, number>()
+    for (const todo of todos) {
+      if (todo.parentId) {
+        childrenCountMap.set(todo.parentId, (childrenCountMap.get(todo.parentId) ?? 0) + 1)
+        if (todo.completed) {
+          completedChildrenCountMap.set(
+            todo.parentId,
+            (completedChildrenCountMap.get(todo.parentId) ?? 0) + 1
+          )
+        }
+      }
+    }
+
+    return todos.map((todo) => ({
+      ...todo,
+      childrenCount: childrenCountMap.get(todo.id) ?? 0,
+      completedChildrenCount: completedChildrenCountMap.get(todo.id) ?? 0,
+    }))
+  }
+
+  async getChildrenCount(userId: string, todoId: string): Promise<number> {
+    const query = this.todosCollection(userId).where('parentId', '==', todoId)
+    const snapshot = await query.get()
+    return snapshot.size
   }
 
   async getTodoTree(userId: string): Promise<TodoTreeNode[]> {
@@ -105,7 +153,9 @@ export class TodoService {
       parentId: parsed.parentId ?? null,
       order,
       depth,
+      projectId: parsed.projectId ?? null,
       priority: parsed.priority ?? null,
+      urgencyLevelId: parsed.urgencyLevelId ?? null,
       categoryIcon: parsed.categoryIcon ?? null,
       createdAt: now,
       updatedAt: now,

@@ -1,5 +1,5 @@
 import { Config } from "./config.js";
-import type { Todo, TodoTreeNode } from "./types.js";
+import type { Todo, TodoTreeNode, Project } from "./types.js";
 
 export class ApiError extends Error {
   constructor(
@@ -51,13 +51,24 @@ export class ApiClient {
     return response.json() as Promise<T>;
   }
 
-  async listTodos(filters?: { completed?: boolean; parentId?: string | null }): Promise<Todo[]> {
+  async listTodos(filters?: {
+    completed?: boolean;
+    parentId?: string | null;
+    sort?: 'order' | 'dueDate';
+    dueBefore?: string;
+  }): Promise<Todo[]> {
     const params = new URLSearchParams();
     if (filters?.completed !== undefined) {
       params.set("completed", String(filters.completed));
     }
     if (filters?.parentId !== undefined) {
       params.set("parentId", String(filters.parentId));
+    }
+    if (filters?.sort !== undefined) {
+      params.set("sort", filters.sort);
+    }
+    if (filters?.dueBefore !== undefined) {
+      params.set("dueBefore", filters.dueBefore);
     }
     const query = params.toString();
     const path = query ? `/todos?${query}` : "/todos";
@@ -101,6 +112,43 @@ export class ApiClient {
   async toggleComplete(id: string): Promise<Todo> {
     return this.request<Todo>(`/todos/${id}/toggle`, {
       method: "POST",
+    });
+  }
+
+  // Project methods
+
+  async listProjects(): Promise<Project[]> {
+    return this.request<Project[]>("/projects");
+  }
+
+  async createProject(data: {
+    name: string;
+    color?: string;
+    emoji?: string;
+    dueDate?: string;
+  }): Promise<Project> {
+    return this.request<Project>("/projects", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateProject(id: string, data: Record<string, unknown>): Promise<Project> {
+    return this.request<Project>(`/projects/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteProject(id: string, deleteTodos?: boolean): Promise<{ message: string }> {
+    const params = new URLSearchParams();
+    if (deleteTodos !== undefined) {
+      params.set("deleteTodos", String(deleteTodos));
+    }
+    const query = params.toString();
+    const path = query ? `/projects/${id}?${query}` : `/projects/${id}`;
+    return this.request<{ message: string }>(path, {
+      method: "DELETE",
     });
   }
 }

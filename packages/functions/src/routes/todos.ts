@@ -31,14 +31,27 @@ todosRoute.get('/', async (c) => {
 
   const completedParam = c.req.query('completed')
   const parentIdParam = c.req.query('parentId')
+  const sortParam = c.req.query('sort')
+  const dueBeforeParam = c.req.query('dueBefore')
 
-  const filters: { completed?: boolean; parentId?: string | null } = {}
+  const filters: {
+    completed?: boolean
+    parentId?: string | null
+    sort?: 'order' | 'dueDate'
+    dueBefore?: string
+  } = {}
 
   if (completedParam !== undefined) {
     filters.completed = completedParam === 'true'
   }
   if (parentIdParam !== undefined) {
     filters.parentId = parentIdParam === 'null' ? null : parentIdParam
+  }
+  if (sortParam === 'dueDate' || sortParam === 'order') {
+    filters.sort = sortParam
+  }
+  if (dueBeforeParam !== undefined) {
+    filters.dueBefore = dueBeforeParam
   }
 
   const todos = await service.listTodos(userId, Object.keys(filters).length > 0 ? filters : undefined)
@@ -52,6 +65,16 @@ todosRoute.get('/tree', async (c) => {
 
   const tree = await service.getTodoTree(userId)
   return c.json(tree)
+})
+
+// GET /api/todos/:id/children-count - Get children count for delete confirmation
+todosRoute.get('/:id/children-count', async (c) => {
+  const userId = c.get('userId') as string
+  const service = getTodoService()
+  const todoId = c.req.param('id')
+
+  const count = await service.getChildrenCount(userId, todoId)
+  return c.json({ count })
 })
 
 // GET /api/todos/:id - Get single todo
