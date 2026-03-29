@@ -3,8 +3,15 @@ import { cors } from 'hono/cors'
 import { errorHandler } from './middleware/error-handler'
 import { authMiddleware } from './middleware/firebase-auth'
 import { rateLimiter } from './middleware/rate-limiter'
-import { todosRoute } from './routes/todos'
-import { authRoute } from './routes/auth'
+import { todosRoute, setTodoService } from './routes/todos'
+import { authRoute, setApiKeyService } from './routes/auth'
+import { TodoService } from './services/todo-service'
+import { ApiKeyService } from './services/api-key-service'
+import { db } from './lib/firebase'
+
+// Initialize service instances with Firestore
+setTodoService(new TodoService(db))
+setApiKeyService(new ApiKeyService(db))
 
 const app = new Hono().basePath('/api')
 
