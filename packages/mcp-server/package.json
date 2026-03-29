@@ -1,12 +1,20 @@
 {
-  "name": "@todo-with-any-ai/mcp-server",
-  "version": "0.0.0",
+  "name": "todo-with-any-ai-mcp",
+  "version": "0.1.0",
   "private": true,
+  "main": "dist/index.js",
+  "bin": {
+    "todo-with-any-ai-mcp": "./dist/index.js"
+  },
+  "type": "module",
   "scripts": {
-    "build": "echo 'mcp-server: placeholder build'",
-    "dev": "echo 'mcp-server: placeholder dev'",
-    "lint": "echo 'mcp-server: placeholder lint'",
-    "test": "echo 'mcp-server: placeholder test'"
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "lint": "echo 'mcp-server: placeholder lint'"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.28.0"
