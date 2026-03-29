@@ -16,7 +16,9 @@ export const todoSchema = z.object({
     .min(0)
     .max(10, "ネスト深度は最大10階層までです")
     .default(0),
+  projectId: z.string().nullable().default(null),
   priority: z.enum(["high", "medium", "low"]).nullable().default(null),
+  urgencyLevelId: z.string().nullable().default(null),
   categoryIcon: z
     .enum(["work", "personal", "shopping", "health", "study", "idea"])
     .nullable()
