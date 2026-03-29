@@ -1,37 +1,39 @@
 'use client'
 
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 import { useTodoStore } from '@/stores/todo-store'
 import { TodoDetailForm } from '@/components/todo/todo-detail-form'
 import type { UpdateTodo } from '@todo-with-any-ai/shared'
 
-export default function TodoDetailPage() {
+function TodoDetailContent() {
   const router = useRouter()
-  const params = useParams()
-  const todoId = params.id as string
+  const searchParams = useSearchParams()
+  const todoId = searchParams.get('id')
   const { todos } = useTodoStore()
 
-  const todo = todos.find((t) => t.id === todoId)
+  const todo = todoId ? todos.find((t) => t.id === todoId) : null
 
   const handleSave = async (data: UpdateTodo) => {
+    if (!todoId) return
     try {
-      const { apiClient: todoClient } = await import('@/lib/api-client')
-      await todoClient.updateTodo(todoId, data)
-      // Optimistic update in store
+      const { apiClient } = await import('@/lib/api-client')
+      await apiClient.updateTodo(todoId, data)
       useTodoStore.setState((state) => ({
         todos: state.todos.map((t) =>
           t.id === todoId ? { ...t, ...data, updatedAt: new Date().toISOString() } : t
         ),
       }))
     } catch {
-      // Error handling - could add toast notification
+      // Error handling
     }
   }
 
   const handleDelete = async () => {
+    if (!todoId) return
     try {
-      const { apiClient: todoClient } = await import('@/lib/api-client')
-      await todoClient.deleteTodo(todoId)
+      const { apiClient } = await import('@/lib/api-client')
+      await apiClient.deleteTodo(todoId)
       useTodoStore.setState((state) => ({
         todos: state.todos.filter((t) => t.id !== todoId),
       }))
@@ -81,5 +83,13 @@ export default function TodoDetailPage() {
         onDelete={handleDelete}
       />
     </div>
+  )
+}
+
+export default function TodoDetailPage() {
+  return (
+    <Suspense fallback={<div className="py-16 text-center text-zinc-500">読み込み中...</div>}>
+      <TodoDetailContent />
+    </Suspense>
   )
 }

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import TodoDetailPage from '@/app/(app)/todos/[id]/page'
+import TodoDetailPage from '@/app/(app)/todos/detail/page'
 import { useTodoStore } from '@/stores/todo-store'
 import type { Todo } from '@todo-with-any-ai/shared'
 
@@ -12,7 +12,9 @@ vi.mock('next/navigation', () => ({
     push: mockPush,
     back: mockBack,
   }),
-  useParams: () => ({ id: 'todo-1' }),
+  useSearchParams: () => ({
+    get: (key: string) => key === 'id' ? 'todo-1' : null,
+  }),
 }))
 
 // Mock firebase
