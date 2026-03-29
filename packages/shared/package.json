@@ -4,11 +4,17 @@
   "private": true,
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "scripts": {
-    "build": "echo 'shared: placeholder build'",
-    "dev": "echo 'shared: placeholder dev'",
+    "build": "tsc",
+    "dev": "tsc --watch",
     "lint": "echo 'shared: placeholder lint'",
-    "test": "echo 'shared: placeholder test'"
+    "test": "vitest run"
   },
   "dependencies": {
     "zod": "^4.3.6"
