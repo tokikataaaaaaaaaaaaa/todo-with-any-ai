@@ -13,6 +13,7 @@ interface TodoState {
   updateTodo: (id: string, data: UpdateTodo) => Promise<void>
   deleteTodo: (id: string) => Promise<void>
   toggleComplete: (id: string) => Promise<void>
+  moveTodo: (todoId: string, targetId: string, position: 'child' | 'before' | 'after') => Promise<void>
   toggleExpand: (id: string) => void
   reset: () => void
 }
@@ -106,6 +107,59 @@ export const useTodoStore = create<TodoState>((set, get) => ({
       const serverTodo = await apiClient.toggleComplete(id)
       set({
         todos: get().todos.map((t) => (t.id === id ? serverTodo : t)),
+      })
+    } catch (e) {
+      set({ todos: prevTodos, error: (e as Error).message })
+      useSnackbarStore.getState().addMessage('error', '操作に失敗しました')
+    }
+  },
+
+  moveTodo: async (todoId: string, targetId: string, position: 'child' | 'before' | 'after') => {
+    const prevTodos = get().todos
+    const movedTodo = prevTodos.find((t) => t.id === todoId)
+    const targetTodo = prevTodos.find((t) => t.id === targetId)
+    if (!movedTodo || !targetTodo) return
+
+    let updateData: UpdateTodo
+
+    if (position === 'child') {
+      // Make movedTodo a child of targetTodo
+      const existingChildren = prevTodos.filter((t) => t.parentId === targetId)
+      updateData = {
+        parentId: targetId,
+        depth: targetTodo.depth + 1,
+        order: existingChildren.length,
+      }
+    } else {
+      // before or after: reorder within the same parent
+      const newParentId = targetTodo.parentId
+      const siblings = prevTodos
+        .filter((t) => t.parentId === newParentId && t.id !== todoId)
+        .sort((a, b) => a.order - b.order)
+
+      const targetIndex = siblings.findIndex((t) => t.id === targetId)
+      const insertIndex = position === 'before' ? targetIndex : targetIndex + 1
+      const newOrder = insertIndex
+
+      updateData = {
+        parentId: newParentId,
+        depth: targetTodo.depth,
+        order: newOrder,
+      }
+    }
+
+    // Optimistic update
+    set({
+      todos: prevTodos.map((t) =>
+        t.id === todoId ? { ...t, ...updateData } : t
+      ),
+      error: null,
+    })
+
+    try {
+      const serverTodo = await apiClient.updateTodo(todoId, updateData)
+      set({
+        todos: get().todos.map((t) => (t.id === todoId ? serverTodo : t)),
       })
     } catch (e) {
       set({ todos: prevTodos, error: (e as Error).message })
