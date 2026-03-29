@@ -78,14 +78,18 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
         />
 
         {/* Title */}
-        <span
+        <button
+          data-testid={`todo-title-${todo.id}`}
+          onClick={() => {
+            window.location.href = `/todos/detail?id=${todo.id}`
+          }}
           className={cn(
-            'flex-1 truncate text-sm',
+            'flex-1 cursor-pointer truncate text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded px-1 -mx-1',
             todo.completed && 'line-through opacity-50'
           )}
         >
           {todo.title}
-        </span>
+        </button>
 
         {/* Priority badge */}
         <PriorityBadge priority={todo.priority} />
