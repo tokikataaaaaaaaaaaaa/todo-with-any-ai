@@ -1,4 +1,4 @@
-import type { Todo, TodoTreeNode, CreateTodo, UpdateTodo } from '@todo-with-any-ai/shared'
+import type { Todo, TodoTreeNode, CreateTodo, UpdateTodo, Project, CreateProject, UpdateProject, UrgencyLevel, CreateUrgencyLevel, UpdateUrgencyLevel } from '@todo-with-any-ai/shared'
 import { auth } from './firebase'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api'
@@ -32,7 +32,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 }
 
 export const apiClient = {
-  async listTodos(filters?: { completed?: boolean; parentId?: string | null }): Promise<Todo[]> {
+  async listTodos(filters?: { completed?: boolean; parentId?: string | null; sort?: string }): Promise<Todo[]> {
     const params = new URLSearchParams()
     if (filters) {
       if (filters.completed !== undefined) {
@@ -40,6 +40,9 @@ export const apiClient = {
       }
       if (filters.parentId !== undefined) {
         params.set('parentId', String(filters.parentId))
+      }
+      if (filters.sort !== undefined) {
+        params.set('sort', filters.sort)
       }
     }
     const query = params.toString()
@@ -74,5 +77,50 @@ export const apiClient = {
 
   async toggleComplete(id: string): Promise<Todo> {
     return request<Todo>(`/todos/${id}/toggle`, { method: 'POST' })
+  },
+
+  async listProjects(): Promise<Project[]> {
+    return request<Project[]>('/projects', { method: 'GET' })
+  },
+
+  async createProject(data: CreateProject): Promise<Project> {
+    return request<Project>('/projects', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  },
+
+  async updateProject(id: string, data: UpdateProject): Promise<Project> {
+    return request<Project>(`/projects/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
+  },
+
+  async deleteProject(id: string, deleteTodos?: boolean): Promise<void> {
+    const query = deleteTodos ? '?deleteTodos=true' : ''
+    return request<void>(`/projects/${id}${query}`, { method: 'DELETE' })
+  },
+
+  async listUrgencyLevels(): Promise<UrgencyLevel[]> {
+    return request<UrgencyLevel[]>('/urgency-levels', { method: 'GET' })
+  },
+
+  async createUrgencyLevel(data: CreateUrgencyLevel): Promise<UrgencyLevel> {
+    return request<UrgencyLevel>('/urgency-levels', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  },
+
+  async updateUrgencyLevel(id: string, data: UpdateUrgencyLevel): Promise<UrgencyLevel> {
+    return request<UrgencyLevel>(`/urgency-levels/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
+  },
+
+  async deleteUrgencyLevel(id: string): Promise<void> {
+    return request<void>(`/urgency-levels/${id}`, { method: 'DELETE' })
   },
 }

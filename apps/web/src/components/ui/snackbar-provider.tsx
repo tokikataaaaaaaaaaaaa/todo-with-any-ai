@@ -31,15 +31,29 @@ function SnackbarItem({ message }: { message: SnackbarMessage }) {
       className={`${typeStyles[message.type]} flex items-center justify-between gap-3 rounded-lg px-4 py-3 shadow-lg animate-in slide-in-from-bottom fade-in duration-200`}
     >
       <span className="text-sm font-medium">{message.message}</span>
-      <button
-        onClick={() => removeMessage(message.id)}
-        aria-label="閉じる"
-        className="shrink-0 rounded p-0.5 text-white/80 hover:text-white transition-colors"
-      >
-        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M18 6L6 18M6 6l12 12" />
-        </svg>
-      </button>
+      <div className="flex items-center gap-2">
+        {message.action && (
+          <button
+            onClick={() => {
+              message.action?.onClick()
+              removeMessage(message.id)
+            }}
+            data-testid="snackbar-action"
+            className="shrink-0 rounded px-2 py-0.5 text-sm font-semibold text-white underline underline-offset-2 hover:text-white/90 transition-colors"
+          >
+            {message.action.label}
+          </button>
+        )}
+        <button
+          onClick={() => removeMessage(message.id)}
+          aria-label="閉じる"
+          className="shrink-0 rounded p-0.5 text-white/80 hover:text-white transition-colors"
+        >
+          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
     </div>
   )
 }
