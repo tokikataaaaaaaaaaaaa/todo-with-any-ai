@@ -6,7 +6,8 @@ import { useTodoStore } from '@/stores/todo-store'
 import { useProjectStore } from '@/stores/project-store'
 import { PriorityBadge } from './priority-badge'
 import { CategoryIcon } from './category-icon'
-import { ChevronDown, ChevronRight, Plus } from 'lucide-react'
+import { ChevronDown, ChevronRight, Plus, Trash2 } from 'lucide-react'
+import { DeleteTodoDialog } from './delete-todo-dialog'
 import type { Todo } from '@todo-with-any-ai/shared'
 
 interface TodoNodeProps {
@@ -35,10 +36,12 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
   const toggleComplete = useTodoStore((s) => s.toggleComplete)
   const toggleExpand = useTodoStore((s) => s.toggleExpand)
   const createTodo = useTodoStore((s) => s.createTodo)
+  const deleteTodo = useTodoStore((s) => s.deleteTodo)
   const expandedIds = useTodoStore((s) => s.expandedIds)
   const projects = useProjectStore((s) => s.projects)
   const [showChildForm, setShowChildForm] = useState(false)
   const [childTitle, setChildTitle] = useState('')
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   const project = todo.projectId
     ? projects.find((p) => p.id === todo.projectId) ?? null
@@ -76,7 +79,7 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
     <div>
       <div
         data-testid="todo-row"
-        className="flex h-12 items-center gap-2 border-b border-gray-100 dark:border-gray-800"
+        className="group flex h-12 items-center gap-2 border-b border-gray-100 dark:border-gray-800"
         style={
           project
             ? { paddingLeft: `${depth * 24}px`, borderLeft: `3px solid ${project.color}` }
@@ -168,7 +171,29 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
             {dueDateInfo.label}
           </span>
         )}
+
+        {/* Delete button (visible on hover) */}
+        <button
+          data-testid={`delete-todo-${todo.id}`}
+          onClick={() => setShowDeleteDialog(true)}
+          className="flex h-6 w-6 items-center justify-center rounded text-gray-400 opacity-0 transition-opacity hover:bg-red-50 hover:text-red-600 group-hover:opacity-100 dark:hover:bg-red-950 dark:hover:text-red-400 sm:opacity-0"
+          aria-label={`Delete "${todo.title}"`}
+        >
+          <Trash2 className="h-3 w-3" />
+        </button>
       </div>
+
+      {/* Delete confirmation dialog */}
+      <DeleteTodoDialog
+        open={showDeleteDialog}
+        todoTitle={todo.title}
+        childCount={children.length}
+        onConfirm={async () => {
+          await deleteTodo(todo.id)
+          setShowDeleteDialog(false)
+        }}
+        onCancel={() => setShowDeleteDialog(false)}
+      />
 
       {/* Inline child creation form */}
       {showChildForm && (

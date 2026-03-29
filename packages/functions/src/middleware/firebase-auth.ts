@@ -49,7 +49,8 @@ export const authMiddleware = createMiddleware<Env>(async (c, next) => {
 
       const userId = snapshot.docs[0].data().userId
       c.set('userId', userId)
-    } catch {
+    } catch (err) {
+      console.error('API key verification error:', err)
       return c.json({ error: 'Unauthorized' }, 401)
     }
   }
