@@ -1,20 +1,19 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Sparkles, Github } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 
 export default function LoginPage() {
-  const router = useRouter()
   const { user, loading, loginWithGithub, loginWithGoogle } = useAuth()
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!loading && user) {
-      router.push('/todos')
+      // Use window.location for reliable navigation in static export
+      window.location.href = '/todos'
     }
-  }, [user, loading, router])
+  }, [user, loading])
 
   const handleGithubLogin = async () => {
     setError(null)

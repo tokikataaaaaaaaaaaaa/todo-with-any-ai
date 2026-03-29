@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { Sparkles, Settings } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useAuthStore } from '@/stores/auth-store'
@@ -11,7 +10,6 @@ export default function AppLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const router = useRouter()
   const { user, loading } = useAuth()
 
   useEffect(() => {
@@ -19,12 +17,12 @@ export default function AppLayout({
       // Delay redirect to allow getRedirectResult to complete
       const timeout = setTimeout(() => {
         if (!useAuthStore.getState().user) {
-          router.push('/')
+          window.location.href = '/'
         }
       }, 1500)
       return () => clearTimeout(timeout)
     }
-  }, [user, loading, router])
+  }, [user, loading])
 
   if (loading) {
     return (
