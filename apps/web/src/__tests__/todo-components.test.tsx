@@ -7,6 +7,14 @@ import { CategoryIcon } from '@/components/todo/category-icon'
 import { EmptyState } from '@/components/todo/empty-state'
 import type { Todo } from '@todo-with-any-ai/shared'
 
+// Mock next/navigation
+const mockPush = vi.fn()
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: mockPush,
+  }),
+}))
+
 // Mock the todo store
 const mockToggleComplete = vi.fn()
 const mockToggleExpand = vi.fn()
@@ -18,7 +26,16 @@ vi.mock('@/stores/todo-store', () => ({
       expandedIds: mockExpandedIds,
       toggleComplete: mockToggleComplete,
       toggleExpand: mockToggleExpand,
+      createTodo: vi.fn(),
+      deleteTodo: vi.fn(),
     }
+    return typeof selector === 'function' ? selector(state) : state
+  }),
+}))
+
+vi.mock('@/stores/project-store', () => ({
+  useProjectStore: vi.fn((selector) => {
+    const state = { projects: [] }
     return typeof selector === 'function' ? selector(state) : state
   }),
 }))
@@ -99,15 +116,16 @@ describe('TodoNode', () => {
     const todo = makeTodo({ title: 'Deep Todo' })
     const { container } = render(<TodoNode todo={todo} todos={[todo]} depth={2} />)
     const row = container.querySelector('[data-testid="todo-row"]')
-    expect(row).toHaveStyle({ paddingLeft: '48px' })
+    // depth * 24 + 16 base padding = 2 * 24 + 16 = 64
+    expect(row).toHaveStyle({ paddingLeft: '64px' })
   })
 
-  it('should show line-through and reduced opacity for completed todos', () => {
+  it('should show line-through and secondary color for completed todos', () => {
     const todo = makeTodo({ completed: true, title: 'Done Task' })
     render(<TodoNode todo={todo} todos={[todo]} depth={0} />)
     const titleEl = screen.getByText('Done Task')
     expect(titleEl.className).toMatch(/line-through/)
-    expect(titleEl.className).toMatch(/opacity-50/)
+    expect(titleEl.className).toMatch(/text-secondary/)
   })
 
   it('should show toggle arrow when todo has children', () => {
@@ -179,25 +197,19 @@ describe('TodoNode', () => {
 })
 
 describe('PriorityBadge', () => {
-  it('should render high priority with red styling', () => {
-    const { container } = render(<PriorityBadge priority="high" />)
-    const badge = container.firstChild as HTMLElement
-    expect(badge.textContent).toMatch(/high/i)
-    expect(badge.className).toMatch(/red/)
+  it('should render high priority label', () => {
+    render(<PriorityBadge priority="high" />)
+    expect(screen.getByText('High')).toBeInTheDocument()
   })
 
-  it('should render medium priority with amber styling', () => {
-    const { container } = render(<PriorityBadge priority="medium" />)
-    const badge = container.firstChild as HTMLElement
-    expect(badge.textContent).toMatch(/medium/i)
-    expect(badge.className).toMatch(/amber/)
+  it('should render medium priority label', () => {
+    render(<PriorityBadge priority="medium" />)
+    expect(screen.getByText('Med')).toBeInTheDocument()
   })
 
-  it('should render low priority with indigo styling', () => {
-    const { container } = render(<PriorityBadge priority="low" />)
-    const badge = container.firstChild as HTMLElement
-    expect(badge.textContent).toMatch(/low/i)
-    expect(badge.className).toMatch(/indigo/)
+  it('should render low priority label', () => {
+    render(<PriorityBadge priority="low" />)
+    expect(screen.getByText('Low')).toBeInTheDocument()
   })
 
   it('should return null for null priority', () => {
@@ -246,11 +258,11 @@ describe('CategoryIcon', () => {
 describe('EmptyState', () => {
   it('should render empty state message', () => {
     render(<EmptyState />)
-    expect(screen.getByText(/no todos/i)).toBeInTheDocument()
+    expect(screen.getByText(/Todoはまだありません/)).toBeInTheDocument()
   })
 
   it('should suggest creating a new todo', () => {
     render(<EmptyState />)
-    expect(screen.getByText(/create|add|start/i)).toBeInTheDocument()
+    expect(screen.getByText(/作成しましょう/)).toBeInTheDocument()
   })
 })

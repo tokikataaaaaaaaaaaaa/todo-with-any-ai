@@ -18,7 +18,7 @@ describe('ChildrenProgress', () => {
   it('should render green badge when all children are completed', () => {
     render(<ChildrenProgress completedCount={3} totalCount={3} />)
     const badge = screen.getByText('3/3')
-    expect(badge.className).toMatch(/green/)
+    expect(badge.className).toMatch(/success/)
   })
 
   it('should render default badge when not all children are completed', () => {
@@ -31,7 +31,7 @@ describe('ChildrenProgress', () => {
   it('should render badge for single child completed', () => {
     render(<ChildrenProgress completedCount={1} totalCount={1} />)
     const badge = screen.getByText('1/1')
-    expect(badge.className).toMatch(/green/)
+    expect(badge.className).toMatch(/success/)
   })
 
   it('should render badge when no children are completed', () => {

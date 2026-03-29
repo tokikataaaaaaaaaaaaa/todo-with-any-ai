@@ -166,7 +166,7 @@ describe('ActivityPage', () => {
       }),
     ]
     await renderPage()
-    expect(screen.getByText('high')).toBeInTheDocument()
+    expect(screen.getByText('High')).toBeInTheDocument()
   })
 
   it('should display check mark icon for completed items', async () => {

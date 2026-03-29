@@ -3,6 +3,13 @@ import { render, screen } from '@testing-library/react'
 import type { Todo, Project } from '@todo-with-any-ai/shared'
 import { useFilterStore } from '@/stores/filter-store'
 
+// Mock next/navigation
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+  }),
+}))
+
 // Mock stores
 const mockFetchTodos = vi.fn()
 const mockToggleComplete = vi.fn()

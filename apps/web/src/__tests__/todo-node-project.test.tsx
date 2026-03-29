@@ -10,6 +10,12 @@ const mockExpandedIds = new Set<string>()
 
 let mockProjects: Project[] = []
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+  }),
+}))
+
 vi.mock('@/stores/todo-store', () => ({
   useTodoStore: vi.fn((selector) => {
     const state = {
@@ -17,6 +23,7 @@ vi.mock('@/stores/todo-store', () => ({
       toggleComplete: mockToggleComplete,
       toggleExpand: mockToggleExpand,
       createTodo: mockCreateTodo,
+      deleteTodo: vi.fn(),
     }
     return typeof selector === 'function' ? selector(state) : state
   }),
@@ -31,7 +38,7 @@ vi.mock('@/stores/project-store', () => ({
   }),
 }))
 
-import { TodoNode } from '@/components/todo/todo-node'
+import { ProjectSection } from '@/components/todo/project-section'
 
 const makeTodo = (overrides: Partial<Todo> = {}): Todo => ({
   id: 'todo-1',
@@ -54,7 +61,7 @@ const makeProject = (overrides: Partial<Project> = {}): Project => ({
   id: 'proj-1',
   name: 'Work',
   color: '#6366F1',
-  emoji: '💼',
+  emoji: '\u{1F4BC}',
   order: 0,
   dueDate: null,
   createdAt: '2026-01-01T00:00:00Z',
@@ -62,46 +69,121 @@ const makeProject = (overrides: Partial<Project> = {}): Project => ({
   ...overrides,
 })
 
-describe('TodoNode - project badge', () => {
+describe('ProjectSection - project card display', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockExpandedIds.clear()
     mockProjects = []
   })
 
-  it('should show project emoji when todo has a projectId', () => {
-    mockProjects = [makeProject({ id: 'p1', emoji: '💼', color: '#6366F1' })]
-    const todo = makeTodo({ projectId: 'p1' })
-    render(<TodoNode todo={todo} todos={[todo]} depth={0} />)
-    expect(screen.getByTestId('project-badge')).toHaveTextContent('💼')
+  it('should show project name in header', () => {
+    const project = makeProject({ id: 'p1', name: 'Work' })
+    const todos = [makeTodo({ id: 't1', projectId: 'p1' })]
+    mockProjects = [project]
+    render(
+      <ProjectSection
+        icon={project.emoji}
+        name={project.name}
+        accentColor={project.color}
+        todos={todos}
+        allTodos={todos}
+        projectId={project.id}
+      />
+    )
+    expect(screen.getByText('Work')).toBeInTheDocument()
+  })
+
+  it('should show project emoji icon in header', () => {
+    const project = makeProject({ id: 'p1', emoji: '\u{1F4BC}' })
+    const todos = [makeTodo({ id: 't1', projectId: 'p1' })]
+    mockProjects = [project]
+    render(
+      <ProjectSection
+        icon={project.emoji}
+        name={project.name}
+        accentColor={project.color}
+        todos={todos}
+        allTodos={todos}
+        projectId={project.id}
+      />
+    )
+    expect(screen.getByText('\u{1F4BC}')).toBeInTheDocument()
+  })
+
+  it('should show completion progress', () => {
+    const project = makeProject({ id: 'p1' })
+    const todos = [
+      makeTodo({ id: 't1', projectId: 'p1', completed: true }),
+      makeTodo({ id: 't2', projectId: 'p1', completed: false }),
+      makeTodo({ id: 't3', projectId: 'p1', completed: false }),
+    ]
+    mockProjects = [project]
+    render(
+      <ProjectSection
+        icon={project.emoji}
+        name={project.name}
+        accentColor={project.color}
+        todos={todos}
+        allTodos={todos}
+        projectId={project.id}
+      />
+    )
+    expect(screen.getByTestId('project-progress')).toHaveTextContent('1/3')
   })
 
   it('should apply left border color from project', () => {
-    mockProjects = [makeProject({ id: 'p1', emoji: '💼', color: '#6366F1' })]
-    const todo = makeTodo({ projectId: 'p1' })
-    render(<TodoNode todo={todo} todos={[todo]} depth={0} />)
-    const row = screen.getByTestId('todo-row')
-    // JSDOM normalizes hex colors to rgb
-    expect(row.style.borderLeftColor).toBe('rgb(99, 102, 241)')
+    const project = makeProject({ id: 'p1', color: '#6366F1' })
+    const todos = [makeTodo({ id: 't1', projectId: 'p1' })]
+    mockProjects = [project]
+    const { container } = render(
+      <ProjectSection
+        icon={project.emoji}
+        name={project.name}
+        accentColor={project.color}
+        todos={todos}
+        allTodos={todos}
+        projectId={project.id}
+      />
+    )
+    const section = container.firstChild as HTMLElement
+    expect(section.style.borderLeft).toContain('rgb(99, 102, 241)')
   })
 
-  it('should not show project badge when todo has no projectId', () => {
-    const todo = makeTodo({ projectId: null })
-    render(<TodoNode todo={todo} todos={[todo]} depth={0} />)
-    expect(screen.queryByTestId('project-badge')).not.toBeInTheDocument()
+  it('should show add task button', () => {
+    const project = makeProject({ id: 'p1' })
+    const todos = [makeTodo({ id: 't1', projectId: 'p1' })]
+    mockProjects = [project]
+    render(
+      <ProjectSection
+        icon={project.emoji}
+        name={project.name}
+        accentColor={project.color}
+        todos={todos}
+        allTodos={todos}
+        projectId={project.id}
+      />
+    )
+    expect(screen.getByText('タスクを追加')).toBeInTheDocument()
   })
 
-  it('should not show project badge when project is not found', () => {
-    mockProjects = []
-    const todo = makeTodo({ projectId: 'nonexistent' })
-    render(<TodoNode todo={todo} todos={[todo]} depth={0} />)
-    expect(screen.queryByTestId('project-badge')).not.toBeInTheDocument()
-  })
-
-  it('should not apply border style when no project', () => {
-    const todo = makeTodo({ projectId: null })
-    render(<TodoNode todo={todo} todos={[todo]} depth={0} />)
-    const row = screen.getByTestId('todo-row')
-    expect(row.style.borderLeftColor).toBe('')
+  it('should render all todos in the section', () => {
+    const project = makeProject({ id: 'p1' })
+    const todos = [
+      makeTodo({ id: 't1', title: 'First task', projectId: 'p1' }),
+      makeTodo({ id: 't2', title: 'Second task', projectId: 'p1' }),
+    ]
+    mockProjects = [project]
+    render(
+      <ProjectSection
+        icon={project.emoji}
+        name={project.name}
+        accentColor={project.color}
+        todos={todos}
+        allTodos={todos}
+        projectId={project.id}
+      />
+    )
+    expect(screen.getByText('First task')).toBeInTheDocument()
+    expect(screen.getByText('Second task')).toBeInTheDocument()
   })
 })

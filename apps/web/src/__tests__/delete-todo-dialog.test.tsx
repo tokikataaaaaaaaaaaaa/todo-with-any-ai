@@ -127,6 +127,6 @@ describe('DeleteTodoDialog', () => {
       />
     )
     const deleteBtn = screen.getByText('削除')
-    expect(deleteBtn.className).toMatch(/red|danger/)
+    expect(deleteBtn.className).toMatch(/error|accent/)
   })
 })

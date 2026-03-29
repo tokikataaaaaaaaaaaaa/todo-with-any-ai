@@ -2,6 +2,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import type { Todo, Project } from '@todo-with-any-ai/shared'
 
+// Mock next/navigation
+const mockPush = vi.fn()
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: mockPush,
+  }),
+}))
+
 // Mock stores
 const mockToggleComplete = vi.fn()
 const mockToggleExpand = vi.fn()
@@ -57,6 +65,7 @@ describe('TodoNode - edit button', () => {
     vi.clearAllMocks()
     mockExpandedIds.clear()
     mockProjects = []
+    mockPush.mockClear()
   })
 
   it('should render an edit button for each todo', () => {
@@ -73,32 +82,19 @@ describe('TodoNode - edit button', () => {
   })
 
   it('should navigate to detail page when edit button is clicked', () => {
-    // Mock window.location
-    const originalLocation = window.location
-    Object.defineProperty(window, 'location', {
-      writable: true,
-      value: { ...originalLocation, href: '' },
-    })
-
     const todo = makeTodo({ id: 'todo-42', title: 'Navigate Todo' })
     render(<TodoNode todo={todo} todos={[todo]} depth={0} />)
 
     fireEvent.click(screen.getByTestId('edit-todo-todo-42'))
-    expect(window.location.href).toBe('/todos/detail?id=todo-42')
-
-    // Restore
-    Object.defineProperty(window, 'location', {
-      writable: true,
-      value: originalLocation,
-    })
+    expect(mockPush).toHaveBeenCalledWith('/todos/detail?id=todo-42')
   })
 
   it('should be hidden by default and visible on group hover (has opacity-0 class)', () => {
     const todo = makeTodo({ id: 'todo-1' })
     render(<TodoNode todo={todo} todos={[todo]} depth={0} />)
     const editBtn = screen.getByTestId('edit-todo-todo-1')
-    // Similar pattern to delete button: opacity-0 + group-hover:opacity-100
-    expect(editBtn.className).toContain('opacity-0')
-    expect(editBtn.className).toContain('group-hover:opacity-100')
+    // Mobile-first: visible by default (opacity-100), hidden on sm+ (sm:opacity-0), shown on group hover (sm:group-hover:opacity-100)
+    expect(editBtn.className).toContain('sm:opacity-0')
+    expect(editBtn.className).toContain('sm:group-hover:opacity-100')
   })
 })

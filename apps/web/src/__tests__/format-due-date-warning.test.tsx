@@ -3,6 +3,13 @@ import { render, screen } from '@testing-library/react'
 import { TodoNode } from '@/components/todo/todo-node'
 import type { Todo } from '@todo-with-any-ai/shared'
 
+// Mock next/navigation
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+  }),
+}))
+
 // Mock the todo store
 vi.mock('@/stores/todo-store', () => ({
   useTodoStore: vi.fn((selector) => {
@@ -11,6 +18,7 @@ vi.mock('@/stores/todo-store', () => ({
       toggleComplete: vi.fn(),
       toggleExpand: vi.fn(),
       createTodo: vi.fn(),
+      deleteTodo: vi.fn(),
     }
     return typeof selector === 'function' ? selector(state) : state
   }),
@@ -43,7 +51,7 @@ const makeTodo = (overrides: Partial<Todo> = {}): Todo => ({
 })
 
 describe('formatDueDate - 24h warning (amber)', () => {
-  it('should show amber/yellow styling for due date that is today (within 24h)', () => {
+  it('should show warning styling for due date that is today (within 24h)', () => {
     const today = new Date()
     today.setHours(23, 59, 59)
     const todo = makeTodo({
@@ -51,14 +59,14 @@ describe('formatDueDate - 24h warning (amber)', () => {
       dueDate: today.toISOString(),
     })
     render(<TodoNode todo={todo} todos={[todo]} depth={0} />)
-    // "Today" label should be shown with amber styling
+    // "Today" label should be shown with warning styling
     const dueDateElements = screen.getAllByText(/today/i)
     const dueDateSpan = dueDateElements.find((el) => el.tagName === 'SPAN')
     expect(dueDateSpan).toBeDefined()
-    expect(dueDateSpan!.className).toMatch(/amber|yellow/)
+    expect(dueDateSpan!.className).toMatch(/warning/)
   })
 
-  it('should show amber/yellow styling for due date that is tomorrow (within 24h)', () => {
+  it('should show warning styling for due date that is tomorrow (within 24h)', () => {
     const tomorrow = new Date()
     tomorrow.setDate(tomorrow.getDate() + 1)
     const todo = makeTodo({
@@ -69,7 +77,7 @@ describe('formatDueDate - 24h warning (amber)', () => {
     const dueDateElements = screen.getAllByText(/tomorrow/i)
     const dueDateSpan = dueDateElements.find((el) => el.tagName === 'SPAN')
     expect(dueDateSpan).toBeDefined()
-    expect(dueDateSpan!.className).toMatch(/amber|yellow/)
+    expect(dueDateSpan!.className).toMatch(/warning/)
   })
 
   it('should show default styling for due date more than 2 days away', () => {
@@ -81,11 +89,11 @@ describe('formatDueDate - 24h warning (amber)', () => {
     })
     render(<TodoNode todo={todo} todos={[todo]} depth={0} />)
     const dueDateSpan = screen.getByText(/5d/)
-    expect(dueDateSpan.className).toMatch(/gray/)
-    expect(dueDateSpan.className).not.toMatch(/amber|yellow|red/)
+    expect(dueDateSpan.className).toMatch(/text-secondary/)
+    expect(dueDateSpan.className).not.toMatch(/warning|error/)
   })
 
-  it('should show red styling for overdue dates', () => {
+  it('should show error styling for overdue dates', () => {
     const yesterday = new Date()
     yesterday.setDate(yesterday.getDate() - 2)
     const todo = makeTodo({
@@ -96,6 +104,6 @@ describe('formatDueDate - 24h warning (amber)', () => {
     const dueDateElements = screen.getAllByText(/overdue/i)
     const dueDateSpan = dueDateElements.find((el) => el.tagName === 'SPAN')
     expect(dueDateSpan).toBeDefined()
-    expect(dueDateSpan!.className).toMatch(/red/)
+    expect(dueDateSpan!.className).toMatch(/error/)
   })
 })

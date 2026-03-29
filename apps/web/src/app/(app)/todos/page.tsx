@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTodoStore } from '@/stores/todo-store'
 import { useProjectStore } from '@/stores/project-store'
 import { useFilterStore } from '@/stores/filter-store'
+import { ProjectSection } from '@/components/todo/project-section'
 import { TodoTree } from '@/components/todo/todo-tree'
 import { TodoCreateForm } from '@/components/todo/todo-create-form'
 import { EmptyState } from '@/components/todo/empty-state'
@@ -86,6 +87,64 @@ export default function TodosPage() {
     }
   }, [filterType, filterProjectId, projects])
 
+  const incompleteCount = useMemo(
+    () => filteredTodos.filter((t) => !t.completed).length,
+    [filteredTodos]
+  )
+
+  /** Group root todos by project for the "all" and default views */
+  const projectGroups = useMemo(() => {
+    const rootTodos = filteredTodos.filter((t) => t.parentId === null)
+
+    // Build a map: projectId -> root todos
+    const groupMap = new Map<string | null, typeof rootTodos>()
+
+    for (const todo of rootTodos) {
+      const key = todo.projectId ?? null
+      if (!groupMap.has(key)) {
+        groupMap.set(key, [])
+      }
+      groupMap.get(key)!.push(todo)
+    }
+
+    // Sort groups: projects first (in project order), then uncategorized last
+    const groups: {
+      projectId: string | null
+      icon: string
+      name: string
+      color: string
+      todos: typeof rootTodos
+    }[] = []
+
+    // Add project groups in project order
+    for (const project of projects) {
+      const projectTodos = groupMap.get(project.id)
+      if (projectTodos && projectTodos.length > 0) {
+        groups.push({
+          projectId: project.id,
+          icon: project.emoji,
+          name: project.name,
+          color: project.color,
+          todos: projectTodos,
+        })
+      }
+    }
+
+    // Add uncategorized group
+    const uncategorized = groupMap.get(null)
+    if (uncategorized && uncategorized.length > 0) {
+      groups.push({
+        projectId: null,
+        icon: '\u{1F4CB}',
+        name: '未分類',
+        color: 'var(--border-strong)',
+        todos: uncategorized,
+      })
+    }
+
+    return groups
+  }, [filteredTodos, projects])
+
   const handleSortChange = (mode: SortMode) => {
     if (mode === sortMode) return
     setSortMode(mode)
@@ -96,13 +155,29 @@ export default function TodosPage() {
     }
   }
 
+  /** Whether to show grouped project view (all or default filter) */
+  const showGrouped = filterType === 'all' || filterType === undefined
+
   return (
-    <div className="mx-auto max-w-2xl">
-      <div className="flex items-center justify-between px-4 py-4">
-        <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>{headerTitle}</h1>
+    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-10">
+      {/* Header */}
+      <div className="mb-1">
+        <h1
+          className="text-[26px] font-bold tracking-wide text-[var(--primary)]"
+          style={{ fontFamily: 'var(--font-display)', letterSpacing: '0.03em' }}
+        >
+          {headerTitle}
+        </h1>
+        <p
+          className="text-sm text-[var(--text-secondary)]"
+          data-testid="incomplete-count"
+        >
+          {incompleteCount}件の未完了タスクがあります
+        </p>
       </div>
 
-      <div className="flex gap-2 px-4 pb-3">
+      {/* Sort buttons */}
+      <div className="flex gap-2 pb-4 pt-4">
         <button
           data-testid="sort-default"
           data-active={sortMode === 'default' ? 'true' : 'false'}
@@ -134,7 +209,7 @@ export default function TodosPage() {
       {loading && <TodoSkeleton />}
 
       {error && (
-        <div className="mx-4 rounded-[var(--radius-lg)] border border-[var(--error)]/20 bg-[var(--accent-light)] p-4">
+        <div className="rounded-[var(--radius-lg)] border border-[var(--error)]/20 bg-[var(--accent-light)] p-4">
           <p className="text-sm text-[var(--error)]">{error}</p>
           <button
             onClick={() => fetchTodos()}
@@ -148,9 +223,33 @@ export default function TodosPage() {
 
       {!loading && !error && filteredTodos.length === 0 && <EmptyState />}
 
-      {!loading && filteredTodos.length > 0 && <TodoTree todos={filteredTodos} />}
+      {/* Grouped project view */}
+      {!loading && filteredTodos.length > 0 && showGrouped && (
+        <div className="space-y-6">
+          {projectGroups.map((group) => (
+            <ProjectSection
+              key={group.projectId ?? 'uncategorized'}
+              icon={group.icon}
+              name={group.name}
+              accentColor={group.color}
+              todos={group.todos}
+              allTodos={filteredTodos}
+              projectId={group.projectId}
+            />
+          ))}
+        </div>
+      )}
 
-      <TodoCreateForm />
+      {/* Flat view for filtered modes (today, upcoming, single project) */}
+      {!loading && filteredTodos.length > 0 && !showGrouped && (
+        <div className="overflow-hidden rounded-[var(--radius-sm)] bg-[var(--bg-surface)]" style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}>
+          <TodoTree todos={filteredTodos} />
+        </div>
+      )}
+
+      <div className="mt-6">
+        <TodoCreateForm />
+      </div>
 
       {/* FAB for mobile */}
       <button

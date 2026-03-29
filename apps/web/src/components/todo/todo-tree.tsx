@@ -11,7 +11,7 @@ export function TodoTree({ todos }: TodoTreeProps) {
   const rootTodos = todos.filter((t) => t.parentId === null)
 
   return (
-    <div className="divide-y divide-gray-100 dark:divide-gray-800">
+    <div>
       {rootTodos.map((todo) => (
         <TodoNode key={todo.id} todo={todo} todos={todos} depth={0} />
       ))}

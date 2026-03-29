@@ -35,6 +35,43 @@ function formatDueDate(dueDate: string): { label: string; overdue: boolean; urge
   return { label: `${diffDays}d`, overdue: false, urgent: false }
 }
 
+/** Circular checkbox matching Paper & Ink design */
+function CircleCheckbox({
+  checked,
+  onChange,
+  ariaLabel,
+}: {
+  checked: boolean
+  onChange: () => void
+  ariaLabel: string
+}) {
+  return (
+    <button
+      role="checkbox"
+      aria-checked={checked}
+      aria-label={ariaLabel}
+      onClick={onChange}
+      className="flex h-[22px] w-[22px] flex-shrink-0 items-center justify-center rounded-full border-2 transition-all duration-200"
+      style={{
+        borderColor: checked ? 'var(--accent)' : 'var(--border-strong)',
+        background: checked ? 'var(--accent)' : 'transparent',
+      }}
+    >
+      {checked && (
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path
+            d="M2.5 6.5L5 9L9.5 3.5"
+            stroke="white"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      )}
+    </button>
+  )
+}
+
 export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
   const router = useRouter()
   const toggleComplete = useTodoStore((s) => s.toggleComplete)
@@ -84,12 +121,11 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
     <div>
       <div
         data-testid="todo-row"
-        className="group flex h-12 items-center gap-2 border-b border-[var(--border)]"
-        style={
-          project
-            ? { paddingLeft: `${depth * 24}px`, borderLeft: `3px solid ${project.color}` }
-            : { paddingLeft: `${depth * 24}px` }
-        }
+        className="group flex items-center gap-3 border-b border-[var(--border)] transition-colors duration-150 hover:bg-[var(--bg-raised)]"
+        style={{
+          padding: '12px 16px',
+          paddingLeft: `${depth * 24 + 16}px`,
+        }}
       >
         {/* Expand/collapse toggle */}
         {hasChildren ? (
@@ -112,20 +148,8 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
         {/* Category icon */}
         <CategoryIcon category={todo.categoryIcon} />
 
-        {/* Project badge */}
-        {project && (
-          <span
-            data-testid="project-badge"
-            className="text-sm"
-            title={project.name}
-          >
-            {project.emoji}
-          </span>
-        )}
-
-        {/* Checkbox */}
-        <input
-          type="checkbox"
+        {/* Circular checkbox */}
+        <CircleCheckbox
           checked={todo.completed}
           onChange={() => {
             const incompleteChildren = children.filter((c) => !c.completed)
@@ -135,8 +159,7 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
               toggleComplete(todo.id)
             }
           }}
-          className="h-4 w-4 rounded border-[var(--border-strong)] text-[var(--accent)] focus:ring-[var(--accent)]"
-          aria-label={`Mark "${todo.title}" as ${todo.completed ? 'incomplete' : 'complete'}`}
+          ariaLabel={`Mark "${todo.title}" as ${todo.completed ? 'incomplete' : 'complete'}`}
         />
 
         {/* Title */}
@@ -146,9 +169,10 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
             router.push(`/todos/detail?id=${todo.id}`)
           }}
           className={cn(
-            'flex-1 cursor-pointer truncate text-left text-sm transition-all duration-200 hover:bg-[var(--bg-raised)] rounded px-1 -mx-1',
-            todo.completed && 'line-through opacity-50'
+            'flex-1 cursor-pointer truncate text-left text-[15px] transition-all duration-200',
+            todo.completed && 'text-[var(--text-secondary)] line-through'
           )}
+          style={{ fontFamily: 'var(--font-body)' }}
         >
           {todo.title}
         </button>
@@ -159,18 +183,6 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
             completedCount={children.filter((c) => c.completed).length}
             totalCount={children.length}
           />
-        )}
-
-        {/* Add child button */}
-        {depth < 9 && (
-          <button
-            data-testid={`add-child-${todo.id}`}
-            onClick={() => setShowChildForm(!showChildForm)}
-            className="flex h-6 w-6 items-center justify-center rounded text-[var(--text-muted)] hover:bg-[var(--accent-light)] hover:text-[var(--accent)]"
-            aria-label={`Add subtask to "${todo.title}"`}
-          >
-            <Plus className="h-3 w-3" />
-          </button>
         )}
 
         {/* Priority badge */}
@@ -190,6 +202,18 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
           >
             {dueDateInfo.label}
           </span>
+        )}
+
+        {/* Add child button */}
+        {depth < 9 && (
+          <button
+            data-testid={`add-child-${todo.id}`}
+            onClick={() => setShowChildForm(!showChildForm)}
+            className="flex h-6 w-6 items-center justify-center rounded text-[var(--text-muted)] opacity-100 transition-opacity hover:bg-[var(--accent-light)] hover:text-[var(--accent)] sm:opacity-0 sm:group-hover:opacity-100"
+            aria-label={`Add subtask to "${todo.title}"`}
+          >
+            <Plus className="h-3 w-3" />
+          </button>
         )}
 
         {/* Edit button (visible on hover for desktop, always visible on mobile) */}
@@ -242,7 +266,7 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
       {showChildForm && (
         <div
           className="flex items-center gap-2 border-b border-[var(--border)] py-2"
-          style={{ paddingLeft: `${(depth + 1) * 24}px` }}
+          style={{ paddingLeft: `${(depth + 1) * 24 + 16}px` }}
         >
           <input
             type="text"

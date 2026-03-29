@@ -10,6 +10,7 @@ vi.mock('next/navigation', () => ({
     push: mockPush,
     replace: mockPush,
   }),
+  usePathname: () => '/todos',
 }))
 
 // Mock useAuth
@@ -120,7 +121,7 @@ describe('AppLayout (authenticated)', () => {
       </AppLayout>
     )
 
-    expect(screen.getByText(/todo-with-any-ai/)).toBeInTheDocument()
+    expect(screen.getByText(/Todo with Any AI/)).toBeInTheDocument()
   })
 
   it('should render settings icon in header', () => {
