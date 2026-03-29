@@ -1,0 +1,19 @@
+{
+  "name": "@todo-with-any-ai/mcp-server",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "echo 'mcp-server: placeholder build'",
+    "dev": "echo 'mcp-server: placeholder dev'",
+    "lint": "echo 'mcp-server: placeholder lint'",
+    "test": "echo 'mcp-server: placeholder test'"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.28.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "typescript": "^5.7.0",
+    "vitest": "^4.1.2"
+  }
+}

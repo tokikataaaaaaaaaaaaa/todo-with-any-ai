@@ -1,0 +1,20 @@
+{
+  "name": "@todo-with-any-ai/shared",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "echo 'shared: placeholder build'",
+    "dev": "echo 'shared: placeholder dev'",
+    "lint": "echo 'shared: placeholder lint'",
+    "test": "echo 'shared: placeholder test'"
+  },
+  "dependencies": {
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vitest": "^4.1.2"
+  }
+}

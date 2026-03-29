@@ -1,0 +1,11 @@
+{
+  "name": "@todo-with-any-ai/functions",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "echo 'functions: placeholder build'",
+    "dev": "echo 'functions: placeholder dev'",
+    "lint": "echo 'functions: placeholder lint'",
+    "test": "echo 'functions: placeholder test'"
+  }
+}

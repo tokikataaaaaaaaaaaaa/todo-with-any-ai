@@ -1,0 +1,11 @@
+{
+  "name": "@todo-with-any-ai/web",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "echo 'web: placeholder build'",
+    "dev": "echo 'web: placeholder dev'",
+    "lint": "echo 'web: placeholder lint'",
+    "test": "echo 'web: placeholder test'"
+  }
+}
