@@ -4,9 +4,9 @@ import { useEffect, useRef } from 'react'
 import { useSnackbarStore, type SnackbarMessage } from '@/stores/snackbar-store'
 
 const typeStyles: Record<SnackbarMessage['type'], string> = {
-  success: 'bg-emerald-600 dark:bg-emerald-500 text-white',
-  error: 'bg-red-600 dark:bg-red-500 text-white',
-  info: 'bg-indigo-600 dark:bg-indigo-500 text-white',
+  success: 'bg-[var(--success)] text-white',
+  error: 'bg-[var(--error)]0 text-white',
+  info: 'bg-[var(--accent)] text-white',
 }
 
 function SnackbarItem({ message }: { message: SnackbarMessage }) {

@@ -56,7 +56,7 @@ export function TodoCreateForm() {
       <input
         {...register('title')}
         placeholder="Add a new todo..."
-        className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+        className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]"
         aria-label="New todo title"
         disabled={isSubmitting}
       />
@@ -64,7 +64,7 @@ export function TodoCreateForm() {
         value={selectedProjectId}
         onChange={(e) => setSelectedProjectId(e.target.value)}
         aria-label="プロジェクト"
-        className="rounded-lg border border-gray-200 bg-white px-2 py-2 text-sm outline-none focus:border-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+        className="rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-2 py-2 text-sm outline-none focus:border-[var(--accent)]"
         disabled={isSubmitting}
       >
         <option value="">未分類</option>
@@ -77,13 +77,13 @@ export function TodoCreateForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-500 text-white hover:bg-indigo-600 disabled:opacity-50"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent)] disabled:opacity-50"
         aria-label="Create todo"
       >
         <Plus className="h-4 w-4" />
       </button>
       {errors.title && (
-        <p className="text-xs text-red-600" role="alert">
+        <p className="text-xs text-[var(--error)]" role="alert">
           {errors.title.message}
         </p>
       )}

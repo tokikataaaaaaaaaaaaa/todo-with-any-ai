@@ -26,24 +26,24 @@ export function CompleteConfirmDialog({
       />
 
       {/* Dialog content */}
-      <div className="relative z-10 mx-4 w-full max-w-sm rounded-lg bg-white p-6 shadow-xl dark:bg-gray-900">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+      <div className="relative z-10 mx-4 w-full max-w-sm rounded-lg bg-[var(--bg-surface)] p-6 shadow-xl">
+        <h2 className="text-lg font-semibold text-[var(--text)]">
           Todoを完了にしますか？
         </h2>
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+        <p className="mt-2 text-sm text-[var(--text-secondary)]">
           未完了のサブタスクが{incompleteCount}件あります。完了にしますか？
         </p>
         <div className="mt-4 flex justify-end gap-2">
           <button
             onClick={onCancel}
-            className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+            className="rounded-md px-3 py-2 text-sm font-medium text-[var(--text)] hover:bg-[var(--bg-raised)]"
             aria-label="Cancel"
           >
             キャンセル
           </button>
           <button
             onClick={onConfirm}
-            className="rounded-md bg-indigo-500 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-600"
+            className="rounded-md bg-[var(--accent)] px-3 py-2 text-sm font-medium text-white hover:bg-[var(--accent)]"
             aria-label="Confirm complete"
           >
             完了にする

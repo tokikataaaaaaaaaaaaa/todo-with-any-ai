@@ -25,5 +25,5 @@ export function CategoryIcon({ category, className }: CategoryIconProps) {
   if (!category) return null
 
   const Icon = iconMap[category]
-  return <Icon className={className ?? 'h-4 w-4 text-gray-500'} />
+  return <Icon className={className ?? 'h-4 w-4 text-[var(--text-secondary)]'} />
 }

@@ -13,10 +13,10 @@ function formatDate(dateStr: string): string {
 
 export function ApiKeyCard({ apiKey, onDelete }: ApiKeyCardProps) {
   return (
-    <div className="flex items-center justify-between rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+    <div className="flex items-center justify-between rounded-lg border border-[var(--border)] p-4">
       <div className="space-y-1">
         <p className="font-medium">{apiKey.name}</p>
-        <div className="flex gap-4 text-xs text-zinc-500 dark:text-zinc-400">
+        <div className="flex gap-4 text-xs text-[var(--text-secondary)]">
           <span>作成日: {formatDate(apiKey.createdAt)}</span>
           <span>
             最終使用日: {apiKey.lastUsedAt ? formatDate(apiKey.lastUsedAt) : '未使用'}
@@ -27,7 +27,7 @@ export function ApiKeyCard({ apiKey, onDelete }: ApiKeyCardProps) {
         type="button"
         aria-label="削除"
         onClick={() => onDelete(apiKey.id)}
-        className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+        className="rounded-lg p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--accent-light)] hover:text-[var(--error)]"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="3 6 5 6 21 6" />

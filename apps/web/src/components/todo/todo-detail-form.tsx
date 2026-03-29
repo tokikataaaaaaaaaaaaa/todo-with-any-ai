@@ -75,19 +75,19 @@ export function TodoDetailForm({
           type="checkbox"
           checked={completed}
           onChange={(e) => setCompleted(e.target.checked)}
-          className="h-5 w-5 rounded border-zinc-300"
+          className="h-5 w-5 rounded border-[var(--border-strong)]"
         />
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="flex-1 border-b border-zinc-200 bg-transparent py-1 text-lg font-medium outline-none focus:border-[var(--color-primary)] dark:border-zinc-700"
+          className="flex-1 border-b border-[var(--border)] bg-transparent py-1 text-lg font-medium outline-none focus:border-[var(--accent)]"
         />
       </div>
 
       {/* Category */}
       <div>
-        <label className="mb-2 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+        <label className="mb-2 block text-sm font-medium text-[var(--text-secondary)]">
           カテゴリ
         </label>
         <div className="flex flex-wrap gap-2">
@@ -104,7 +104,7 @@ export function TodoDetailForm({
                 className={`rounded-full px-3 py-1 text-sm transition-colors ${
                   selected
                     ? 'bg-[var(--color-primary)] text-white'
-                    : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300'
+                    : 'bg-[var(--bg-raised)] text-[var(--text)] hover:bg-[var(--bg-raised)]'
                 }`}
               >
                 {cat.label}
@@ -116,7 +116,7 @@ export function TodoDetailForm({
 
       {/* Urgency Level */}
       <div>
-        <label htmlFor="urgency-level" className="mb-2 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+        <label htmlFor="urgency-level" className="mb-2 block text-sm font-medium text-[var(--text-secondary)]">
           緊急度
         </label>
         <select
@@ -124,7 +124,7 @@ export function TodoDetailForm({
           aria-label="緊急度"
           value={urgencyLevelId}
           onChange={(e) => setUrgencyLevelId(e.target.value)}
-          className="w-full rounded-lg border border-zinc-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--color-primary)] dark:border-zinc-700"
+          className="w-full rounded-lg border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
         >
           <option value="">なし</option>
           {urgencyLevels.map((level) => (
@@ -137,7 +137,7 @@ export function TodoDetailForm({
 
       {/* Project */}
       <div>
-        <label htmlFor="project-select" className="mb-2 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+        <label htmlFor="project-select" className="mb-2 block text-sm font-medium text-[var(--text-secondary)]">
           プロジェクト
         </label>
         <select
@@ -145,7 +145,7 @@ export function TodoDetailForm({
           aria-label="プロジェクト"
           value={projectId}
           onChange={(e) => setProjectId(e.target.value)}
-          className="w-full rounded-lg border border-zinc-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--color-primary)] dark:border-zinc-700"
+          className="w-full rounded-lg border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
         >
           <option value="">未分類</option>
           {projects.map((p) => (
@@ -158,7 +158,7 @@ export function TodoDetailForm({
 
       {/* Due Date */}
       <div>
-        <label htmlFor="due-date" className="mb-2 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+        <label htmlFor="due-date" className="mb-2 block text-sm font-medium text-[var(--text-secondary)]">
           締切日
         </label>
         <div className="flex items-center gap-2">
@@ -167,14 +167,14 @@ export function TodoDetailForm({
             type="date"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
-            className="rounded-lg border border-zinc-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--color-primary)] dark:border-zinc-700"
+            className="rounded-lg border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
           />
           {dueDate && (
             <button
               type="button"
               aria-label="クリア"
               onClick={() => setDueDate('')}
-              className="rounded-lg px-2 py-1 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              className="rounded-lg px-2 py-1 text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-raised)]"
             >
               クリア
             </button>
@@ -184,14 +184,14 @@ export function TodoDetailForm({
 
       {/* Parent Todo */}
       <div>
-        <label htmlFor="parent-todo" className="mb-2 block text-sm font-medium text-zinc-600 dark:text-zinc-400">
+        <label htmlFor="parent-todo" className="mb-2 block text-sm font-medium text-[var(--text-secondary)]">
           親Todo
         </label>
         <select
           id="parent-todo"
           value={parentId}
           onChange={(e) => setParentId(e.target.value)}
-          className="w-full rounded-lg border border-zinc-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--color-primary)] dark:border-zinc-700"
+          className="w-full rounded-lg border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
         >
           <option value="">なし</option>
           {parentOptions.map((t) => (
@@ -213,19 +213,19 @@ export function TodoDetailForm({
       </button>
 
       {/* Delete */}
-      <div className="border-t border-zinc-200 pt-4 dark:border-zinc-700">
+      <div className="border-t border-[var(--border)] pt-4">
         {!showDeleteConfirm ? (
           <button
             type="button"
             aria-label="削除"
             onClick={() => setShowDeleteConfirm(true)}
-            className="w-full rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950"
+            className="w-full rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-[var(--error)] transition-colors hover:bg-[var(--accent-light)] dark:border-red-900"
           >
             削除
           </button>
         ) : (
           <div className="space-y-3">
-            <p className="text-sm text-red-600 dark:text-red-400">
+            <p className="text-sm text-[var(--error)]">
               本当に削除しますか？この操作は取り消せません。
             </p>
             <div className="flex gap-2">
@@ -233,7 +233,7 @@ export function TodoDetailForm({
                 type="button"
                 aria-label="確認"
                 onClick={onDelete}
-                className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+                className="flex-1 rounded-lg bg-[var(--error)] px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
               >
                 確認
               </button>
@@ -241,7 +241,7 @@ export function TodoDetailForm({
                 type="button"
                 aria-label="キャンセル"
                 onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                className="flex-1 rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--text)] hover:bg-[var(--bg-raised)]"
               >
                 キャンセル
               </button>

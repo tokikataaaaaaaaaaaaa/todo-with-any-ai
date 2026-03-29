@@ -79,7 +79,7 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
     <div>
       <div
         data-testid="todo-row"
-        className="group flex h-12 items-center gap-2 border-b border-gray-100 dark:border-gray-800"
+        className="group flex h-12 items-center gap-2 border-b border-[var(--border)]"
         style={
           project
             ? { paddingLeft: `${depth * 24}px`, borderLeft: `3px solid ${project.color}` }
@@ -91,7 +91,7 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
           <button
             data-testid="toggle-expand"
             onClick={() => toggleExpand(todo.id)}
-            className="flex h-6 w-6 items-center justify-center rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="flex h-6 w-6 items-center justify-center rounded hover:bg-[var(--bg-raised)]"
             aria-label={isExpanded ? 'Collapse' : 'Expand'}
           >
             {isExpanded ? (
@@ -123,7 +123,7 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
           type="checkbox"
           checked={todo.completed}
           onChange={() => toggleComplete(todo.id)}
-          className="h-4 w-4 rounded border-gray-300 text-indigo-500 focus:ring-indigo-500"
+          className="h-4 w-4 rounded border-[var(--border-strong)] text-[var(--accent)] focus:ring-[var(--accent)]"
           aria-label={`Mark "${todo.title}" as ${todo.completed ? 'incomplete' : 'complete'}`}
         />
 
@@ -134,7 +134,7 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
             window.location.href = `/todos/detail?id=${todo.id}`
           }}
           className={cn(
-            'flex-1 cursor-pointer truncate text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded px-1 -mx-1',
+            'flex-1 cursor-pointer truncate text-left text-sm hover:bg-[var(--bg-raised)] rounded px-1 -mx-1',
             todo.completed && 'line-through opacity-50'
           )}
         >
@@ -146,7 +146,7 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
           <button
             data-testid={`add-child-${todo.id}`}
             onClick={() => setShowChildForm(!showChildForm)}
-            className="flex h-6 w-6 items-center justify-center rounded text-gray-400 hover:bg-indigo-50 hover:text-indigo-500 dark:hover:bg-indigo-950 dark:hover:text-indigo-400"
+            className="flex h-6 w-6 items-center justify-center rounded text-[var(--text-muted)] hover:bg-[var(--accent-light)] hover:text-[var(--accent)]"
             aria-label={`Add subtask to "${todo.title}"`}
           >
             <Plus className="h-3 w-3" />
@@ -162,10 +162,10 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
             className={cn(
               'whitespace-nowrap text-xs',
               dueDateInfo.overdue
-                ? 'font-medium text-red-600 dark:text-red-400'
+                ? 'font-medium text-[var(--error)]'
                 : dueDateInfo.urgent
-                  ? 'font-medium text-amber-600 dark:text-amber-400'
-                  : 'text-gray-500 dark:text-gray-400'
+                  ? 'font-medium text-[var(--warning)]'
+                  : 'text-[var(--text-secondary)]'
             )}
           >
             {dueDateInfo.label}
@@ -176,7 +176,7 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
         <button
           data-testid={`delete-todo-${todo.id}`}
           onClick={() => setShowDeleteDialog(true)}
-          className="flex h-6 w-6 items-center justify-center rounded text-gray-400 opacity-0 transition-opacity hover:bg-red-50 hover:text-red-600 group-hover:opacity-100 dark:hover:bg-red-950 dark:hover:text-red-400 sm:opacity-0"
+          className="flex h-6 w-6 items-center justify-center rounded text-[var(--text-muted)] opacity-0 transition-opacity hover:bg-[var(--accent-light)] hover:text-[var(--error)] group-hover:opacity-100 sm:opacity-0"
           aria-label={`Delete "${todo.title}"`}
         >
           <Trash2 className="h-3 w-3" />
@@ -198,7 +198,7 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
       {/* Inline child creation form */}
       {showChildForm && (
         <div
-          className="flex items-center gap-2 border-b border-gray-100 py-2 dark:border-gray-800"
+          className="flex items-center gap-2 border-b border-[var(--border)] py-2"
           style={{ paddingLeft: `${(depth + 1) * 24}px` }}
         >
           <input
@@ -210,20 +210,20 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
               if (e.key === 'Escape') { setShowChildForm(false); setChildTitle('') }
             }}
             placeholder="サブタスクを入力..."
-            className="flex-1 rounded border border-gray-200 bg-white px-2 py-1 text-sm outline-none focus:border-indigo-500 dark:border-gray-700 dark:bg-gray-900"
+            className="flex-1 rounded border border-[var(--border)] bg-[var(--bg-surface)] px-2 py-1 text-sm outline-none focus:border-[var(--accent)]"
             autoFocus
             aria-label="New subtask title"
           />
           <button
             onClick={handleAddChild}
             disabled={!childTitle.trim()}
-            className="rounded bg-indigo-500 px-2 py-1 text-xs text-white hover:bg-indigo-600 disabled:opacity-50"
+            className="rounded bg-[var(--accent)] px-2 py-1 text-xs text-white hover:bg-[var(--accent)] disabled:opacity-50"
           >
             追加
           </button>
           <button
             onClick={() => { setShowChildForm(false); setChildTitle('') }}
-            className="rounded px-2 py-1 text-xs text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="rounded px-2 py-1 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-raised)]"
           >
             取消
           </button>

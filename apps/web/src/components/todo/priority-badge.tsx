@@ -1,9 +1,9 @@
 import { cn } from '@/lib/utils'
 
 const styles = {
-  high: 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400',
-  medium: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400',
-  low: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400',
+  high: 'bg-red-100 text-red-7000/20',
+  medium: 'bg-amber-100 text-amber-700/20',
+  low: 'bg-indigo-100 text-indigo-700/20',
 } as const
 
 interface PriorityBadgeProps {
