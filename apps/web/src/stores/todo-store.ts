@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { Todo, CreateTodo, UpdateTodo } from '@todo-with-any-ai/shared'
 import { apiClient } from '@/lib/api-client'
+import { useSnackbarStore } from '@/stores/snackbar-store'
 
 interface TodoState {
   todos: Todo[]
@@ -50,9 +51,11 @@ export const useTodoStore = create<TodoState>((set, get) => ({
       set({
         todos: get().todos.map((t) => (t.id === tempId ? serverTodo : t)),
       })
+      useSnackbarStore.getState().addMessage('success', 'Todoを作成しました')
     } catch (e) {
       // Rollback
       set({ todos: prevTodos, error: (e as Error).message })
+      useSnackbarStore.getState().addMessage('error', '操作に失敗しました')
     }
   },
 
@@ -71,6 +74,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
       })
     } catch (e) {
       set({ todos: prevTodos, error: (e as Error).message })
+      useSnackbarStore.getState().addMessage('error', '操作に失敗しました')
     }
   },
 
@@ -81,8 +85,10 @@ export const useTodoStore = create<TodoState>((set, get) => ({
 
     try {
       await apiClient.deleteTodo(id)
+      useSnackbarStore.getState().addMessage('success', 'Todoを削除しました')
     } catch (e) {
       set({ todos: prevTodos, error: (e as Error).message })
+      useSnackbarStore.getState().addMessage('error', '操作に失敗しました')
     }
   },
 
@@ -103,6 +109,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
       })
     } catch (e) {
       set({ todos: prevTodos, error: (e as Error).message })
+      useSnackbarStore.getState().addMessage('error', '操作に失敗しました')
     }
   },
 

@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import { useTodoStore } from '@/stores/todo-store'
+import { useProjectStore } from '@/stores/project-store'
+import { useUrgencyLevelStore } from '@/stores/urgency-level-store'
+import { useSnackbarStore } from '@/stores/snackbar-store'
 import { useAuth } from '@/hooks/use-auth'
 import { TodoDetailForm } from '@/components/todo/todo-detail-form'
 import type { Todo, UpdateTodo } from '@todo-with-any-ai/shared'
@@ -15,8 +18,18 @@ function TodoDetailContent() {
   const { user, loading: authLoading } = useAuth()
   const storeTodos = useTodoStore((s) => s.todos)
   const fetchTodos = useTodoStore((s) => s.fetchTodos)
+  const projects = useProjectStore((s) => s.projects)
+  const fetchProjects = useProjectStore((s) => s.fetchProjects)
+  const urgencyLevels = useUrgencyLevelStore((s) => s.levels)
+  const fetchUrgencyLevels = useUrgencyLevelStore((s) => s.fetchLevels)
+  const addMessage = useSnackbarStore((s) => s.addMessage)
   const [todo, setTodo] = useState<Todo | null>(null)
   const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchProjects()
+    fetchUrgencyLevels()
+  }, [fetchProjects, fetchUrgencyLevels])
 
   useEffect(() => {
     if (!todoId || authLoading) return
@@ -69,7 +82,7 @@ function TodoDetailContent() {
         todos: state.todos.map((t) => t.id === todoId ? updated : t),
       }))
     } catch {
-      // Error handling
+      addMessage('error', '保存に失敗しました')
     }
   }
 
@@ -81,9 +94,9 @@ function TodoDetailContent() {
       useTodoStore.setState((state) => ({
         todos: state.todos.filter((t) => t.id !== todoId),
       }))
-      window.location.href = '/todos'
+      router.push('/todos')
     } catch {
-      // Error handling
+      addMessage('error', '削除に失敗しました')
     }
   }
 
@@ -133,6 +146,8 @@ function TodoDetailContent() {
         allTodos={storeTodos}
         onSave={handleSave}
         onDelete={handleDelete}
+        projects={projects}
+        urgencyLevels={urgencyLevels}
       />
     </div>
   )

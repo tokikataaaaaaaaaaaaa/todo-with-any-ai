@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { CheckCircle2 } from 'lucide-react'
 import { useTodoStore } from '@/stores/todo-store'
@@ -19,6 +20,11 @@ function isToday(dateString: string): boolean {
 export default function ActivityPage() {
   const router = useRouter()
   const todos = useTodoStore((s) => s.todos)
+  const fetchTodos = useTodoStore((s) => s.fetchTodos)
+
+  useEffect(() => {
+    fetchTodos()
+  }, [fetchTodos])
 
   const todayCompleted = todos.filter(
     (todo) => todo.completed && isToday(todo.updatedAt)

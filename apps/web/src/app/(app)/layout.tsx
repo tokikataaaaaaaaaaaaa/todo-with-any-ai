@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { Settings, ClipboardList, Calendar, Menu } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useAuthStore } from '@/stores/auth-store'
@@ -14,6 +15,7 @@ export default function AppLayout({
   children: React.ReactNode
 }>) {
   const { user, loading } = useAuth()
+  const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
@@ -83,19 +85,19 @@ export default function AppLayout({
             <ThemeToggle />
             <Link
               href="/calendar"
-              className="rounded-[var(--radius-md)] p-1.5 text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-raised)]"
+              className={`rounded-[var(--radius-md)] p-1.5 transition-colors hover:bg-[var(--bg-raised)] ${pathname === '/calendar' ? 'text-[var(--accent)]' : 'text-[var(--text-secondary)]'}`}
             >
               <Calendar className="h-5 w-5" data-testid="calendar-icon" />
             </Link>
             <Link
               href="/activity"
-              className="rounded-[var(--radius-md)] p-1.5 text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-raised)]"
+              className={`rounded-[var(--radius-md)] p-1.5 transition-colors hover:bg-[var(--bg-raised)] ${pathname === '/activity' ? 'text-[var(--accent)]' : 'text-[var(--text-secondary)]'}`}
             >
               <ClipboardList className="h-5 w-5" data-testid="activity-icon" />
             </Link>
             <Link
               href="/settings"
-              className="rounded-[var(--radius-md)] p-1.5 text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-raised)]"
+              className={`rounded-[var(--radius-md)] p-1.5 transition-colors hover:bg-[var(--bg-raised)] ${pathname === '/settings' ? 'text-[var(--accent)]' : 'text-[var(--text-secondary)]'}`}
             >
               <Settings className="h-5 w-5" data-testid="settings-icon" />
             </Link>

@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useProjectStore } from '@/stores/project-store'
+import { useFilterStore } from '@/stores/filter-store'
 import type { Project } from '@todo-with-any-ai/shared'
 import { Plus, Pencil, RefreshCw } from 'lucide-react'
 
@@ -85,7 +87,7 @@ function ProjectDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="mx-4 w-full max-w-md rounded-[var(--radius-lg)] bg-[var(--bg-surface)] p-6 shadow-xl">
+      <div className="mx-4 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-[var(--radius-lg)] bg-[var(--bg-surface)] p-6 shadow-xl">
         <h3 className="mb-4 text-lg font-semibold text-[var(--text)]" style={{ fontFamily: 'var(--font-display)' }}>
           {title}
         </h3>
@@ -211,6 +213,7 @@ function ProjectDialog({
 }
 
 export default function ProjectsPage() {
+  const router = useRouter()
   const projects = useProjectStore((s) => s.projects)
   const loading = useProjectStore((s) => s.loading)
   const error = useProjectStore((s) => s.error)
@@ -218,6 +221,7 @@ export default function ProjectsPage() {
   const createProject = useProjectStore((s) => s.createProject)
   const updateProject = useProjectStore((s) => s.updateProject)
   const deleteProject = useProjectStore((s) => s.deleteProject)
+  const setFilter = useFilterStore((s) => s.setFilter)
 
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
@@ -267,7 +271,7 @@ export default function ProjectsPage() {
             className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-[var(--error)] hover:opacity-80"
           >
             <RefreshCw className="h-3 w-3" />
-            Retry
+            再試行
           </button>
         </div>
       )}
@@ -292,9 +296,16 @@ export default function ProjectsPage() {
                 className="h-3 w-3 rounded-full"
                 style={{ backgroundColor: project.color }}
               />
-              <span className="flex-1 text-sm font-medium text-[var(--text)]">
+              <button
+                type="button"
+                onClick={() => {
+                  setFilter('project', project.id)
+                  router.push('/todos')
+                }}
+                className="flex-1 cursor-pointer text-left text-sm font-medium text-[var(--text)] hover:text-[var(--accent)]"
+              >
                 {project.name}
-              </span>
+              </button>
               <button
                 type="button"
                 data-testid={`edit-project-${project.id}`}

@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react'
 import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
 import { LayoutGrid, Clock, Calendar, Plus } from 'lucide-react'
 import { useTodoStore } from '@/stores/todo-store'
 import { useProjectStore } from '@/stores/project-store'
@@ -27,6 +28,8 @@ function isWithinDays(dueDate: string | null, days: number): boolean {
 }
 
 export function Sidebar({ open, onClose }: SidebarProps) {
+  const pathname = usePathname()
+  const router = useRouter()
   const todos = useTodoStore((s) => s.todos)
   const projects = useProjectStore((s) => s.projects)
   const filterType = useFilterStore((s) => s.filterType)
@@ -62,6 +65,10 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
   const handleFilterClick = (type: FilterType, pid?: string) => {
     setFilter(type, pid)
+    if (pathname !== '/todos') {
+      router.push('/todos')
+    }
+    onClose()
   }
 
   const filters = [

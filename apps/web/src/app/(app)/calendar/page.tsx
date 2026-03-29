@@ -153,7 +153,7 @@ export default function CalendarPage() {
     setDisabledProjectIds(new Set())
   }
 
-  const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+  const dayHeaders = ['日', '月', '火', '水', '木', '金', '土']
 
   return (
     <div className="flex flex-col gap-3">

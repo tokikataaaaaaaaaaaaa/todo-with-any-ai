@@ -64,7 +64,7 @@ export function SnackbarProvider() {
   return (
     <div
       data-testid="snackbar-container"
-      className="fixed bottom-4 left-1/2 z-50 flex w-full max-w-[90%] -translate-x-1/2 flex-col gap-2 sm:max-w-sm"
+      className="fixed bottom-20 left-1/2 z-50 flex w-full max-w-[90%] -translate-x-1/2 flex-col gap-2 sm:max-w-sm"
     >
       {messages.map((message) => (
         <SnackbarItem key={message.id} message={message} />

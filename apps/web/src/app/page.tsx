@@ -29,9 +29,7 @@ export default function LoginPage() {
   const addMessage = useSnackbarStore((s) => s.addMessage)
 
   useEffect(() => {
-    console.log('[Auth Debug] user:', user, 'loading:', loading)
     if (!loading && user) {
-      console.log('[Auth Debug] Redirecting to /todos')
       addMessage('success', 'ログインしました')
       // Small delay to show snackbar before redirect
       setTimeout(() => {
@@ -44,13 +42,10 @@ export default function LoginPage() {
     setError(null)
     setLoggingIn(true)
     try {
-      console.log('[Auth Debug] Starting GitHub login...')
-      const result = await loginWithGithub()
-      console.log('[Auth Debug] GitHub login result:', result ? 'success' : 'redirect')
+      await loginWithGithub()
     } catch (e: unknown) {
       const err = e as { code?: string }
       const msg = getAuthErrorMessage(err.code)
-      console.error('[Auth Debug] GitHub login error:', err.code)
       setError(msg)
       addMessage('error', msg)
       setLoggingIn(false)
@@ -61,13 +56,10 @@ export default function LoginPage() {
     setError(null)
     setLoggingIn(true)
     try {
-      console.log('[Auth Debug] Starting Google login...')
-      const result = await loginWithGoogle()
-      console.log('[Auth Debug] Google login result:', result ? 'success' : 'redirect')
+      await loginWithGoogle()
     } catch (e: unknown) {
       const err = e as { code?: string }
       const msg = getAuthErrorMessage(err.code)
-      console.error('[Auth Debug] Google login error:', err.code)
       setError(msg)
       addMessage('error', msg)
       setLoggingIn(false)

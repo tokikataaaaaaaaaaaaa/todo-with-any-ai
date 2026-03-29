@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useTodoStore } from '@/stores/todo-store'
 import { useProjectStore } from '@/stores/project-store'
+import { useFilterStore } from '@/stores/filter-store'
 import {
   Plus,
   ChevronDown,
@@ -50,7 +51,18 @@ const PRIORITIES: { value: Priority; label: string }[] = [
 export function TodoCreateForm() {
   const createTodo = useTodoStore((s) => s.createTodo)
   const projects = useProjectStore((s) => s.projects)
-  const [selectedProjectId, setSelectedProjectId] = useState('')
+  const filterType = useFilterStore((s) => s.filterType)
+  const filterProjectId = useFilterStore((s) => s.projectId)
+  const [selectedProjectId, setSelectedProjectId] = useState(
+    filterType === 'project' && filterProjectId ? filterProjectId : ''
+  )
+
+  useEffect(() => {
+    if (filterType === 'project' && filterProjectId) {
+      setSelectedProjectId(filterProjectId)
+    }
+  }, [filterType, filterProjectId])
+
   const [showDetails, setShowDetails] = useState(false)
   const [dueDate, setDueDate] = useState('')
   const [priority, setPriority] = useState<Priority>(null)
@@ -94,7 +106,7 @@ export function TodoCreateForm() {
       <div className="flex items-center gap-2">
         <input
           {...register('title')}
-          placeholder="Add a new todo..."
+          placeholder="新しいタスクを追加..."
           className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]"
           aria-label="New todo title"
           disabled={isSubmitting}

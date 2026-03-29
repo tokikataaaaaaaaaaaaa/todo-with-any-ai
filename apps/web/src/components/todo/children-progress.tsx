@@ -17,7 +17,7 @@ export function ChildrenProgress({ completedCount, totalCount }: ChildrenProgres
       className={cn(
         'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
         allCompleted
-          ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+          ? 'bg-[var(--success-light)] text-[var(--success)]'
           : 'bg-[var(--bg-raised)] text-[var(--text-secondary)]'
       )}
     >
