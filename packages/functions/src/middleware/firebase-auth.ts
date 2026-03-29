@@ -34,12 +34,12 @@ export const authMiddleware = createMiddleware<Env>(async (c, next) => {
       return c.json({ error: 'Unauthorized' }, 401)
     }
   } else {
-    // API key verification via Firestore
+    // API key verification via Firestore (subcollection: users/{userId}/apiKeys)
     try {
       const hashed = hashApiKey(token)
       const snapshot = await db
-        .collection('api_keys')
-        .where('hashedKey', '==', hashed)
+        .collectionGroup('apiKeys')
+        .where('keyHash', '==', hashed)
         .limit(1)
         .get()
 

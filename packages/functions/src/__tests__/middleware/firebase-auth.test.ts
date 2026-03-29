@@ -17,6 +17,13 @@ vi.mock('../../lib/firebase', () => ({
         })),
       })),
     })),
+    collectionGroup: vi.fn(() => ({
+      where: vi.fn(() => ({
+        limit: vi.fn(() => ({
+          get: vi.fn(),
+        })),
+      })),
+    })),
   },
 }))
 
@@ -131,7 +138,7 @@ describe('firebase-auth middleware', () => {
     })
     const mockLimit = vi.fn(() => ({ get: mockGet }))
     const mockWhere = vi.fn(() => ({ limit: mockLimit }))
-    vi.mocked(db.collection).mockReturnValue({ where: mockWhere } as any)
+    vi.mocked(db.collectionGroup).mockReturnValue({ where: mockWhere } as any)
 
     const apiKey = 'a'.repeat(64)
     const res = await app.request('/protected', {
@@ -147,7 +154,7 @@ describe('firebase-auth middleware', () => {
     const mockGet = vi.fn().mockResolvedValue({ empty: true, docs: [] })
     const mockLimit = vi.fn(() => ({ get: mockGet }))
     const mockWhere = vi.fn(() => ({ limit: mockLimit }))
-    vi.mocked(db.collection).mockReturnValue({ where: mockWhere } as any)
+    vi.mocked(db.collectionGroup).mockReturnValue({ where: mockWhere } as any)
 
     const apiKey = 'b'.repeat(64)
     const res = await app.request('/protected', {
@@ -174,19 +181,19 @@ describe('firebase-auth middleware', () => {
     expect(res.status).toBe(401)
   })
 
-  // --- API key hash lookup uses correct collection ---
-  it('should query Firestore api_keys collection for API key', async () => {
+  // --- API key hash lookup uses correct collectionGroup ---
+  it('should query Firestore apiKeys collectionGroup for API key', async () => {
     const mockGet = vi.fn().mockResolvedValue({ empty: true, docs: [] })
     const mockLimit = vi.fn(() => ({ get: mockGet }))
     const mockWhere = vi.fn(() => ({ limit: mockLimit }))
-    vi.mocked(db.collection).mockReturnValue({ where: mockWhere } as any)
+    vi.mocked(db.collectionGroup).mockReturnValue({ where: mockWhere } as any)
 
     const apiKey = 'c'.repeat(64)
     await app.request('/protected', {
       headers: { Authorization: `Bearer ${apiKey}` },
     })
 
-    expect(db.collection).toHaveBeenCalledWith('api_keys')
+    expect(db.collectionGroup).toHaveBeenCalledWith('apiKeys')
   })
 
   // --- API key hash is passed to Firestore query ---
@@ -194,15 +201,15 @@ describe('firebase-auth middleware', () => {
     const mockGet = vi.fn().mockResolvedValue({ empty: true, docs: [] })
     const mockLimit = vi.fn(() => ({ get: mockGet }))
     const mockWhere = vi.fn(() => ({ limit: mockLimit }))
-    vi.mocked(db.collection).mockReturnValue({ where: mockWhere } as any)
+    vi.mocked(db.collectionGroup).mockReturnValue({ where: mockWhere } as any)
 
     const apiKey = 'd'.repeat(64)
     await app.request('/protected', {
       headers: { Authorization: `Bearer ${apiKey}` },
     })
 
-    // Should query with 'hashedKey' field and the SHA-256 hash of the key
-    expect(mockWhere).toHaveBeenCalledWith('hashedKey', '==', expect.any(String))
+    // Should query with 'keyHash' field and the SHA-256 hash of the key
+    expect(mockWhere).toHaveBeenCalledWith('keyHash', '==', expect.any(String))
     // Verify the hash is not the raw key
     const calledHash = mockWhere.mock.calls[0][2]
     expect(calledHash).not.toBe(apiKey)
@@ -214,7 +221,7 @@ describe('firebase-auth middleware', () => {
     const mockGet = vi.fn().mockRejectedValue(new Error('Firestore error'))
     const mockLimit = vi.fn(() => ({ get: mockGet }))
     const mockWhere = vi.fn(() => ({ limit: mockLimit }))
-    vi.mocked(db.collection).mockReturnValue({ where: mockWhere } as any)
+    vi.mocked(db.collectionGroup).mockReturnValue({ where: mockWhere } as any)
 
     const apiKey = 'e'.repeat(64)
     const res = await app.request('/protected', {
@@ -253,7 +260,7 @@ describe('firebase-auth middleware', () => {
     const mockGet = vi.fn().mockResolvedValue({ empty: true, docs: [] })
     const mockLimit = vi.fn(() => ({ get: mockGet }))
     const mockWhere = vi.fn(() => ({ limit: mockLimit }))
-    vi.mocked(db.collection).mockReturnValue({ where: mockWhere } as any)
+    vi.mocked(db.collectionGroup).mockReturnValue({ where: mockWhere } as any)
 
     const res = await app.request('/protected', {
       headers: { Authorization: 'Bearer some-random-key-without-dots' },
