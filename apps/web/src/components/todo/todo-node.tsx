@@ -6,7 +6,7 @@ import { useTodoStore } from '@/stores/todo-store'
 import { useProjectStore } from '@/stores/project-store'
 import { PriorityBadge } from './priority-badge'
 import { CategoryIcon } from './category-icon'
-import { ChevronDown, ChevronRight, Plus, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronRight, Pencil, Plus, Trash2 } from 'lucide-react'
 import { DeleteTodoDialog } from './delete-todo-dialog'
 import type { Todo } from '@todo-with-any-ai/shared'
 
@@ -171,6 +171,18 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
             {dueDateInfo.label}
           </span>
         )}
+
+        {/* Edit button (visible on hover) */}
+        <button
+          data-testid={`edit-todo-${todo.id}`}
+          onClick={() => {
+            window.location.href = `/todos/detail?id=${todo.id}`
+          }}
+          className="flex h-6 w-6 items-center justify-center rounded text-[var(--text-muted)] opacity-0 transition-opacity hover:bg-[var(--accent-light)] hover:text-[var(--accent)] group-hover:opacity-100 sm:opacity-0"
+          aria-label={`Edit "${todo.title}"`}
+        >
+          <Pencil className="h-3 w-3" />
+        </button>
 
         {/* Delete button (visible on hover) */}
         <button

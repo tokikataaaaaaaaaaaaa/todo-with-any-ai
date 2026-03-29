@@ -66,8 +66,10 @@ describe('formatDueDate - 24h warning (amber)', () => {
       dueDate: tomorrow.toISOString(),
     })
     render(<TodoNode todo={todo} todos={[todo]} depth={0} />)
-    const dueDateSpan = screen.getByText(/tomorrow/i)
-    expect(dueDateSpan.className).toMatch(/amber|yellow/)
+    const dueDateElements = screen.getAllByText(/tomorrow/i)
+    const dueDateSpan = dueDateElements.find((el) => el.tagName === 'SPAN')
+    expect(dueDateSpan).toBeDefined()
+    expect(dueDateSpan!.className).toMatch(/amber|yellow/)
   })
 
   it('should show default styling for due date more than 2 days away', () => {
@@ -91,7 +93,9 @@ describe('formatDueDate - 24h warning (amber)', () => {
       dueDate: yesterday.toISOString(),
     })
     render(<TodoNode todo={todo} todos={[todo]} depth={0} />)
-    const dueDateSpan = screen.getByText(/overdue/i)
-    expect(dueDateSpan.className).toMatch(/red/)
+    const dueDateElements = screen.getAllByText(/overdue/i)
+    const dueDateSpan = dueDateElements.find((el) => el.tagName === 'SPAN')
+    expect(dueDateSpan).toBeDefined()
+    expect(dueDateSpan!.className).toMatch(/red/)
   })
 })

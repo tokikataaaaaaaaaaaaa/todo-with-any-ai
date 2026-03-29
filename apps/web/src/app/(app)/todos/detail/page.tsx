@@ -1,27 +1,70 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import { useTodoStore } from '@/stores/todo-store'
 import { TodoDetailForm } from '@/components/todo/todo-detail-form'
-import type { UpdateTodo } from '@todo-with-any-ai/shared'
+import type { Todo, UpdateTodo } from '@todo-with-any-ai/shared'
 
 function TodoDetailContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const todoId = searchParams.get('id')
-  const { todos } = useTodoStore()
+  const storeTodos = useTodoStore((s) => s.todos)
+  const fetchTodos = useTodoStore((s) => s.fetchTodos)
+  const [todo, setTodo] = useState<Todo | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  const todo = todoId ? todos.find((t) => t.id === todoId) : null
+  useEffect(() => {
+    if (!todoId) {
+      setLoading(false)
+      return
+    }
+
+    // First try store
+    const fromStore = storeTodos.find((t) => t.id === todoId)
+    if (fromStore) {
+      setTodo(fromStore)
+      setLoading(false)
+      return
+    }
+
+    // Store is empty (page reload) — fetch from API
+    const loadTodo = async () => {
+      try {
+        // Fetch all todos to populate store
+        await fetchTodos()
+        const updated = useTodoStore.getState().todos
+        const found = updated.find((t) => t.id === todoId)
+        setTodo(found ?? null)
+      } catch {
+        setTodo(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadTodo()
+  }, [todoId, storeTodos, fetchTodos])
+
+  // Keep todo in sync with store changes
+  useEffect(() => {
+    if (todoId && storeTodos.length > 0) {
+      const found = storeTodos.find((t) => t.id === todoId)
+      if (found) setTodo(found)
+    }
+  }, [storeTodos, todoId])
 
   const handleSave = async (data: UpdateTodo) => {
     if (!todoId) return
     try {
       const { apiClient } = await import('@/lib/api-client')
       await apiClient.updateTodo(todoId, data)
+      const updated = { ...todo!, ...data, updatedAt: new Date().toISOString() }
+      setTodo(updated)
       useTodoStore.setState((state) => ({
         todos: state.todos.map((t) =>
-          t.id === todoId ? { ...t, ...data, updatedAt: new Date().toISOString() } : t
+          t.id === todoId ? updated : t
         ),
       }))
     } catch {
@@ -37,10 +80,18 @@ function TodoDetailContent() {
       useTodoStore.setState((state) => ({
         todos: state.todos.filter((t) => t.id !== todoId),
       }))
-      router.push('/todos')
+      window.location.href = '/todos'
     } catch {
       // Error handling
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <div className="animate-pulse text-[var(--text-muted)]">読み込み中...</div>
+      </div>
+    )
   }
 
   if (!todo) {
@@ -66,19 +117,19 @@ function TodoDetailContent() {
           type="button"
           aria-label="戻る"
           onClick={() => router.back()}
-          className="flex items-center gap-1 text-sm text-[var(--text-secondary)] hover:text-zinc-900"
+          className="flex items-center gap-1 text-sm text-[var(--text-secondary)] hover:text-[var(--text)]"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="15 18 9 12 15 6" />
           </svg>
           戻る
         </button>
-        <h1 className="text-lg font-semibold">Todo詳細</h1>
+        <h1 className="text-lg font-semibold" style={{ fontFamily: 'var(--font-display)' }}>Todo詳細</h1>
         <div className="w-12" />
       </div>
       <TodoDetailForm
         todo={todo}
-        allTodos={todos}
+        allTodos={storeTodos}
         onSave={handleSave}
         onDelete={handleDelete}
       />
@@ -88,7 +139,7 @@ function TodoDetailContent() {
 
 export default function TodoDetailPage() {
   return (
-    <Suspense fallback={<div className="py-16 text-center text-[var(--text-secondary)]">読み込み中...</div>}>
+    <Suspense fallback={<div className="py-16 text-center text-[var(--text-muted)]">読み込み中...</div>}>
       <TodoDetailContent />
     </Suspense>
   )

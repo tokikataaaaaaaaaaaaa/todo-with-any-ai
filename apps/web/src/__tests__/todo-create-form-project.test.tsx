@@ -49,12 +49,14 @@ describe('TodoCreateForm - project selection', () => {
 
   it('should render project select dropdown', () => {
     render(<TodoCreateForm />)
+    fireEvent.click(screen.getByRole('button', { name: /詳細設定/ }))
     const select = screen.getByLabelText('プロジェクト')
     expect(select).toBeInTheDocument()
   })
 
   it('should have "未分類" as default option', () => {
     render(<TodoCreateForm />)
+    fireEvent.click(screen.getByRole('button', { name: /詳細設定/ }))
     const select = screen.getByLabelText('プロジェクト') as HTMLSelectElement
     expect(select.value).toBe('')
     expect(screen.getByText('未分類')).toBeInTheDocument()
@@ -66,6 +68,7 @@ describe('TodoCreateForm - project selection', () => {
       makeProject({ id: 'p2', name: 'Personal', emoji: '🏠' }),
     ]
     render(<TodoCreateForm />)
+    fireEvent.click(screen.getByRole('button', { name: /詳細設定/ }))
     expect(screen.getByText('💼 Work')).toBeInTheDocument()
     expect(screen.getByText('🏠 Personal')).toBeInTheDocument()
   })
@@ -79,6 +82,7 @@ describe('TodoCreateForm - project selection', () => {
     const titleInput = screen.getByLabelText('New todo title')
     fireEvent.change(titleInput, { target: { value: 'Test task' } })
 
+    fireEvent.click(screen.getByRole('button', { name: /詳細設定/ }))
     const select = screen.getByLabelText('プロジェクト')
     fireEvent.change(select, { target: { value: 'p1' } })
 
@@ -144,6 +148,7 @@ describe('TodoCreateForm - project selection', () => {
     const titleInput = screen.getByLabelText('New todo title')
     fireEvent.change(titleInput, { target: { value: 'Test' } })
 
+    fireEvent.click(screen.getByRole('button', { name: /詳細設定/ }))
     const select = screen.getByLabelText('プロジェクト') as HTMLSelectElement
     fireEvent.change(select, { target: { value: 'p1' } })
 

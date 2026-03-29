@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Settings, ClipboardList, Calendar } from 'lucide-react'
+import { Settings, ClipboardList, Calendar, Menu } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useAuthStore } from '@/stores/auth-store'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
+import { Sidebar } from '@/components/layout/sidebar'
 
 export default function AppLayout({
   children,
@@ -13,6 +14,7 @@ export default function AppLayout({
   children: React.ReactNode
 }>) {
   const { user, loading } = useAuth()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
     if (!loading && !user) {
@@ -51,10 +53,17 @@ export default function AppLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bg)]">
+    <div className="flex min-h-screen flex-col bg-[var(--bg)]">
       <header className="border-b border-[var(--border)] bg-[var(--bg-surface)]/85 backdrop-blur-sm p-4">
         <nav className="flex items-center justify-between">
           <div className="flex items-center gap-2">
+            <button
+              data-testid="hamburger-button"
+              onClick={() => setSidebarOpen(true)}
+              className="rounded-[var(--radius-md)] p-1.5 text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-raised)] sm:hidden"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
             <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--primary)]">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path
@@ -93,7 +102,10 @@ export default function AppLayout({
           </div>
         </nav>
       </header>
-      <main className="p-4">{children}</main>
+      <div className="flex flex-1">
+        <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <main className="flex-1 p-4">{children}</main>
+      </div>
     </div>
   )
 }

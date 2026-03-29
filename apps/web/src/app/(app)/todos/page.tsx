@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTodoStore } from '@/stores/todo-store'
 import { useProjectStore } from '@/stores/project-store'
+import { useFilterStore } from '@/stores/filter-store'
 import { TodoTree } from '@/components/todo/todo-tree'
 import { TodoCreateForm } from '@/components/todo/todo-create-form'
 import { EmptyState } from '@/components/todo/empty-state'
@@ -10,6 +11,19 @@ import { cn } from '@/lib/utils'
 import { Plus, RefreshCw } from 'lucide-react'
 
 type SortMode = 'default' | 'dueDate'
+
+function getToday(): string {
+  return new Date().toISOString().split('T')[0]
+}
+
+function isWithinDays(dueDate: string | null, days: number): boolean {
+  if (!dueDate) return false
+  const today = new Date(getToday())
+  const due = new Date(dueDate)
+  const diffMs = due.getTime() - today.getTime()
+  const diffDays = diffMs / (1000 * 60 * 60 * 24)
+  return diffDays >= 0 && diffDays <= days
+}
 
 function TodoSkeleton() {
   return (
@@ -31,8 +45,9 @@ export default function TodosPage() {
   const fetchTodos = useTodoStore((s) => s.fetchTodos)
   const projects = useProjectStore((s) => s.projects)
   const fetchProjects = useProjectStore((s) => s.fetchProjects)
+  const filterType = useFilterStore((s) => s.filterType)
+  const filterProjectId = useFilterStore((s) => s.projectId)
   const [sortMode, setSortMode] = useState<SortMode>('default')
-  const [filterProjectId, setFilterProjectId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchTodos()
@@ -40,9 +55,36 @@ export default function TodosPage() {
   }, [fetchTodos, fetchProjects])
 
   const filteredTodos = useMemo(() => {
-    if (filterProjectId === null) return todos
-    return todos.filter((t) => t.projectId === filterProjectId)
-  }, [todos, filterProjectId])
+    switch (filterType) {
+      case 'today': {
+        const today = getToday()
+        return todos.filter((t) => t.dueDate === today)
+      }
+      case 'upcoming':
+        return todos.filter((t) => isWithinDays(t.dueDate, 7))
+      case 'project':
+        return todos.filter((t) => t.projectId === filterProjectId)
+      case 'all':
+      default:
+        return todos
+    }
+  }, [todos, filterType, filterProjectId])
+
+  const headerTitle = useMemo(() => {
+    switch (filterType) {
+      case 'today':
+        return '今日のタスク'
+      case 'upcoming':
+        return '近日中のタスク'
+      case 'project': {
+        const project = projects.find((p) => p.id === filterProjectId)
+        return project?.name ?? 'タスク'
+      }
+      case 'all':
+      default:
+        return 'すべてのタスク'
+    }
+  }, [filterType, filterProjectId, projects])
 
   const handleSortChange = (mode: SortMode) => {
     if (mode === sortMode) return
@@ -57,7 +99,7 @@ export default function TodosPage() {
   return (
     <div className="mx-auto max-w-2xl">
       <div className="flex items-center justify-between px-4 py-4">
-        <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>Todos</h1>
+        <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>{headerTitle}</h1>
       </div>
 
       <div className="flex gap-2 px-4 pb-3">
@@ -88,41 +130,6 @@ export default function TodosPage() {
           期限順
         </button>
       </div>
-
-      {/* Project filter tabs */}
-      {projects.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto px-4 pb-3">
-          <button
-            data-testid="filter-all"
-            data-active={filterProjectId === null ? 'true' : 'false'}
-            onClick={() => setFilterProjectId(null)}
-            className={cn(
-              'whitespace-nowrap rounded-[var(--radius-md)] px-3 py-1.5 text-sm font-medium transition-colors',
-              filterProjectId === null
-                ? 'bg-[var(--primary)] text-[var(--bg)]'
-                : 'bg-[var(--bg-raised)] text-[var(--text-secondary)] hover:bg-[var(--border)]'
-            )}
-          >
-            全て
-          </button>
-          {projects.map((p) => (
-            <button
-              key={p.id}
-              data-testid={`filter-${p.id}`}
-              data-active={filterProjectId === p.id ? 'true' : 'false'}
-              onClick={() => setFilterProjectId(p.id)}
-              className={cn(
-                'whitespace-nowrap rounded-[var(--radius-md)] px-3 py-1.5 text-sm font-medium transition-colors',
-                filterProjectId === p.id
-                  ? 'bg-[var(--primary)] text-[var(--bg)]'
-                  : 'bg-[var(--bg-raised)] text-[var(--text-secondary)] hover:bg-[var(--border)]'
-              )}
-            >
-              {p.emoji} {p.name}
-            </button>
-          ))}
-        </div>
-      )}
 
       {loading && <TodoSkeleton />}
 

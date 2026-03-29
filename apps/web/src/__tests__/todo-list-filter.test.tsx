@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import type { Todo, Project } from '@todo-with-any-ai/shared'
+import { useFilterStore } from '@/stores/filter-store'
 
 // Mock stores
 const mockFetchTodos = vi.fn()
@@ -62,7 +63,7 @@ const makeProject = (overrides: Partial<Project> = {}): Project => ({
   id: 'proj-1',
   name: 'Work',
   color: '#6366F1',
-  emoji: '💼',
+  emoji: '\u{1F4BC}',
   order: 0,
   dueDate: null,
   createdAt: '2026-01-01T00:00:00Z',
@@ -70,99 +71,68 @@ const makeProject = (overrides: Partial<Project> = {}): Project => ({
   ...overrides,
 })
 
-describe('TodosPage - project filter', () => {
+describe('TodosPage - project filter (via filterStore)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockTodos = []
     mockProjects = []
     mockExpandedIds.clear()
+    useFilterStore.setState({ filterType: 'all', projectId: null })
   })
 
-  it('should render "全て" filter tab', () => {
+  it('should show all todos when filterType is "all"', () => {
     mockProjects = [makeProject()]
-    mockTodos = [makeTodo()]
-    render(<TodosPage />)
-    expect(screen.getByTestId('filter-all')).toBeInTheDocument()
-    expect(screen.getByTestId('filter-all')).toHaveTextContent('全て')
-  })
-
-  it('should render project filter tabs', () => {
-    mockProjects = [
-      makeProject({ id: 'p1', name: 'Work', emoji: '💼' }),
-      makeProject({ id: 'p2', name: 'Personal', emoji: '🏠' }),
-    ]
-    mockTodos = [makeTodo()]
-    render(<TodosPage />)
-    expect(screen.getByTestId('filter-p1')).toHaveTextContent('💼 Work')
-    expect(screen.getByTestId('filter-p2')).toHaveTextContent('🏠 Personal')
-  })
-
-  it('should show all todos when "全て" is selected', () => {
-    mockProjects = [makeProject({ id: 'p1' })]
     mockTodos = [
-      makeTodo({ id: 't1', title: 'Work Task', projectId: 'p1' }),
+      makeTodo({ id: 't1', title: 'Work Task', projectId: 'proj-1' }),
       makeTodo({ id: 't2', title: 'Personal Task', projectId: null }),
     ]
+    useFilterStore.setState({ filterType: 'all', projectId: null })
     render(<TodosPage />)
 
-    // By default "全て" is selected - both todos should be visible
     expect(screen.getByText('Work Task')).toBeInTheDocument()
     expect(screen.getByText('Personal Task')).toBeInTheDocument()
   })
 
-  it('should filter todos when a project tab is clicked', () => {
-    mockProjects = [makeProject({ id: 'p1', name: 'Work', emoji: '💼' })]
+  it('should filter todos by project when filterType is "project"', () => {
+    mockProjects = [makeProject({ id: 'p1', name: 'Work', emoji: '\u{1F4BC}' })]
     mockTodos = [
       makeTodo({ id: 't1', title: 'Work Task', projectId: 'p1' }),
       makeTodo({ id: 't2', title: 'Personal Task', projectId: null }),
     ]
+    useFilterStore.setState({ filterType: 'project', projectId: 'p1' })
     render(<TodosPage />)
-
-    const filterTab = screen.getByTestId('filter-p1')
-    fireEvent.click(filterTab)
 
     expect(screen.getByText('Work Task')).toBeInTheDocument()
     expect(screen.queryByText('Personal Task')).not.toBeInTheDocument()
   })
 
-  it('should show all todos again when clicking "全て" after filtering', () => {
-    mockProjects = [makeProject({ id: 'p1', name: 'Work', emoji: '💼' })]
+  it('should show all todos again when switching back to "all"', () => {
+    mockProjects = [makeProject({ id: 'p1', name: 'Work', emoji: '\u{1F4BC}' })]
     mockTodos = [
       makeTodo({ id: 't1', title: 'Work Task', projectId: 'p1' }),
       makeTodo({ id: 't2', title: 'Personal Task', projectId: null }),
     ]
-    render(<TodosPage />)
 
-    // Filter by project
-    const filterTab = screen.getByTestId('filter-p1')
-    fireEvent.click(filterTab)
+    // First filter by project
+    useFilterStore.setState({ filterType: 'project', projectId: 'p1' })
+    const { unmount } = render(<TodosPage />)
     expect(screen.queryByText('Personal Task')).not.toBeInTheDocument()
+    unmount()
 
-    // Click "All"
-    const allTab = screen.getByTestId('filter-all')
-    fireEvent.click(allTab)
+    // Switch back to all
+    useFilterStore.setState({ filterType: 'all', projectId: null })
+    render(<TodosPage />)
     expect(screen.getByText('Work Task')).toBeInTheDocument()
     expect(screen.getByText('Personal Task')).toBeInTheDocument()
   })
 
-  it('should highlight the active filter tab', () => {
-    mockProjects = [makeProject({ id: 'p1', name: 'Work', emoji: '💼' })]
-    mockTodos = [makeTodo({ id: 't1', projectId: 'p1' })]
-    render(<TodosPage />)
-
-    const allTab = screen.getByTestId('filter-all')
-    expect(allTab).toHaveAttribute('data-active', 'true')
-
-    const projectTab = screen.getByTestId('filter-p1')
-    fireEvent.click(projectTab)
-    expect(projectTab).toHaveAttribute('data-active', 'true')
-    expect(allTab).toHaveAttribute('data-active', 'false')
-  })
-
-  it('should not show filter tabs when no projects exist', () => {
-    mockProjects = []
+  it('should not show project filter tabs in page (moved to sidebar)', () => {
+    mockProjects = [makeProject({ id: 'p1', name: 'Work', emoji: '\u{1F4BC}' })]
     mockTodos = [makeTodo()]
     render(<TodosPage />)
+
+    // The inline filter tabs have been removed in favor of the sidebar
     expect(screen.queryByTestId('filter-all')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('filter-p1')).not.toBeInTheDocument()
   })
 })

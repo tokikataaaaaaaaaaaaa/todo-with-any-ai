@@ -21,10 +21,11 @@ describe('ChildrenProgress', () => {
     expect(badge.className).toMatch(/green/)
   })
 
-  it('should render default (gray) badge when not all children are completed', () => {
+  it('should render default badge when not all children are completed', () => {
     render(<ChildrenProgress completedCount={1} totalCount={4} />)
     const badge = screen.getByText('1/4')
-    expect(badge.className).toMatch(/gray/)
+    // Default uses CSS variable bg-[var(--bg-raised)], not green
+    expect(badge.className).not.toMatch(/green/)
   })
 
   it('should render badge for single child completed', () => {
@@ -36,7 +37,8 @@ describe('ChildrenProgress', () => {
   it('should render badge when no children are completed', () => {
     render(<ChildrenProgress completedCount={0} totalCount={3} />)
     const badge = screen.getByText('0/3')
-    expect(badge.className).toMatch(/gray/)
+    // Default uses CSS variable bg-[var(--bg-raised)], not green
+    expect(badge.className).not.toMatch(/green/)
   })
 
   it('should have accessible role', () => {
