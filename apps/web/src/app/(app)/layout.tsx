@@ -64,9 +64,12 @@ export default function AppLayout({
             >
               <ClipboardList className="h-5 w-5" data-testid="activity-icon" />
             </Link>
-            <button className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800">
+            <Link
+              href="/settings"
+              className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+            >
               <Settings className="h-5 w-5" data-testid="settings-icon" />
-            </button>
+            </Link>
           </div>
         </nav>
       </header>

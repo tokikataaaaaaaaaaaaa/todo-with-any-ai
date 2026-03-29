@@ -55,6 +55,8 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
       dueDate: null,
       priority: null,
       categoryIcon: null,
+      projectId: todo.projectId ?? null,
+      urgencyLevelId: null,
     })
     setChildTitle('')
     setShowChildForm(false)

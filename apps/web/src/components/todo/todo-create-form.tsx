@@ -37,6 +37,8 @@ export function TodoCreateForm() {
       dueDate: null,
       priority: null,
       categoryIcon: null,
+      projectId: null,
+      urgencyLevelId: null,
     })
     reset()
   }
