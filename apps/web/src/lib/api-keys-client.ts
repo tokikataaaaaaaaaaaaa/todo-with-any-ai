@@ -18,7 +18,7 @@ export const apiKeysClient = {
       throw new Error(`Failed to list keys: ${res.status} ${res.statusText}`)
     }
     const data = await res.json()
-    return data.keys
+    return Array.isArray(data) ? data : data.keys ?? []
   },
 
   async createKey(name: string): Promise<{ key: string; id: string; name: string; createdAt: string }> {
