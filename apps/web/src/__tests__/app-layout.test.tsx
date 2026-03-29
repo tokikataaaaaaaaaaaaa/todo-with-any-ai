@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { render, screen, act } from '@testing-library/react'
 import AppLayout from '@/app/(app)/layout'
+import { useAuthStore } from '@/stores/auth-store'
 
 // Mock next/navigation
 const mockPush = vi.fn()
@@ -17,12 +18,32 @@ vi.mock('@/hooks/use-auth', () => ({
   useAuth: () => mockUseAuth(),
 }))
 
+// Track window.location.href assignments
+const originalLocation = window.location
+
 describe('AppLayout (authenticated)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.useFakeTimers()
+    useAuthStore.setState({ user: null, loading: true })
+
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: { ...originalLocation, href: '/app' },
+    })
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: originalLocation,
+    })
   })
 
   it('should redirect to / when user is not authenticated', () => {
+    // Also set store to have no user (component checks store in timeout)
+    useAuthStore.setState({ user: null, loading: false })
     mockUseAuth.mockReturnValue({
       user: null,
       loading: false,
@@ -34,7 +55,12 @@ describe('AppLayout (authenticated)', () => {
       </AppLayout>
     )
 
-    expect(mockPush).toHaveBeenCalledWith('/')
+    // The component uses setTimeout with 1500ms delay
+    act(() => {
+      vi.advanceTimersByTime(1500)
+    })
+
+    expect(window.location.href).toBe('/')
   })
 
   it('should render children when user is authenticated', () => {

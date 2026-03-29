@@ -1,12 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { AuthProvider } from '@/components/auth/auth-provider'
+import { useAuthStore } from '@/stores/auth-store'
 
 // Mock firebase/auth
 const mockOnAuthStateChanged = vi.fn()
+const mockGetRedirectResult = vi.fn()
 
 vi.mock('firebase/auth', () => ({
   onAuthStateChanged: (...args: unknown[]) => mockOnAuthStateChanged(...args),
+  getRedirectResult: (...args: unknown[]) => mockGetRedirectResult(...args),
   getAuth: vi.fn(),
   GithubAuthProvider: vi.fn(),
   GoogleAuthProvider: vi.fn(),
@@ -21,7 +24,9 @@ vi.mock('@/lib/firebase', () => ({
 describe('AuthProvider', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    useAuthStore.setState({ user: null, loading: true })
     mockOnAuthStateChanged.mockReturnValue(vi.fn())
+    mockGetRedirectResult.mockResolvedValue(null)
   })
 
   it('should render children correctly', () => {

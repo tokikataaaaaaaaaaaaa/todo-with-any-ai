@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import LoginPage from '@/app/page'
 
@@ -20,9 +20,19 @@ vi.mock('@/hooks/use-auth', () => ({
   useAuth: () => mockUseAuth(),
 }))
 
+// Track window.location.href assignments
+const originalLocation = window.location
+
 describe('LoginPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.useFakeTimers()
+
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: { ...originalLocation, href: '/' },
+    })
+
     // Default: not logged in, not loading
     mockUseAuth.mockReturnValue({
       user: null,
@@ -30,6 +40,14 @@ describe('LoginPage', () => {
       loginWithGithub: mockLoginWithGithub,
       loginWithGoogle: mockLoginWithGoogle,
       logout: vi.fn(),
+    })
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: originalLocation,
     })
   })
 
@@ -74,7 +92,11 @@ describe('LoginPage', () => {
     })
 
     render(<LoginPage />)
-    expect(mockPush).toHaveBeenCalledWith('/todos')
+
+    // The component uses setTimeout with 500ms delay for redirect
+    vi.advanceTimersByTime(500)
+
+    expect(window.location.href).toBe('/todos')
   })
 
   it('should not redirect when loading', () => {
@@ -91,6 +113,7 @@ describe('LoginPage', () => {
   })
 
   it('should call loginWithGithub when GitHub button is clicked', async () => {
+    vi.useRealTimers()
     mockLoginWithGithub.mockResolvedValue(undefined)
     render(<LoginPage />)
 
@@ -102,6 +125,7 @@ describe('LoginPage', () => {
   })
 
   it('should call loginWithGoogle when Google button is clicked', async () => {
+    vi.useRealTimers()
     mockLoginWithGoogle.mockResolvedValue(undefined)
     render(<LoginPage />)
 
@@ -113,6 +137,7 @@ describe('LoginPage', () => {
   })
 
   it('should show error message when GitHub login fails', async () => {
+    vi.useRealTimers()
     mockLoginWithGithub.mockRejectedValue(new Error('auth/popup-closed-by-user'))
     render(<LoginPage />)
 
@@ -124,6 +149,7 @@ describe('LoginPage', () => {
   })
 
   it('should show error message when Google login fails', async () => {
+    vi.useRealTimers()
     mockLoginWithGoogle.mockRejectedValue(new Error('auth/internal-error'))
     render(<LoginPage />)
 

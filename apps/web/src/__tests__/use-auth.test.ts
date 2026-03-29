@@ -1,16 +1,16 @@
-import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useAuth } from '@/hooks/use-auth'
 import { useAuthStore } from '@/stores/auth-store'
 
 // Mock firebase/auth
-const mockOnAuthStateChanged = vi.fn()
 const mockSignInWithPopup = vi.fn()
+const mockSignInWithRedirect = vi.fn()
 const mockSignOut = vi.fn()
 
 vi.mock('firebase/auth', () => ({
-  onAuthStateChanged: (...args: unknown[]) => mockOnAuthStateChanged(...args),
   signInWithPopup: (...args: unknown[]) => mockSignInWithPopup(...args),
+  signInWithRedirect: (...args: unknown[]) => mockSignInWithRedirect(...args),
   signOut: (...args: unknown[]) => mockSignOut(...args),
   getAuth: vi.fn(),
   GithubAuthProvider: vi.fn(),
@@ -28,8 +28,6 @@ describe('useAuth', () => {
     vi.clearAllMocks()
     // Reset auth store
     useAuthStore.setState({ user: null, loading: true })
-    // Default: onAuthStateChanged returns unsubscribe fn
-    mockOnAuthStateChanged.mockReturnValue(vi.fn())
   })
 
   it('should have initial state: user null, loading true', () => {
@@ -38,23 +36,13 @@ describe('useAuth', () => {
     expect(result.current.loading).toBe(true)
   })
 
-  it('should set user and loading false when onAuthStateChanged fires with user', () => {
-    // Capture the callback passed to onAuthStateChanged
-    let authCallback: (user: unknown) => void = () => {}
-    mockOnAuthStateChanged.mockImplementation((_auth: unknown, cb: (user: unknown) => void) => {
-      authCallback = cb
-      return vi.fn()
+  it('should reflect auth store user state', () => {
+    useAuthStore.setState({
+      user: { uid: 'test-uid', displayName: 'Test User', email: 'test@example.com' },
+      loading: false,
     })
 
     const { result } = renderHook(() => useAuth())
-
-    act(() => {
-      authCallback({
-        uid: 'test-uid',
-        displayName: 'Test User',
-        email: 'test@example.com',
-      })
-    })
 
     expect(result.current.user).toEqual({
       uid: 'test-uid',
@@ -64,18 +52,10 @@ describe('useAuth', () => {
     expect(result.current.loading).toBe(false)
   })
 
-  it('should set user null and loading false when onAuthStateChanged fires with null', () => {
-    let authCallback: (user: unknown) => void = () => {}
-    mockOnAuthStateChanged.mockImplementation((_auth: unknown, cb: (user: unknown) => void) => {
-      authCallback = cb
-      return vi.fn()
-    })
+  it('should reflect auth store loading false with no user', () => {
+    useAuthStore.setState({ user: null, loading: false })
 
     const { result } = renderHook(() => useAuth())
-
-    act(() => {
-      authCallback(null)
-    })
 
     expect(result.current.user).toBeNull()
     expect(result.current.loading).toBe(false)
@@ -114,33 +94,20 @@ describe('useAuth', () => {
     expect(mockSignOut).toHaveBeenCalled()
   })
 
-  it('should set user to null after logout', async () => {
-    // Set a user first
-    useAuthStore.setState({ user: { uid: '123', displayName: 'Test', email: 'test@test.com' }, loading: false })
-    mockSignOut.mockResolvedValue(undefined)
-
-    let authCallback: (user: unknown) => void = () => {}
-    mockOnAuthStateChanged.mockImplementation((_auth: unknown, cb: (user: unknown) => void) => {
-      authCallback = cb
-      return vi.fn()
-    })
-
+  it('should fallback to signInWithRedirect when popup is blocked', async () => {
+    mockSignInWithPopup.mockRejectedValue({ code: 'auth/popup-blocked' })
+    mockSignInWithRedirect.mockResolvedValue(undefined)
     const { result } = renderHook(() => useAuth())
 
     await act(async () => {
-      await result.current.logout()
+      await result.current.loginWithGithub()
     })
 
-    // Simulate Firebase notifying that user is null after signOut
-    act(() => {
-      authCallback(null)
-    })
-
-    expect(result.current.user).toBeNull()
+    expect(mockSignInWithRedirect).toHaveBeenCalled()
   })
 
-  it('should handle login error gracefully and return error', async () => {
-    mockSignInWithPopup.mockRejectedValue(new Error('auth/popup-closed-by-user'))
+  it('should throw error for non-popup-related auth errors', async () => {
+    mockSignInWithPopup.mockRejectedValue(new Error('auth/internal'))
     const { result } = renderHook(() => useAuth())
 
     let error: Error | null = null
@@ -153,21 +120,6 @@ describe('useAuth', () => {
     })
 
     expect(error).not.toBeNull()
-    expect(error!.message).toBe('auth/popup-closed-by-user')
-  })
-
-  it('should unsubscribe from onAuthStateChanged on unmount', () => {
-    const unsubscribe = vi.fn()
-    mockOnAuthStateChanged.mockReturnValue(unsubscribe)
-
-    const { unmount } = renderHook(() => useAuth())
-    unmount()
-
-    expect(unsubscribe).toHaveBeenCalled()
-  })
-
-  it('should subscribe to onAuthStateChanged on mount', () => {
-    renderHook(() => useAuth())
-    expect(mockOnAuthStateChanged).toHaveBeenCalled()
+    expect(error!.message).toBe('auth/internal')
   })
 })

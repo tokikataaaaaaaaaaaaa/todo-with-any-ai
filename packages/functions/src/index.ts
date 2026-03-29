@@ -2,7 +2,7 @@ import { onRequest } from 'firebase-functions/v2/https'
 import { app } from './app'
 import type { HttpsFunction } from 'firebase-functions/v2/https'
 
-export const api: HttpsFunction = onRequest(async (req, res) => {
+export const api: HttpsFunction = onRequest({ invoker: 'public' }, async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`)
   const headers = new Headers()
   for (const [key, value] of Object.entries(req.headers)) {

@@ -27,6 +27,7 @@ const originalLocation = window.location
 describe('LoginPage Snackbar Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.useFakeTimers()
     useSnackbarStore.setState({ messages: [] })
 
     // Mock window.location
@@ -46,39 +47,52 @@ describe('LoginPage Snackbar Integration', () => {
   })
 
   afterEach(() => {
+    vi.useRealTimers()
     Object.defineProperty(window, 'location', {
       writable: true,
       value: originalLocation,
     })
   })
 
-  it('should show success snackbar on GitHub login success', async () => {
-    mockLoginWithGithub.mockResolvedValue(undefined)
+  it('should show success snackbar when user becomes authenticated', () => {
+    // Simulate: user becomes authenticated (e.g. AuthProvider set user after login)
+    mockUseAuth.mockReturnValue({
+      user: { uid: '123', displayName: 'Test', email: 'test@test.com' },
+      loading: false,
+      loginWithGithub: mockLoginWithGithub,
+      loginWithGoogle: mockLoginWithGoogle,
+      logout: vi.fn(),
+    })
+
     render(<LoginPage />)
 
-    fireEvent.click(screen.getByRole('button', { name: /github/i }))
-
-    await waitFor(() => {
-      const { messages } = useSnackbarStore.getState()
-      const successMsg = messages.find((m) => m.type === 'success')
-      expect(successMsg).toBeDefined()
-      expect(successMsg?.message).toMatch(/ログインしました/)
-    })
+    const { messages } = useSnackbarStore.getState()
+    const successMsg = messages.find((m) => m.type === 'success')
+    expect(successMsg).toBeDefined()
+    expect(successMsg?.message).toMatch(/ログインしました/)
   })
 
-  it('should set window.location.href to /todos on login success', async () => {
-    mockLoginWithGithub.mockResolvedValue(undefined)
+  it('should set window.location.href to /todos when user is authenticated', () => {
+    mockUseAuth.mockReturnValue({
+      user: { uid: '123', displayName: 'Test', email: 'test@test.com' },
+      loading: false,
+      loginWithGithub: mockLoginWithGithub,
+      loginWithGoogle: mockLoginWithGoogle,
+      logout: vi.fn(),
+    })
+
     render(<LoginPage />)
 
-    fireEvent.click(screen.getByRole('button', { name: /github/i }))
+    // The component uses setTimeout with 500ms delay
+    vi.advanceTimersByTime(500)
 
-    await waitFor(() => {
-      expect(window.location.href).toBe('/todos')
-    })
+    expect(window.location.href).toBe('/todos')
   })
 
   it('should show error snackbar on GitHub login failure', async () => {
     mockLoginWithGithub.mockRejectedValue(new Error('auth/popup-closed'))
+
+    vi.useRealTimers()
     render(<LoginPage />)
 
     fireEvent.click(screen.getByRole('button', { name: /github/i }))
@@ -93,6 +107,8 @@ describe('LoginPage Snackbar Integration', () => {
 
   it('should show error snackbar with correct message on failure', async () => {
     mockLoginWithGithub.mockRejectedValue(new Error('auth/internal'))
+
+    vi.useRealTimers()
     render(<LoginPage />)
 
     fireEvent.click(screen.getByRole('button', { name: /github/i }))
@@ -104,22 +120,27 @@ describe('LoginPage Snackbar Integration', () => {
     })
   })
 
-  it('should show success snackbar on Google login success', async () => {
-    mockLoginWithGoogle.mockResolvedValue(undefined)
+  it('should show success snackbar on Google login (user becomes authenticated)', () => {
+    mockUseAuth.mockReturnValue({
+      user: { uid: '456', displayName: 'Google User', email: 'google@test.com' },
+      loading: false,
+      loginWithGithub: mockLoginWithGithub,
+      loginWithGoogle: mockLoginWithGoogle,
+      logout: vi.fn(),
+    })
+
     render(<LoginPage />)
 
-    fireEvent.click(screen.getByRole('button', { name: /google/i }))
-
-    await waitFor(() => {
-      const { messages } = useSnackbarStore.getState()
-      const successMsg = messages.find((m) => m.type === 'success')
-      expect(successMsg).toBeDefined()
-      expect(successMsg?.message).toMatch(/ログインしました/)
-    })
+    const { messages } = useSnackbarStore.getState()
+    const successMsg = messages.find((m) => m.type === 'success')
+    expect(successMsg).toBeDefined()
+    expect(successMsg?.message).toMatch(/ログインしました/)
   })
 
   it('should show error snackbar on Google login failure', async () => {
     mockLoginWithGoogle.mockRejectedValue(new Error('auth/internal'))
+
+    vi.useRealTimers()
     render(<LoginPage />)
 
     fireEvent.click(screen.getByRole('button', { name: /google/i }))
@@ -142,6 +163,9 @@ describe('LoginPage Snackbar Integration', () => {
     })
 
     render(<LoginPage />)
+
+    vi.advanceTimersByTime(500)
+
     expect(window.location.href).toBe('/todos')
   })
 
@@ -160,6 +184,8 @@ describe('LoginPage Snackbar Integration', () => {
 
   it('should show error snackbar with type error (red)', async () => {
     mockLoginWithGoogle.mockRejectedValue(new Error('fail'))
+
+    vi.useRealTimers()
     render(<LoginPage />)
 
     fireEvent.click(screen.getByRole('button', { name: /google/i }))

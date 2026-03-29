@@ -2,7 +2,12 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "paths": {
+      "@todo-with-any-ai/shared": ["../shared/src/index.ts"]
+    }
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "src/__tests__"]
