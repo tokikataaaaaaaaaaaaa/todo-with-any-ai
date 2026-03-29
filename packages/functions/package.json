@@ -18,11 +18,11 @@
     "firebase-functions": "^7.2.2"
   },
   "devDependencies": {
-    "@todo-with-any-ai/shared": "workspace:*",
     "@types/node": "^25.5.0",
     "esbuild": "^0.27.4",
     "hono": "^4.12.9",
     "typescript": "^5.7.0",
     "vitest": "^4.1.2"
-  }
+  },
+  "pnpmOverrides_comment": "@todo-with-any-ai/shared is bundled via esbuild, not needed at deploy time"
 }
