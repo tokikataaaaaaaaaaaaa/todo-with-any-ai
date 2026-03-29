@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { useTodoStore } from '@/stores/todo-store'
+import { useProjectStore } from '@/stores/project-store'
 import { PriorityBadge } from './priority-badge'
 import { CategoryIcon } from './category-icon'
 import { ChevronDown, ChevronRight, Plus } from 'lucide-react'
@@ -14,7 +15,7 @@ interface TodoNodeProps {
   depth: number
 }
 
-function formatDueDate(dueDate: string): { label: string; overdue: boolean } {
+function formatDueDate(dueDate: string): { label: string; overdue: boolean; urgent: boolean } {
   const due = new Date(dueDate)
   const now = new Date()
 
@@ -24,10 +25,10 @@ function formatDueDate(dueDate: string): { label: string; overdue: boolean } {
   const diffMs = dueDay.getTime() - today.getTime()
   const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24))
 
-  if (diffDays < 0) return { label: `${Math.abs(diffDays)}d overdue!`, overdue: true }
-  if (diffDays === 0) return { label: 'Today', overdue: false }
-  if (diffDays === 1) return { label: 'Tomorrow', overdue: false }
-  return { label: `${diffDays}d`, overdue: false }
+  if (diffDays < 0) return { label: `${Math.abs(diffDays)}d overdue!`, overdue: true, urgent: false }
+  if (diffDays === 0) return { label: 'Today', overdue: false, urgent: true }
+  if (diffDays === 1) return { label: 'Tomorrow', overdue: false, urgent: true }
+  return { label: `${diffDays}d`, overdue: false, urgent: false }
 }
 
 export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
@@ -35,8 +36,13 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
   const toggleExpand = useTodoStore((s) => s.toggleExpand)
   const createTodo = useTodoStore((s) => s.createTodo)
   const expandedIds = useTodoStore((s) => s.expandedIds)
+  const projects = useProjectStore((s) => s.projects)
   const [showChildForm, setShowChildForm] = useState(false)
   const [childTitle, setChildTitle] = useState('')
+
+  const project = todo.projectId
+    ? projects.find((p) => p.id === todo.projectId) ?? null
+    : null
 
   const children = todos.filter((t) => t.parentId === todo.id)
   const hasChildren = children.length > 0
@@ -71,7 +77,11 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
       <div
         data-testid="todo-row"
         className="flex h-12 items-center gap-2 border-b border-gray-100 dark:border-gray-800"
-        style={{ paddingLeft: `${depth * 24}px` }}
+        style={
+          project
+            ? { paddingLeft: `${depth * 24}px`, borderLeft: `3px solid ${project.color}` }
+            : { paddingLeft: `${depth * 24}px` }
+        }
       >
         {/* Expand/collapse toggle */}
         {hasChildren ? (
@@ -93,6 +103,17 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
 
         {/* Category icon */}
         <CategoryIcon category={todo.categoryIcon} />
+
+        {/* Project badge */}
+        {project && (
+          <span
+            data-testid="project-badge"
+            className="text-sm"
+            title={project.name}
+          >
+            {project.emoji}
+          </span>
+        )}
 
         {/* Checkbox */}
         <input
@@ -139,7 +160,9 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
               'whitespace-nowrap text-xs',
               dueDateInfo.overdue
                 ? 'font-medium text-red-600 dark:text-red-400'
-                : 'text-gray-500 dark:text-gray-400'
+                : dueDateInfo.urgent
+                  ? 'font-medium text-amber-600 dark:text-amber-400'
+                  : 'text-gray-500 dark:text-gray-400'
             )}
           >
             {dueDateInfo.label}

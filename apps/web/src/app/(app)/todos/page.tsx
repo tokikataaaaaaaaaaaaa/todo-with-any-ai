@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTodoStore } from '@/stores/todo-store'
+import { useProjectStore } from '@/stores/project-store'
 import { TodoTree } from '@/components/todo/todo-tree'
 import { TodoCreateForm } from '@/components/todo/todo-create-form'
 import { EmptyState } from '@/components/todo/empty-state'
@@ -28,11 +29,20 @@ export default function TodosPage() {
   const loading = useTodoStore((s) => s.loading)
   const error = useTodoStore((s) => s.error)
   const fetchTodos = useTodoStore((s) => s.fetchTodos)
+  const projects = useProjectStore((s) => s.projects)
+  const fetchProjects = useProjectStore((s) => s.fetchProjects)
   const [sortMode, setSortMode] = useState<SortMode>('default')
+  const [filterProjectId, setFilterProjectId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchTodos()
-  }, [fetchTodos])
+    fetchProjects()
+  }, [fetchTodos, fetchProjects])
+
+  const filteredTodos = useMemo(() => {
+    if (filterProjectId === null) return todos
+    return todos.filter((t) => t.projectId === filterProjectId)
+  }, [todos, filterProjectId])
 
   const handleSortChange = (mode: SortMode) => {
     if (mode === sortMode) return
@@ -79,6 +89,41 @@ export default function TodosPage() {
         </button>
       </div>
 
+      {/* Project filter tabs */}
+      {projects.length > 0 && (
+        <div className="flex gap-2 overflow-x-auto px-4 pb-3">
+          <button
+            data-testid="filter-all"
+            data-active={filterProjectId === null ? 'true' : 'false'}
+            onClick={() => setFilterProjectId(null)}
+            className={cn(
+              'whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+              filterProjectId === null
+                ? 'bg-indigo-500 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+            )}
+          >
+            全て
+          </button>
+          {projects.map((p) => (
+            <button
+              key={p.id}
+              data-testid={`filter-${p.id}`}
+              data-active={filterProjectId === p.id ? 'true' : 'false'}
+              onClick={() => setFilterProjectId(p.id)}
+              className={cn(
+                'whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+                filterProjectId === p.id
+                  ? 'bg-indigo-500 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+              )}
+            >
+              {p.emoji} {p.name}
+            </button>
+          ))}
+        </div>
+      )}
+
       {loading && <TodoSkeleton />}
 
       {error && (
@@ -94,9 +139,9 @@ export default function TodosPage() {
         </div>
       )}
 
-      {!loading && !error && todos.length === 0 && <EmptyState />}
+      {!loading && !error && filteredTodos.length === 0 && <EmptyState />}
 
-      {!loading && todos.length > 0 && <TodoTree todos={todos} />}
+      {!loading && filteredTodos.length > 0 && <TodoTree todos={filteredTodos} />}
 
       <TodoCreateForm />
 

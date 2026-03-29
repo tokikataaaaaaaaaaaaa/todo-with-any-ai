@@ -1,9 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useTodoStore } from '@/stores/todo-store'
+import { useProjectStore } from '@/stores/project-store'
 import { Plus } from 'lucide-react'
 
 const createFormSchema = z.object({
@@ -17,6 +19,8 @@ type CreateFormData = z.infer<typeof createFormSchema>
 
 export function TodoCreateForm() {
   const createTodo = useTodoStore((s) => s.createTodo)
+  const projects = useProjectStore((s) => s.projects)
+  const [selectedProjectId, setSelectedProjectId] = useState('')
   const {
     register,
     handleSubmit,
@@ -37,10 +41,11 @@ export function TodoCreateForm() {
       dueDate: null,
       priority: null,
       categoryIcon: null,
-      projectId: null,
+      projectId: selectedProjectId || null,
       urgencyLevelId: null,
     })
     reset()
+    setSelectedProjectId('')
   }
 
   return (
@@ -55,6 +60,20 @@ export function TodoCreateForm() {
         aria-label="New todo title"
         disabled={isSubmitting}
       />
+      <select
+        value={selectedProjectId}
+        onChange={(e) => setSelectedProjectId(e.target.value)}
+        aria-label="プロジェクト"
+        className="rounded-lg border border-gray-200 bg-white px-2 py-2 text-sm outline-none focus:border-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+        disabled={isSubmitting}
+      >
+        <option value="">未分類</option>
+        {projects.map((p) => (
+          <option key={p.id} value={p.id}>
+            {p.emoji} {p.name}
+          </option>
+        ))}
+      </select>
       <button
         type="submit"
         disabled={isSubmitting}

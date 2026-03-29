@@ -20,6 +20,8 @@ const baseTodo: Todo = {
   depth: 0,
   priority: null,
   categoryIcon: null,
+  projectId: null,
+  urgencyLevelId: null,
   createdAt: '2026-01-01T00:00:00Z',
   updatedAt: '2026-01-01T00:00:00Z',
 }
@@ -67,26 +69,26 @@ describe('TodoDetailForm', () => {
     })
   })
 
-  describe('priority selector', () => {
-    it('should render all priority options', () => {
+  describe('urgency selector (replaced priority)', () => {
+    it('should render urgency label instead of priority', () => {
       renderForm()
-      expect(screen.getByRole('button', { name: /高/i })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /中/i })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /低/i })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /なし/i })).toBeInTheDocument()
+      expect(screen.getByText('緊急度')).toBeInTheDocument()
+      // Old priority selector should not be present
+      expect(screen.queryByText('優先度')).not.toBeInTheDocument()
     })
 
-    it('should highlight the current priority', () => {
-      renderForm({ priority: 'high' })
-      const highBtn = screen.getByRole('button', { name: /高/i })
-      expect(highBtn).toHaveAttribute('data-selected', 'true')
+    it('should render urgency select element', () => {
+      renderForm()
+      const select = screen.getByLabelText('緊急度')
+      expect(select).toBeInTheDocument()
+      expect(select.tagName).toBe('SELECT')
     })
 
-    it('should allow changing priority', () => {
-      renderForm({ priority: null })
-      const medBtn = screen.getByRole('button', { name: /中/i })
-      fireEvent.click(medBtn)
-      expect(medBtn).toHaveAttribute('data-selected', 'true')
+    it('should have "なし" as default urgency option', () => {
+      renderForm()
+      const select = screen.getByLabelText('緊急度') as HTMLSelectElement
+      const options = Array.from(select.options)
+      expect(options.some((o) => o.text === 'なし')).toBe(true)
     })
   })
 

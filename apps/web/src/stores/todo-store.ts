@@ -7,7 +7,7 @@ interface TodoState {
   loading: boolean
   error: string | null
   expandedIds: Set<string>
-  fetchTodos: () => Promise<void>
+  fetchTodos: (filters?: { sort?: string }) => Promise<void>
   createTodo: (data: CreateTodo) => Promise<void>
   updateTodo: (id: string, data: UpdateTodo) => Promise<void>
   deleteTodo: (id: string) => Promise<void>
@@ -22,10 +22,10 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   error: null,
   expandedIds: new Set<string>(),
 
-  fetchTodos: async () => {
+  fetchTodos: async (filters?: { sort?: string }) => {
     set({ loading: true, error: null })
     try {
-      const todos = await apiClient.listTodos()
+      const todos = await apiClient.listTodos(filters)
       set({ todos, loading: false })
     } catch (e) {
       set({ error: (e as Error).message, loading: false })
