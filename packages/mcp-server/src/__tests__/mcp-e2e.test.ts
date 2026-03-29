@@ -17,6 +17,10 @@ function createMockClient() {
     updateTodo: vi.fn(),
     deleteTodo: vi.fn(),
     toggleComplete: vi.fn(),
+    listProjects: vi.fn(),
+    createProject: vi.fn(),
+    updateProject: vi.fn(),
+    deleteProject: vi.fn(),
   };
 }
 
@@ -87,9 +91,9 @@ describe("MCP Server E2E (InMemoryTransport)", () => {
   // =========================================================================
 
   describe("listTools - tool registration", () => {
-    it("returns exactly 6 tools", async () => {
+    it("returns exactly 10 tools", async () => {
       const result = await mcpClient.listTools();
-      expect(result.tools).toHaveLength(6);
+      expect(result.tools).toHaveLength(10);
     });
 
     it("includes todos_list tool", async () => {

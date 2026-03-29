@@ -13,3 +13,14 @@ export interface Todo {
 export interface TodoTreeNode extends Todo {
   children: TodoTreeNode[];
 }
+
+export interface Project {
+  id: string;
+  name: string;
+  color: string;
+  emoji: string | null;
+  order: number;
+  dueDate: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
