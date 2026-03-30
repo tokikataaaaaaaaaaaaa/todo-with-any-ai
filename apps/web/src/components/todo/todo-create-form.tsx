@@ -116,13 +116,13 @@ export function TodoCreateForm({ defaultProjectId, compact }: TodoCreateFormProp
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="px-4 py-3"
+      className="overflow-hidden px-4 py-3"
     >
       <div className="flex items-center gap-2">
         <input
           {...register('title')}
           placeholder="新しいタスクを追加..."
-          className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]"
+          className="min-w-0 flex-1 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]"
           aria-label="New todo title"
           disabled={isSubmitting}
           onKeyDown={(e) => {
@@ -134,7 +134,7 @@ export function TodoCreateForm({ defaultProjectId, compact }: TodoCreateFormProp
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent)] disabled:opacity-50"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent)] disabled:opacity-50 sm:h-9 sm:w-9"
           aria-label="Create todo"
         >
           <Plus className="h-4 w-4" />

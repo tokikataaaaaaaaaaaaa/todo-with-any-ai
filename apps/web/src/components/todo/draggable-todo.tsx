@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import type { Todo } from '@todo-with-any-ai/shared'
 
 export type DropPosition = 'child' | 'before' | 'after'
@@ -51,10 +51,27 @@ function getDropPosition(clientY: number, rect: DOMRect): DropPosition {
 
 export function DraggableTodo({ todo, allTodos, children, onDrop }: DraggableTodoProps) {
   const [dropIndicator, setDropIndicator] = useState<DropPosition | null>(null)
-  const isTouchDevice = useMemo(
-    () => typeof window !== 'undefined' && (navigator?.maxTouchPoints ?? 0) > 0,
-    []
-  )
+  const [isDragEnabled, setIsDragEnabled] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const handle = el.querySelector('[data-drag-handle]')
+    if (!handle) return
+    const enable = () => setIsDragEnabled(true)
+    const disable = () => setIsDragEnabled(false)
+    handle.addEventListener('mousedown', enable)
+    handle.addEventListener('touchstart', enable)
+    document.addEventListener('mouseup', disable)
+    document.addEventListener('touchend', disable)
+    return () => {
+      handle.removeEventListener('mousedown', enable)
+      handle.removeEventListener('touchstart', enable)
+      document.removeEventListener('mouseup', disable)
+      document.removeEventListener('touchend', disable)
+    }
+  }, [])
 
   const handleDragStart = useCallback(
     (e: React.DragEvent<HTMLDivElement>) => {
@@ -118,13 +135,17 @@ export function DraggableTodo({ todo, allTodos, children, onDrop }: DraggableTod
 
   return (
     <div
+      ref={containerRef}
       data-testid={`draggable-todo-${todo.id}`}
-      draggable={!isTouchDevice}
+      draggable={isDragEnabled}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      onDragEnd={handleDragEnd}
+      onDragEnd={() => {
+        handleDragEnd()
+        setIsDragEnabled(false)
+      }}
       className="relative"
     >
       {children}

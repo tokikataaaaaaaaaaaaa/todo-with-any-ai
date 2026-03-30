@@ -52,6 +52,16 @@ function formatDueDate(
   return { label: `${diffDays}d${timeSuffix}`, overdue: false, urgent: false }
 }
 
+/** Drag handle icon (two horizontal lines) */
+function DragHandle() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <line x1="3" y1="6" x2="13" y2="6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="3" y1="10" x2="13" y2="10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 /** Circular checkbox matching Paper & Ink design */
 function CircleCheckbox({
   checked,
@@ -172,6 +182,11 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
             paddingLeft: `${depth * 24 + 16}px`,
           }}
         >
+          {/* Drag handle */}
+          <span data-drag-handle className="cursor-grab text-[var(--text-muted)] active:cursor-grabbing">
+            <DragHandle />
+          </span>
+
           {/* Expand/collapse toggle */}
           {hasChildren ? (
             <button

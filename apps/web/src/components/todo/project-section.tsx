@@ -68,7 +68,7 @@ export function ProjectSection({
 
       {/* Add task - reuse TodoCreateForm with project pre-selected */}
       {showAddForm ? (
-        <div className="border-t border-[var(--border)]">
+        <div className="overflow-hidden border-t border-[var(--border)]">
           <TodoCreateForm defaultProjectId={projectId} compact />
         </div>
       ) : (
