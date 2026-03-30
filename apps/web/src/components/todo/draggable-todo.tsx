@@ -57,7 +57,26 @@ export function DraggableTodo({ todo, allTodos, children, onDrop }: DraggableTod
   useEffect(() => {
     const el = containerRef.current
     if (!el) return
-    const handle = el.querySelector('[data-drag-handle]')
+    // Find only the DIRECT drag handle (not nested children's handles)
+    // The handle must be a descendant of this container but NOT inside a nested DraggableTodo
+    const handles = el.querySelectorAll('[data-drag-handle]')
+    let handle: Element | null = null
+    for (const h of handles) {
+      // Walk up from handle to el, check if there's another draggable-todo in between
+      let parent = h.parentElement
+      let isNested = false
+      while (parent && parent !== el) {
+        if (parent.hasAttribute('data-testid') && parent.getAttribute('data-testid')?.startsWith('draggable-todo-') && parent !== el) {
+          isNested = true
+          break
+        }
+        parent = parent.parentElement
+      }
+      if (!isNested) {
+        handle = h
+        break
+      }
+    }
     if (!handle) return
     const enable = () => setIsDragEnabled(true)
     const disable = () => setIsDragEnabled(false)
