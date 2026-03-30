@@ -225,7 +225,7 @@ export default function TodosPage() {
 
       {/* Grouped project view */}
       {!loading && filteredTodos.length > 0 && showGrouped && (
-        <div className="space-y-6">
+        <div className="space-y-6" data-stagger>
           {projectGroups.map((group) => (
             <ProjectSection
               key={group.projectId ?? 'uncategorized'}

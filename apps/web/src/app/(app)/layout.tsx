@@ -7,6 +7,7 @@ import { Settings, ClipboardList, Calendar, Menu, Zap } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useAuthStore } from '@/stores/auth-store'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
+import { BottomNav } from '@/components/ui/bottom-nav'
 import { Sidebar } from '@/components/layout/sidebar'
 
 export default function AppLayout({
@@ -114,8 +115,9 @@ export default function AppLayout({
       </header>
       <div className="flex flex-1">
         <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        <main className="flex-1 p-4">{children}</main>
+        <main className="flex-1 p-4 pb-20 sm:pb-4">{children}</main>
       </div>
+      <BottomNav />
     </div>
   )
 }

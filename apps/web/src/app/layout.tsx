@@ -1,7 +1,27 @@
 import type { Metadata } from "next";
+import { Noto_Serif_JP, Noto_Sans_JP, JetBrains_Mono } from "next/font/google";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { SnackbarProvider } from "@/components/ui/snackbar-provider";
 import "./globals.css";
+
+const notoSerifJP = Noto_Serif_JP({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-display",
+  display: "swap",
+});
+const notoSansJP = Noto_Sans_JP({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-body",
+  display: "swap",
+});
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Todo with Any AI",
@@ -30,7 +50,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="relative z-[1]">
+      <body className={`${notoSerifJP.variable} ${notoSansJP.variable} ${jetbrainsMono.variable} relative z-[1]`}>
         <AuthProvider>
           <SnackbarProvider />
           {children}
