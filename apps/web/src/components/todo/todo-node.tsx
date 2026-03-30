@@ -95,8 +95,12 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
 
   const dueDateInfo = todo.dueDate ? formatDueDate(todo.dueDate) : null
 
+  const [addingChild, setAddingChild] = useState(false)
+
   const handleAddChild = async () => {
-    if (!childTitle.trim()) return
+    if (!childTitle.trim() || addingChild) return
+    setAddingChild(true)
+    try {
     await createTodo({
       title: childTitle.trim(),
       completed: false,
@@ -108,12 +112,17 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
       categoryIcon: null,
       projectId: todo.projectId ?? null,
       urgencyLevelId: null,
+      startTime: null,
+      endTime: null,
     })
     setChildTitle('')
     setShowChildForm(false)
     // Auto-expand parent to show new child
     if (!expandedIds.has(todo.id)) {
       toggleExpand(todo.id)
+    }
+    } finally {
+      setAddingChild(false)
     }
   }
 
@@ -273,7 +282,7 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
             value={childTitle}
             onChange={(e) => setChildTitle(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') handleAddChild()
+              if (e.key === 'Enter' && !e.nativeEvent.isComposing) handleAddChild()
               if (e.key === 'Escape') { setShowChildForm(false); setChildTitle('') }
             }}
             placeholder="サブタスクを入力..."

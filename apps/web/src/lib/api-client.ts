@@ -1,4 +1,4 @@
-import type { Todo, TodoTreeNode, CreateTodo, UpdateTodo, Project, CreateProject, UpdateProject, UrgencyLevel, CreateUrgencyLevel, UpdateUrgencyLevel } from '@todo-with-any-ai/shared'
+import type { Todo, TodoTreeNode, CreateTodo, UpdateTodo, Project, CreateProject, UpdateProject, UrgencyLevel, CreateUrgencyLevel, UpdateUrgencyLevel, Sprint, CreateSprint, UpdateSprint } from '@todo-with-any-ai/shared'
 import { auth } from './firebase'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api'

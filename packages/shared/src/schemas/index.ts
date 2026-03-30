@@ -18,3 +18,9 @@ export {
   createUrgencyLevelSchema,
   updateUrgencyLevelSchema,
 } from "./urgency-level";
+
+export {
+  sprintSchema,
+  createSprintSchema,
+  updateSprintSchema,
+} from "./sprint";

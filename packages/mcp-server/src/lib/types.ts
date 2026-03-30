@@ -24,3 +24,13 @@ export interface Project {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface Sprint {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  todoIds: string[];
+  createdAt: string;
+  updatedAt: string;
+}

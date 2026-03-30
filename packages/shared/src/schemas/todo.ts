@@ -1,6 +1,8 @@
 import { z } from "zod";
 
-export const todoSchema = z.object({
+const timeRegex = /^\d{2}:\d{2}$/;
+
+const todoBaseSchema = z.object({
   id: z.string(),
   title: z
     .string()
@@ -8,6 +10,8 @@ export const todoSchema = z.object({
     .max(255, "タイトルは255文字以内で入力してください"),
   completed: z.boolean().default(false),
   dueDate: z.string().nullable().default(null),
+  startTime: z.string().regex(timeRegex, "HH:MM形式で入力してください").nullable().default(null),
+  endTime: z.string().regex(timeRegex, "HH:MM形式で入力してください").nullable().default(null),
   parentId: z.string().nullable().default(null),
   order: z.number().int().min(0).default(0),
   depth: z
@@ -27,13 +31,27 @@ export const todoSchema = z.object({
   updatedAt: z.string(),
 });
 
-export const createTodoSchema = todoSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
+const dueDateTimeRefine = (data: { dueDate?: string | null; startTime?: string | null; endTime?: string | null }) => {
+  if (data.dueDate === null || data.dueDate === undefined) {
+    return (data.startTime === null || data.startTime === undefined) &&
+           (data.endTime === null || data.endTime === undefined);
+  }
+  return true;
+};
 
-export const updateTodoSchema = todoSchema
+const dueDateTimeMessage = "期限日が未設定の場合、開始時間・終了時間は設定できません";
+
+export const todoSchema = todoBaseSchema.refine(dueDateTimeRefine, { message: dueDateTimeMessage });
+
+export const createTodoSchema = todoBaseSchema
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .refine(dueDateTimeRefine, { message: dueDateTimeMessage });
+
+export const updateTodoSchema = todoBaseSchema
   .omit({
     id: true,
     createdAt: true,
@@ -41,6 +59,6 @@ export const updateTodoSchema = todoSchema
   })
   .partial();
 
-export const todoTreeNodeSchema: z.ZodType = todoSchema.extend({
+export const todoTreeNodeSchema: z.ZodType = todoBaseSchema.extend({
   children: z.lazy(() => z.array(todoTreeNodeSchema)),
 });

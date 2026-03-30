@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { CalendarPlus } from 'lucide-react'
+import { generateICS, downloadICS } from '@/lib/ics-generator'
 import type { Todo, UpdateTodo, UrgencyLevel, Project } from '@todo-with-any-ai/shared'
 
 function isDescendant(candidateId: string, ancestorId: string, allTodos: Todo[]): boolean {
@@ -40,6 +42,8 @@ export function TodoDetailForm({
   const [title, setTitle] = useState(todo.title)
   const [completed, setCompleted] = useState(todo.completed)
   const [dueDate, setDueDate] = useState(todo.dueDate ?? '')
+  const [startTime, setStartTime] = useState(todo.startTime ?? '')
+  const [endTime, setEndTime] = useState(todo.endTime ?? '')
   const [parentId, setParentId] = useState(todo.parentId ?? '')
   const [urgencyLevelId, setUrgencyLevelId] = useState(todo.urgencyLevelId ?? '')
   const [projectId, setProjectId] = useState(todo.projectId ?? '')
@@ -62,21 +66,36 @@ export function TodoDetailForm({
       title !== todo.title ||
       completed !== todo.completed ||
       (dueDate || null) !== (todo.dueDate || null) ||
+      (startTime || null) !== (todo.startTime || null) ||
+      (endTime || null) !== (todo.endTime || null) ||
       (parentId || null) !== (todo.parentId || null) ||
       (urgencyLevelId || null) !== (todo.urgencyLevelId || null) ||
       (projectId || null) !== (todo.projectId || null)
     )
-  }, [title, completed, dueDate, parentId, urgencyLevelId, projectId, todo])
+  }, [title, completed, dueDate, startTime, endTime, parentId, urgencyLevelId, projectId, todo])
 
   const handleSave = () => {
     onSave({
       title,
       completed,
       dueDate: dueDate || null,
+      startTime: startTime || null,
+      endTime: endTime || null,
       parentId: parentId || null,
       urgencyLevelId: urgencyLevelId || null,
       projectId: projectId || null,
     })
+  }
+
+  const handleDownloadICS = () => {
+    if (!dueDate) return
+    const ics = generateICS({
+      title,
+      dueDate,
+      startTime: startTime || null,
+      endTime: endTime || null,
+    })
+    downloadICS(ics, `${title.replace(/[^a-zA-Z0-9\u3040-\u9FFF]/g, '_')}.ics`)
   }
 
   return (
@@ -152,11 +171,28 @@ export function TodoDetailForm({
             onChange={(e) => setDueDate(e.target.value)}
             className="rounded-lg border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
           />
+          <input
+            type="time"
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value)}
+            aria-label="開始時間"
+            className="rounded-lg border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)] disabled:opacity-50"
+            disabled={!dueDate}
+          />
+          <span className="text-xs text-[var(--text-secondary)]">~</span>
+          <input
+            type="time"
+            value={endTime}
+            onChange={(e) => setEndTime(e.target.value)}
+            aria-label="終了時間"
+            className="rounded-lg border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)] disabled:opacity-50"
+            disabled={!dueDate}
+          />
           {dueDate && (
             <button
               type="button"
               aria-label="クリア"
-              onClick={() => setDueDate('')}
+              onClick={() => { setDueDate(''); setStartTime(''); setEndTime('') }}
               className="rounded-lg px-2 py-1 text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-raised)]"
             >
               クリア
@@ -164,6 +200,19 @@ export function TodoDetailForm({
           )}
         </div>
       </div>
+
+      {/* Calendar export */}
+      {dueDate && (
+        <button
+          type="button"
+          onClick={handleDownloadICS}
+          aria-label="カレンダーに追加"
+          className="flex items-center gap-2 rounded-lg border border-[var(--border)] px-4 py-2 text-sm text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-raised)]"
+        >
+          <CalendarPlus className="h-4 w-4" />
+          カレンダーに追加
+        </button>
+      )}
 
       {/* Parent Todo */}
       <div>

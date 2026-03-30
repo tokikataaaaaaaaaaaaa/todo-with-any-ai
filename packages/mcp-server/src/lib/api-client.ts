@@ -1,5 +1,5 @@
 import { Config } from "./config.js";
-import type { Todo, TodoTreeNode, Project } from "./types.js";
+import type { Todo, TodoTreeNode, Project, Sprint } from "./types.js";
 
 export class ApiError extends Error {
   constructor(
@@ -149,6 +149,30 @@ export class ApiClient {
     const path = query ? `/projects/${id}?${query}` : `/projects/${id}`;
     return this.request<{ message: string }>(path, {
       method: "DELETE",
+    });
+  }
+
+  // Sprint methods
+
+  async listSprints(): Promise<Sprint[]> {
+    return this.request<Sprint[]>("/sprints");
+  }
+
+  async createSprint(data: {
+    name: string;
+    startDate: string;
+    endDate: string;
+    todoIds?: string[];
+  }): Promise<Sprint> {
+    return this.request<Sprint>("/sprints", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async addTodoToSprint(sprintId: string, todoId: string): Promise<Sprint> {
+    return this.request<Sprint>(`/sprints/${sprintId}/todos/${todoId}`, {
+      method: "POST",
     });
   }
 }

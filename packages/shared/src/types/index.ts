@@ -12,6 +12,9 @@ import {
   urgencyLevelSchema,
   createUrgencyLevelSchema,
   updateUrgencyLevelSchema,
+  sprintSchema,
+  createSprintSchema,
+  updateSprintSchema,
 } from "../schemas";
 
 export type Todo = z.infer<typeof todoSchema>;
@@ -26,3 +29,6 @@ export type UpdateProject = z.infer<typeof updateProjectSchema>;
 export type UrgencyLevel = z.infer<typeof urgencyLevelSchema>;
 export type CreateUrgencyLevel = z.infer<typeof createUrgencyLevelSchema>;
 export type UpdateUrgencyLevel = z.infer<typeof updateUrgencyLevelSchema>;
+export type Sprint = z.infer<typeof sprintSchema>;
+export type CreateSprint = z.infer<typeof createSprintSchema>;
+export type UpdateSprint = z.infer<typeof updateSprintSchema>;

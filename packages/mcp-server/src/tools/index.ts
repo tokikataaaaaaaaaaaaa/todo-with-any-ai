@@ -11,6 +11,9 @@ import { projectsList } from "./projects-list.js";
 import { projectsCreate } from "./projects-create.js";
 import { projectsUpdate } from "./projects-update.js";
 import { projectsDelete } from "./projects-delete.js";
+import { sprintsList } from "./sprints-list.js";
+import { sprintsCreate } from "./sprints-create.js";
+import { sprintsAddTodo } from "./sprints-add-todo.js";
 import type { ToolResponse } from "./types.js";
 
 /**
@@ -43,6 +46,12 @@ export async function handleToolCall(
         return await projectsUpdate(client, args);
       case "projects_delete":
         return await projectsDelete(client, args);
+      case "sprints_list":
+        return await sprintsList(client);
+      case "sprints_create":
+        return await sprintsCreate(client, args);
+      case "sprints_add_todo":
+        return await sprintsAddTodo(client, args);
       default:
         return {
           isError: true,
@@ -172,5 +181,35 @@ export function registerTools(server: McpServer, client: ApiClient): void {
       deleteTodos: z.boolean().optional().describe("関連するTodoも削除するか（デフォルト: false）"),
     },
     async (args) => handleToolCall(client, "projects_delete", args)
+  );
+
+  // Sprint tools
+  server.tool(
+    "sprints_list",
+    "スプリント一覧を取得します。",
+    {},
+    async () => handleToolCall(client, "sprints_list", {})
+  );
+
+  server.tool(
+    "sprints_create",
+    "新しいスプリントを作成します。",
+    {
+      name: z.string().describe("スプリント名（必須、50文字以内）"),
+      startDate: z.string().describe("開始日（YYYY-MM-DD形式、必須）"),
+      endDate: z.string().describe("終了日（YYYY-MM-DD形式、必須）"),
+      todoIds: z.array(z.string()).optional().describe("追加するTodoのID配列"),
+    },
+    async (args) => handleToolCall(client, "sprints_create", args)
+  );
+
+  server.tool(
+    "sprints_add_todo",
+    "スプリントにTodoを追加します。",
+    {
+      sprintId: z.string().describe("スプリントのID（必須）"),
+      todoId: z.string().describe("追加するTodoのID（必須）"),
+    },
+    async (args) => handleToolCall(client, "sprints_add_todo", args)
   );
 }

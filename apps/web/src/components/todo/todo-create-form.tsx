@@ -65,6 +65,8 @@ export function TodoCreateForm() {
 
   const [showDetails, setShowDetails] = useState(false)
   const [dueDate, setDueDate] = useState('')
+  const [startTime, setStartTime] = useState('')
+  const [endTime, setEndTime] = useState('')
   const [priority, setPriority] = useState<Priority>(null)
   const [categoryIcon, setCategoryIcon] = useState<CategoryIcon>(null)
 
@@ -86,6 +88,8 @@ export function TodoCreateForm() {
       order: 0,
       depth: 0,
       dueDate: dueDate || null,
+      startTime: startTime || null,
+      endTime: endTime || null,
       priority: priority,
       categoryIcon: categoryIcon,
       projectId: selectedProjectId || null,
@@ -94,6 +98,8 @@ export function TodoCreateForm() {
     reset()
     setSelectedProjectId('')
     setDueDate('')
+    setStartTime('')
+    setEndTime('')
     setPriority(null)
     setCategoryIcon(null)
   }
@@ -110,6 +116,11 @@ export function TodoCreateForm() {
           className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]"
           aria-label="New todo title"
           disabled={isSubmitting}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && e.nativeEvent.isComposing) {
+              e.preventDefault()
+            }
+          }}
         />
         <button
           type="submit"
@@ -167,7 +178,7 @@ export function TodoCreateForm() {
             </select>
           </div>
 
-          {/* Due date */}
+          {/* Due date and time */}
           <div className="flex items-center gap-2">
             <label htmlFor="create-due-date" className="w-20 text-xs text-[var(--text-secondary)]">
               期限
@@ -181,9 +192,26 @@ export function TodoCreateForm() {
               className="flex-1 rounded border border-[var(--border)] bg-[var(--bg-surface)] px-2 py-1 text-sm outline-none focus:border-[var(--accent)]"
               disabled={isSubmitting}
             />
+            <input
+              type="time"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              aria-label="開始時間"
+              className="w-24 rounded border border-[var(--border)] bg-[var(--bg-surface)] px-2 py-1 text-sm outline-none focus:border-[var(--accent)] disabled:opacity-50"
+              disabled={isSubmitting || !dueDate}
+            />
+            <span className="text-xs text-[var(--text-secondary)]">~</span>
+            <input
+              type="time"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+              aria-label="終了時間"
+              className="w-24 rounded border border-[var(--border)] bg-[var(--bg-surface)] px-2 py-1 text-sm outline-none focus:border-[var(--accent)] disabled:opacity-50"
+              disabled={isSubmitting || !dueDate}
+            />
             <button
               type="button"
-              onClick={() => setDueDate('')}
+              onClick={() => { setDueDate(''); setStartTime(''); setEndTime('') }}
               aria-label="期限クリア"
               className="flex h-6 w-6 items-center justify-center rounded text-[var(--text-muted)] hover:bg-[var(--bg-raised)] hover:text-[var(--text-primary)]"
             >

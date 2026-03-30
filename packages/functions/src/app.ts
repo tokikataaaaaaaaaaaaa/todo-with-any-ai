@@ -7,6 +7,7 @@ import { todosRoute } from './routes/todos'
 import { authRoute } from './routes/auth'
 import { projectsRoute } from './routes/projects'
 import { urgencyLevelsRoute } from './routes/urgency-levels'
+import { sprintsRoute } from './routes/sprints'
 
 const app = new Hono().basePath('/api')
 
@@ -28,6 +29,8 @@ app.use('/projects/*', authMiddleware)
 app.use('/projects/*', rateLimiter())
 app.use('/urgency-levels/*', authMiddleware)
 app.use('/urgency-levels/*', rateLimiter())
+app.use('/sprints/*', authMiddleware)
+app.use('/sprints/*', rateLimiter())
 
 // Also protect the exact paths (without trailing slash/wildcard)
 app.use('/todos', authMiddleware)
@@ -38,11 +41,14 @@ app.use('/projects', authMiddleware)
 app.use('/projects', rateLimiter())
 app.use('/urgency-levels', authMiddleware)
 app.use('/urgency-levels', rateLimiter())
+app.use('/sprints', authMiddleware)
+app.use('/sprints', rateLimiter())
 
 // Routes
 app.route('/todos', todosRoute)
 app.route('/keys', authRoute)
 app.route('/projects', projectsRoute)
 app.route('/urgency-levels', urgencyLevelsRoute)
+app.route('/sprints', sprintsRoute)
 
 export { app }

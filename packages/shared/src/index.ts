@@ -11,6 +11,9 @@ export {
   urgencyLevelSchema,
   createUrgencyLevelSchema,
   updateUrgencyLevelSchema,
+  sprintSchema,
+  createSprintSchema,
+  updateSprintSchema,
 } from "./schemas";
 
 export type {
@@ -26,4 +29,7 @@ export type {
   UrgencyLevel,
   CreateUrgencyLevel,
   UpdateUrgencyLevel,
+  Sprint,
+  CreateSprint,
+  UpdateSprint,
 } from "./types";

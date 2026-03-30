@@ -25,12 +25,15 @@ export function ProjectSection({
   const createTodo = useTodoStore((s) => s.createTodo)
   const [showAddForm, setShowAddForm] = useState(false)
   const [newTitle, setNewTitle] = useState('')
+  const [adding, setAdding] = useState(false)
 
   const total = todos.length
   const completed = todos.filter((t) => t.completed).length
 
   const handleAdd = async () => {
-    if (!newTitle.trim()) return
+    if (!newTitle.trim() || adding) return
+    setAdding(true)
+    try {
     await createTodo({
       title: newTitle.trim(),
       completed: false,
@@ -42,9 +45,14 @@ export function ProjectSection({
       categoryIcon: null,
       projectId: projectId,
       urgencyLevelId: null,
+      startTime: null,
+      endTime: null,
     })
     setNewTitle('')
     setShowAddForm(false)
+    } finally {
+      setAdding(false)
+    }
   }
 
   return (
@@ -93,7 +101,7 @@ export function ProjectSection({
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') handleAdd()
+              if (e.key === 'Enter' && !e.nativeEvent.isComposing) handleAdd()
               if (e.key === 'Escape') { setShowAddForm(false); setNewTitle('') }
             }}
             placeholder="タスク名を入力..."
