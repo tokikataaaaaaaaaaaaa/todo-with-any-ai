@@ -126,6 +126,7 @@ export class TodoService {
     const parsed = createTodoSchema.parse(data)
 
     let depth = 0
+    let inheritedProjectId: string | null = null
     if (parsed.parentId) {
       const parentDoc = await this.todosCollection(userId).doc(parsed.parentId).get()
       if (!parentDoc.exists) {
@@ -136,6 +137,10 @@ export class TodoService {
         throw new Error('Maximum depth exceeded (max 10)')
       }
       depth = parentData.depth + 1
+      // Inherit parent's projectId if not explicitly set
+      if (!parsed.projectId && parentData.projectId) {
+        inheritedProjectId = parentData.projectId
+      }
     }
 
     // Calculate order: count siblings at same level
@@ -155,7 +160,7 @@ export class TodoService {
       parentId: parsed.parentId ?? null,
       order,
       depth,
-      projectId: parsed.projectId ?? null,
+      projectId: parsed.projectId ?? inheritedProjectId ?? null,
       priority: parsed.priority ?? null,
       urgencyLevelId: parsed.urgencyLevelId ?? null,
       categoryIcon: parsed.categoryIcon ?? null,
