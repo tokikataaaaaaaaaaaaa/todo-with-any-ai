@@ -1,8 +1,10 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { CheckSquare, Calendar, FolderOpen, Settings, Plus } from 'lucide-react'
+import { AddTodoModal } from '@/components/todo/add-todo-modal'
 
 const leftNavItems = [
   { href: '/todos', label: 'Todos', icon: CheckSquare, testId: 'bottom-nav-todos' },
@@ -16,21 +18,10 @@ const rightNavItems = [
 
 export function BottomNav() {
   const pathname = usePathname()
-  const router = useRouter()
+  const [modalOpen, setModalOpen] = useState(false)
 
   const handleAddClick = () => {
-    if (pathname === '/todos' || pathname.startsWith('/todos/')) {
-      // Already on todos page - focus the input
-      const input = document.querySelector<HTMLInputElement>(
-        'input[aria-label="New todo title"]'
-      )
-      if (input) {
-        input.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        input.focus()
-      }
-    } else {
-      router.push('/todos')
-    }
+    setModalOpen(true)
   }
 
   const renderNavItem = (item: { href: string; label: string; icon: typeof CheckSquare; testId: string }) => {
@@ -55,18 +46,38 @@ export function BottomNav() {
   }
 
   return (
-    <nav
-      aria-label="Bottom navigation"
-      className="fixed bottom-0 left-0 right-0 z-50 pb-[env(safe-area-inset-bottom)] sm:hidden"
-      style={{
-        backgroundImage: 'radial-gradient(circle at 50% 0, transparent 30px, var(--bg-surface) 31px)',
-      }}
-    >
-      <div className="flex items-end justify-around py-2">
-        {leftNavItems.map(renderNavItem)}
+    <>
+      <nav
+        aria-label="Bottom navigation"
+        className="fixed bottom-0 left-0 right-0 z-40 sm:hidden"
+        style={{
+          paddingBottom: 'env(safe-area-inset-bottom)',
+        }}
+      >
+        {/* Background with notch */}
+        <div
+          className="relative"
+          style={{
+            background: `
+              radial-gradient(circle at 50% 0, transparent 33px, var(--bg-surface) 35px)
+            `,
+            paddingTop: '8px',
+          }}
+        >
+          {/* Nav items */}
+          <div className="flex items-center justify-around px-2 pb-2">
+            {leftNavItems.map(renderNavItem)}
+            {/* Spacer for the FAB button */}
+            <div data-testid="bottom-nav-spacer" className="w-16" />
+            {rightNavItems.map(renderNavItem)}
+          </div>
+        </div>
 
-        {/* Center add button */}
-        <div className="relative -mt-6">
+        {/* Center FAB button (floats above the footer) */}
+        <div
+          className="absolute left-1/2 -translate-x-1/2"
+          style={{ bottom: 'calc(100% - 24px)' }}
+        >
           <button
             data-testid="bottom-nav-add"
             onClick={handleAddClick}
@@ -74,12 +85,12 @@ export function BottomNav() {
             style={{ boxShadow: '0 -2px 10px rgba(196, 69, 60, 0.3)' }}
             aria-label="Add todo"
           >
-            <Plus className="h-6 w-6" />
+            <Plus className="h-7 w-7" />
           </button>
         </div>
+      </nav>
 
-        {rightNavItems.map(renderNavItem)}
-      </div>
-    </nav>
+      <AddTodoModal open={modalOpen} onClose={() => setModalOpen(false)} />
+    </>
   )
 }
