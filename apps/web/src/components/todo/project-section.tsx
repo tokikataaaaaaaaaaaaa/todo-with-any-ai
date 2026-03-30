@@ -102,7 +102,7 @@ export function ProjectSection({
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.nativeEvent.isComposing) handleAdd()
+              if (e.key === 'Enter' && !e.nativeEvent.isComposing && e.keyCode !== 229) handleAdd()
               if (e.key === 'Escape') { setShowAddForm(false); setNewTitle('') }
             }}
             placeholder="タスク名を入力..."

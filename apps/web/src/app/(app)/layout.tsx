@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Settings, ClipboardList, Calendar, Menu } from 'lucide-react'
+import { Settings, ClipboardList, Calendar, Menu, Zap } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useAuthStore } from '@/stores/auth-store'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
@@ -83,6 +83,12 @@ export default function AppLayout({
           </div>
           <div className="flex items-center gap-1">
             <ThemeToggle />
+            <Link
+              href="/sprints"
+              className={`rounded-[var(--radius-md)] p-1.5 transition-colors hover:bg-[var(--bg-raised)] ${pathname === '/sprints' ? 'text-[var(--accent)]' : 'text-[var(--text-secondary)]'}`}
+            >
+              <Zap className="h-5 w-5" data-testid="sprint-icon" />
+            </Link>
             <Link
               href="/calendar"
               className={`rounded-[var(--radius-md)] p-1.5 transition-colors hover:bg-[var(--bg-raised)] ${pathname === '/calendar' ? 'text-[var(--accent)]' : 'text-[var(--text-secondary)]'}`}

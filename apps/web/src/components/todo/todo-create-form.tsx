@@ -117,7 +117,7 @@ export function TodoCreateForm() {
           aria-label="New todo title"
           disabled={isSubmitting}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && e.nativeEvent.isComposing) {
+            if ((e.key === 'Enter' && e.nativeEvent.isComposing) || e.keyCode === 229) {
               e.preventDefault()
             }
           }}

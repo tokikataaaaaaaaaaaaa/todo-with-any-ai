@@ -316,7 +316,7 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
             value={childTitle}
             onChange={(e) => setChildTitle(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.nativeEvent.isComposing) handleAddChild()
+              if (e.key === 'Enter' && !e.nativeEvent.isComposing && e.keyCode !== 229) handleAddChild()
               if (e.key === 'Escape') { setShowChildForm(false); setChildTitle('') }
             }}
             placeholder="サブタスクを入力..."
