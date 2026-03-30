@@ -29,7 +29,7 @@ describe('SnackbarProvider', () => {
 
     render(<SnackbarProvider />)
     const snackbar = screen.getByText('Success!').closest('[data-testid="snackbar-item"]')
-    expect(snackbar?.className).toMatch(/emerald/)
+    expect(snackbar?.className).toMatch(/--success/)
   })
 
   it('should apply red styling for error type', () => {
@@ -39,7 +39,7 @@ describe('SnackbarProvider', () => {
 
     render(<SnackbarProvider />)
     const snackbar = screen.getByText('Error!').closest('[data-testid="snackbar-item"]')
-    expect(snackbar?.className).toMatch(/red/)
+    expect(snackbar?.className).toMatch(/--error/)
   })
 
   it('should apply blue styling for info type', () => {
@@ -49,7 +49,7 @@ describe('SnackbarProvider', () => {
 
     render(<SnackbarProvider />)
     const snackbar = screen.getByText('Info!').closest('[data-testid="snackbar-item"]')
-    expect(snackbar?.className).toMatch(/indigo/)
+    expect(snackbar?.className).toMatch(/--accent/)
   })
 
   it('should have a close button for each message', () => {

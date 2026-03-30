@@ -52,7 +52,7 @@ describe('CalendarPage - Basic Structure (SDD-004-FE-01)', () => {
   it('should render day-of-week headers (Sun through Sat)', () => {
     render(<CalendarPage />)
 
-    const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    const dayHeaders = ['日', '月', '火', '水', '木', '金', '土']
     for (const day of dayHeaders) {
       expect(screen.getByText(day)).toBeInTheDocument()
     }

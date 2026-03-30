@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import TodoDetailPage from '@/app/(app)/todos/detail/page'
 import { useTodoStore } from '@/stores/todo-store'
 import type { Todo } from '@todo-with-any-ai/shared'
@@ -26,10 +26,53 @@ vi.mock('@/lib/firebase', () => ({
 
 // Mock api-client (to avoid import errors - the other agent owns this)
 vi.mock('@/lib/api-client', () => ({
-  todoClient: {
+  apiClient: {
+    listTodos: vi.fn().mockResolvedValue([]),
     updateTodo: vi.fn().mockResolvedValue({}),
     deleteTodo: vi.fn().mockResolvedValue(undefined),
   },
+}))
+
+// Mock useAuth
+vi.mock('@/hooks/use-auth', () => ({
+  useAuth: () => ({
+    user: { uid: 'test-user' },
+    loading: false,
+  }),
+}))
+
+// Mock project store
+vi.mock('@/stores/project-store', () => ({
+  useProjectStore: vi.fn((selector) => {
+    const state = {
+      projects: [],
+      fetchProjects: vi.fn(),
+    }
+    return typeof selector === 'function' ? selector(state) : state
+  }),
+}))
+
+// Mock urgency level store
+vi.mock('@/stores/urgency-level-store', () => ({
+  useUrgencyLevelStore: vi.fn((selector) => {
+    const state = {
+      levels: [],
+      fetchLevels: vi.fn(),
+    }
+    return typeof selector === 'function' ? selector(state) : state
+  }),
+}))
+
+// Mock snackbar store
+vi.mock('@/stores/snackbar-store', () => ({
+  useSnackbarStore: vi.fn((selector) => {
+    const state = {
+      messages: [],
+      addMessage: vi.fn(),
+      removeMessage: vi.fn(),
+    }
+    return typeof selector === 'function' ? selector(state) : state
+  }),
 }))
 
 const baseTodo: Todo = {
@@ -75,10 +118,13 @@ describe('TodoDetailPage', () => {
     expect(mockBack).toHaveBeenCalled()
   })
 
-  it('should show 404 when todo not found', () => {
+  it('should show 404 when todo not found', async () => {
     useTodoStore.setState({ todos: [], loading: false, error: null })
     render(<TodoDetailPage />)
-    expect(screen.getByText(/Todoが見つかりません/i)).toBeInTheDocument()
+    // The component tries to fetchTodos when store is empty, then shows 404
+    await waitFor(() => {
+      expect(screen.getByText(/Todoが見つかりません/i)).toBeInTheDocument()
+    })
   })
 
   it('should display page heading', () => {

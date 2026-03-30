@@ -12,6 +12,10 @@ vi.mock('@/lib/firebase', () => ({
 
 const mockFetch = vi.fn()
 
+function mockHeaders(contentLength?: string) {
+  return { get: (key: string) => key === 'content-length' ? (contentLength ?? null) : null }
+}
+
 describe('apiClient - project methods', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -37,6 +41,7 @@ describe('apiClient - project methods', () => {
       ]
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: mockHeaders(),
         json: async () => mockProjects,
       })
 
@@ -58,6 +63,7 @@ describe('apiClient - project methods', () => {
     it('should return empty array when no projects exist', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: mockHeaders(),
         json: async () => [],
       })
 
@@ -83,6 +89,7 @@ describe('apiClient - project methods', () => {
       const createdProject = { id: 'p1', ...createData, order: 0, createdAt: '2026-01-01', updatedAt: '2026-01-01' }
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: mockHeaders(),
         json: async () => createdProject,
       })
 
@@ -108,6 +115,7 @@ describe('apiClient - project methods', () => {
       const updatedProject = { id: 'p1', name: 'Updated Work', color: '#6366F1', emoji: '💼' }
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: mockHeaders(),
         json: async () => updatedProject,
       })
 
@@ -128,6 +136,7 @@ describe('apiClient - project methods', () => {
     it('should call DELETE /projects/:id', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: mockHeaders(),
         json: async () => ({}),
       })
 
@@ -142,6 +151,7 @@ describe('apiClient - project methods', () => {
     it('should call DELETE /projects/:id with deleteTodos query param', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: mockHeaders(),
         json: async () => ({}),
       })
 

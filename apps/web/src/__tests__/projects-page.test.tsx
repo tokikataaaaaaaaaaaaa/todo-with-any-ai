@@ -26,6 +26,25 @@ vi.mock('@/stores/project-store', () => ({
   }),
 }))
 
+// Mock next/navigation
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    back: vi.fn(),
+  }),
+}))
+
+// Mock filter-store
+vi.mock('@/stores/filter-store', () => ({
+  useFilterStore: vi.fn((selector) => {
+    const state = {
+      projectId: null,
+      setFilter: vi.fn(),
+    }
+    return typeof selector === 'function' ? selector(state) : state
+  }),
+}))
+
 // Need to import after mock
 import ProjectsPage from '@/app/(app)/projects/page'
 

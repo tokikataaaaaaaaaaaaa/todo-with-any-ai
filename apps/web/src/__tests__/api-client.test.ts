@@ -12,6 +12,10 @@ vi.mock('@/lib/firebase', () => ({
 
 const mockFetch = vi.fn()
 
+function mockHeaders(contentLength?: string) {
+  return { get: (key: string) => key === 'content-length' ? (contentLength ?? null) : null }
+}
+
 describe('apiClient', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -36,6 +40,7 @@ describe('apiClient', () => {
       const mockTodos = [{ id: '1', title: 'Test Todo' }]
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: mockHeaders(),
         json: async () => mockTodos,
       })
 
@@ -57,6 +62,7 @@ describe('apiClient', () => {
     it('should append completed filter as query parameter', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: mockHeaders(),
         json: async () => [],
       })
 
@@ -71,6 +77,7 @@ describe('apiClient', () => {
     it('should append parentId filter as query parameter', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: mockHeaders(),
         json: async () => [],
       })
 
@@ -85,6 +92,7 @@ describe('apiClient', () => {
     it('should append parentId=null filter as query parameter', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: mockHeaders(),
         json: async () => [],
       })
 
@@ -99,6 +107,7 @@ describe('apiClient', () => {
     it('should combine multiple filters', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: mockHeaders(),
         json: async () => [],
       })
 
@@ -115,6 +124,7 @@ describe('apiClient', () => {
       const mockTree = [{ id: '1', title: 'Root', children: [] }]
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: mockHeaders(),
         json: async () => mockTree,
       })
 
@@ -133,6 +143,7 @@ describe('apiClient', () => {
       const mockTodo = { id: 'abc', title: 'Single Todo' }
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: mockHeaders(),
         json: async () => mockTodo,
       })
 
@@ -152,6 +163,7 @@ describe('apiClient', () => {
       const createdTodo = { id: 'new-1', ...newTodo, createdAt: '2026-01-01', updatedAt: '2026-01-01' }
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: mockHeaders(),
         json: async () => createdTodo,
       })
 
@@ -177,6 +189,7 @@ describe('apiClient', () => {
       const updatedTodo = { id: 'u1', title: 'Updated', completed: false }
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: mockHeaders(),
         json: async () => updatedTodo,
       })
 
@@ -197,6 +210,7 @@ describe('apiClient', () => {
     it('should call DELETE /todos/:id', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: mockHeaders(),
         json: async () => ({}),
       })
 
@@ -214,6 +228,7 @@ describe('apiClient', () => {
       const toggled = { id: 't1', title: 'Toggled', completed: true }
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: mockHeaders(),
         json: async () => toggled,
       })
 
@@ -280,6 +295,7 @@ describe('apiClient', () => {
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
+        headers: mockHeaders(),
         json: async () => [],
       })
 

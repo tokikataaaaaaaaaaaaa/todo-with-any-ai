@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import type { Todo, Project } from '@todo-with-any-ai/shared'
 
 // Mock next/navigation
@@ -34,6 +34,16 @@ vi.mock('@/stores/project-store', () => ({
   useProjectStore: vi.fn((selector) => {
     const state = {
       projects: mockProjects,
+    }
+    return typeof selector === 'function' ? selector(state) : state
+  }),
+}))
+
+vi.mock('@/stores/filter-store', () => ({
+  useFilterStore: vi.fn((selector) => {
+    const state = {
+      filterType: 'all',
+      projectId: null,
     }
     return typeof selector === 'function' ? selector(state) : state
   }),
@@ -127,7 +137,7 @@ describe('ProjectSection', () => {
       />
     )
     fireEvent.click(screen.getByText('タスクを追加'))
-    expect(screen.getByLabelText('New task title')).toBeInTheDocument()
+    expect(screen.getByLabelText('New todo title')).toBeInTheDocument()
   })
 
   it('should call createTodo with correct projectId when adding task', async () => {
@@ -143,16 +153,20 @@ describe('ProjectSection', () => {
       />
     )
     fireEvent.click(screen.getByText('タスクを追加'))
-    const input = screen.getByLabelText('New task title')
+    const input = screen.getByLabelText('New todo title')
     fireEvent.change(input, { target: { value: 'New task' } })
-    fireEvent.keyDown(input, { key: 'Enter' })
+    // Submit via the create button instead of keyDown, as react-hook-form handles form submit
+    const submitButton = screen.getByLabelText('Create todo')
+    fireEvent.click(submitButton)
 
-    expect(mockCreateTodo).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: 'New task',
-        projectId: 'p1',
-      })
-    )
+    await waitFor(() => {
+      expect(mockCreateTodo).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'New task',
+          projectId: 'p1',
+        })
+      )
+    })
   })
 
   it('should apply left border with accent color', () => {
