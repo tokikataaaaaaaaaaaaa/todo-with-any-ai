@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useTodoStore } from '@/stores/todo-store'
 import { useProjectStore } from '@/stores/project-store'
+import { DraggableTodo } from './draggable-todo'
+import type { DropPosition } from './draggable-todo'
 import { PriorityBadge } from './priority-badge'
 import { CategoryIcon } from './category-icon'
 import { ChildrenProgress } from './children-progress'
@@ -92,6 +94,7 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
   const toggleExpand = useTodoStore((s) => s.toggleExpand)
   const createTodo = useTodoStore((s) => s.createTodo)
   const deleteTodo = useTodoStore((s) => s.deleteTodo)
+  const moveTodo = useTodoStore((s) => s.moveTodo)
   const expandedIds = useTodoStore((s) => s.expandedIds)
   const projects = useProjectStore((s) => s.projects)
   const [showChildForm, setShowChildForm] = useState(false)
@@ -118,6 +121,10 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
       endTime: todo.endTime,
     })
     downloadICS(ics, `${todo.title.replace(/[^a-zA-Z0-9\u3040-\u9FFF]/g, '_')}.ics`)
+  }
+
+  const handleDrop = (draggedId: string, targetId: string, position: DropPosition) => {
+    moveTodo(draggedId, targetId, position)
   }
 
   const [addingChild, setAddingChild] = useState(false)
@@ -151,6 +158,7 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
   }
 
   return (
+    <DraggableTodo todo={todo} allTodos={todos} onDrop={handleDrop}>
     <div>
       <div
         data-testid="todo-row"
@@ -355,5 +363,6 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
         </div>
       )}
     </div>
+    </DraggableTodo>
   )
 }
