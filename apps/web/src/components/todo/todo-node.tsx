@@ -9,6 +9,7 @@ import { DraggableTodo } from './draggable-todo'
 import type { DropPosition } from './draggable-todo'
 import { PriorityBadge } from './priority-badge'
 import { CategoryIcon } from './category-icon'
+import { useUrgencyLevelStore } from '@/stores/urgency-level-store'
 import { ChildrenProgress } from './children-progress'
 import { CompleteConfirmDialog } from './complete-confirm-dialog'
 import { CalendarPlus, ChevronDown, ChevronRight, Pencil, Plus, Trash2 } from 'lucide-react'
@@ -97,6 +98,7 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
   const moveTodo = useTodoStore((s) => s.moveTodo)
   const expandedIds = useTodoStore((s) => s.expandedIds)
   const projects = useProjectStore((s) => s.projects)
+  const urgencyLevels = useUrgencyLevelStore((s) => s.levels)
   const [showChildForm, setShowChildForm] = useState(false)
   const [childTitle, setChildTitle] = useState('')
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
@@ -227,7 +229,7 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
         )}
 
         {/* Priority badge */}
-        <PriorityBadge priority={todo.priority} />
+        <PriorityBadge priority={todo.priority} urgencyLevelId={todo.urgencyLevelId} urgencyLevels={urgencyLevels} />
 
         {/* Due date */}
         {dueDateInfo && (
