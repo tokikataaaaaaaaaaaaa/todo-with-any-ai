@@ -115,10 +115,14 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   },
 
   moveTodo: async (todoId: string, targetId: string, position: 'child' | 'before' | 'after') => {
+    console.log('[D&D] moveTodo called:', { todoId, targetId, position })
     const prevTodos = get().todos
     const movedTodo = prevTodos.find((t) => t.id === todoId)
     const targetTodo = prevTodos.find((t) => t.id === targetId)
-    if (!movedTodo || !targetTodo) return
+    if (!movedTodo || !targetTodo) {
+      console.log('[D&D] moveTodo: todo not found', { movedTodo: !!movedTodo, targetTodo: !!targetTodo })
+      return
+    }
 
     if (position === 'child') {
       // Make movedTodo a child of targetTodo
@@ -168,6 +172,8 @@ export const useTodoStore = create<TodoState>((set, get) => ({
           siblingUpdates.push({ id: sibling.id, order: i })
         }
       }
+
+      console.log('[D&D] siblingUpdates:', siblingUpdates)
 
       // Optimistic update: update all siblings' orders + moved todo's parentId/depth
       set({

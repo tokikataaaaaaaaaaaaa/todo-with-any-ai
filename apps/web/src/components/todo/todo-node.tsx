@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useTodoStore } from '@/stores/todo-store'
@@ -12,7 +12,7 @@ import { CategoryIcon } from './category-icon'
 import { useUrgencyLevelStore } from '@/stores/urgency-level-store'
 import { ChildrenProgress } from './children-progress'
 import { CompleteConfirmDialog } from './complete-confirm-dialog'
-import { ArrowDown, ArrowUp, CalendarPlus, ChevronDown, ChevronRight, Pencil, Plus, Trash2 } from 'lucide-react'
+import { CalendarPlus, ChevronDown, ChevronRight, Pencil, Plus, Trash2 } from 'lucide-react'
 import { generateICS, downloadICS } from '@/lib/ics-generator'
 import { DeleteTodoDialog } from './delete-todo-dialog'
 import type { Todo } from '@todo-with-any-ai/shared'
@@ -104,71 +104,6 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [showCompleteConfirm, setShowCompleteConfirm] = useState(false)
 
-  // SP swipe-to-delete state
-  const [swipeX, setSwipeX] = useState(0)
-  const [isSwiping, setIsSwiping] = useState(false)
-  const startXRef = useRef(0)
-  const startYRef = useRef(0)
-
-  // SP long-press context menu state
-  const [showContextMenu, setShowContextMenu] = useState(false)
-  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const touchMovedRef = useRef(false)
-
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (todo.completed) return
-    const touch = e.touches[0]
-    startXRef.current = touch.clientX
-    startYRef.current = touch.clientY
-    setIsSwiping(false)
-    touchMovedRef.current = false
-
-    // Start long-press timer
-    longPressTimerRef.current = setTimeout(() => {
-      if (!touchMovedRef.current) {
-        setShowContextMenu(true)
-      }
-    }, 500)
-  }, [todo.completed])
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (todo.completed) return
-    const touch = e.touches[0]
-    const diff = startXRef.current - touch.clientX
-    const verticalDiff = Math.abs(touch.clientY - startYRef.current)
-
-    // If finger moved significantly, cancel long-press
-    if (Math.abs(diff) > 10 || verticalDiff > 10) {
-      touchMovedRef.current = true
-      if (longPressTimerRef.current) {
-        clearTimeout(longPressTimerRef.current)
-        longPressTimerRef.current = null
-      }
-    }
-
-    // Only handle left swipe (positive diff)
-    if (diff > 0) {
-      setIsSwiping(true)
-      setSwipeX(Math.min(diff, 80))
-    }
-  }, [todo.completed])
-
-  const handleTouchEnd = useCallback(() => {
-    // Cancel long-press timer
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current)
-      longPressTimerRef.current = null
-    }
-
-    if (swipeX > 40) {
-      // Keep delete button visible
-      setSwipeX(80)
-    } else {
-      setSwipeX(0)
-    }
-    setIsSwiping(false)
-  }, [swipeX])
-
   const project = todo.projectId
     ? projects.find((p) => p.id === todo.projectId) ?? null
     : null
@@ -176,11 +111,6 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
   const children = todos.filter((t) => t.parentId === todo.id)
   const hasChildren = children.length > 0
   const isExpanded = expandedIds.has(todo.id)
-
-  // Siblings for move up/down in context menu
-  const siblings = todos
-    .filter((t) => t.parentId === todo.parentId)
-    .sort((a, b) => a.order - b.order)
 
   const dueDateInfo = todo.dueDate ? formatDueDate(todo.dueDate, todo.startTime, todo.endTime) : null
 
@@ -196,6 +126,7 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
   }
 
   const handleDrop = (draggedId: string, targetId: string, position: DropPosition) => {
+    console.log('[D&D] handleDrop called:', { draggedId, targetId, position })
     moveTodo(draggedId, targetId, position)
   }
 
@@ -232,21 +163,14 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
   return (
     <DraggableTodo todo={todo} allTodos={todos} onDrop={handleDrop}>
     <div>
-      {/* Swipe container - relative positioning for delete button reveal */}
-      <div className="relative overflow-hidden">
-        {/* Main todo row - slides left on swipe */}
+      <div>
         <div
           data-testid="todo-row"
           className="group relative flex items-center gap-3 border-b border-[var(--border)] transition-colors duration-150 hover:bg-[var(--bg-raised)]"
           style={{
             padding: '12px 16px',
             paddingLeft: `${depth * 24 + 16}px`,
-            transform: swipeX > 0 ? `translateX(-${swipeX}px)` : undefined,
-            transition: isSwiping ? 'none' : 'transform 0.2s ease-out',
           }}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
         >
           {/* Expand/collapse toggle */}
           {hasChildren ? (
@@ -287,9 +211,7 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
           <button
             data-testid={`todo-title-${todo.id}`}
             onClick={() => {
-              if (!showContextMenu) {
-                router.push(`/todos/detail?id=${todo.id}`)
-              }
+              router.push(`/todos/detail?id=${todo.id}`)
             }}
             className={cn(
               'min-w-0 flex-1 cursor-pointer text-left text-[15px] transition-all duration-200',
@@ -368,108 +290,20 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
                 <Pencil className="h-3 w-3" />
               </button>
 
-              {/* Delete button - hidden on SP, hover on desktop */}
+              {/* Delete button - always visible on SP, hover on desktop */}
               <button
                 data-testid={`delete-todo-${todo.id}`}
                 onClick={() => setShowDeleteDialog(true)}
-                className="hidden sm:flex h-6 w-6 items-center justify-center rounded text-[var(--text-muted)] sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-[var(--accent-light)] hover:text-[var(--error)]"
+                className="flex h-6 w-6 items-center justify-center rounded text-[var(--text-muted)] sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:text-[var(--error)]"
                 aria-label={`Delete "${todo.title}"`}
               >
-                <Trash2 className="h-3 w-3" />
+                <Trash2 className="h-3.5 w-3.5 sm:h-3 sm:w-3" />
               </button>
             </>
           )}
         </div>
 
-        {/* Swipe-to-delete: Red delete area revealed on left swipe (SP only) */}
-        {swipeX > 0 && !todo.completed && (
-          <button
-            data-testid={`swipe-delete-${todo.id}`}
-            onClick={() => {
-              setSwipeX(0)
-              setShowDeleteDialog(true)
-            }}
-            className="absolute right-0 top-0 bottom-0 flex w-20 items-center justify-center"
-            style={{ backgroundColor: 'var(--error)' }}
-            aria-label={`Delete "${todo.title}"`}
-          >
-            <Trash2 className="h-5 w-5 text-white" />
-          </button>
-        )}
       </div>
-
-      {/* SP Context menu (long press) */}
-      {showContextMenu && !todo.completed && (
-        <>
-          {/* Overlay to close */}
-          <div
-            data-testid="context-menu-overlay"
-            className="fixed inset-0 z-40"
-            onClick={() => setShowContextMenu(false)}
-          />
-          <div
-            data-testid={`context-menu-${todo.id}`}
-            className="fixed left-1/2 top-1/2 z-50 w-56 -translate-x-1/2 -translate-y-1/2 rounded-lg border border-[var(--border)] shadow-lg"
-            style={{ backgroundColor: 'var(--bg-surface)' }}
-          >
-            {/* Move up */}
-            <button
-              onClick={() => {
-                const idx = siblings.findIndex((s) => s.id === todo.id)
-                if (idx > 0) {
-                  moveTodo(todo.id, siblings[idx - 1].id, 'before')
-                }
-                setShowContextMenu(false)
-              }}
-              disabled={siblings.findIndex((s) => s.id === todo.id) === 0}
-              className="flex w-full items-center gap-3 px-4 py-3 text-sm text-[var(--text-primary)] hover:bg-[var(--bg-raised)] disabled:opacity-30"
-            >
-              <ArrowUp className="h-4 w-4" />
-              上に移動
-            </button>
-            {/* Move down */}
-            <button
-              onClick={() => {
-                const idx = siblings.findIndex((s) => s.id === todo.id)
-                if (idx < siblings.length - 1) {
-                  moveTodo(todo.id, siblings[idx + 1].id, 'after')
-                }
-                setShowContextMenu(false)
-              }}
-              disabled={siblings.findIndex((s) => s.id === todo.id) === siblings.length - 1}
-              className="flex w-full items-center gap-3 px-4 py-3 text-sm text-[var(--text-primary)] hover:bg-[var(--bg-raised)] disabled:opacity-30"
-            >
-              <ArrowDown className="h-4 w-4" />
-              下に移動
-            </button>
-            {/* Separator */}
-            <div className="mx-3 border-t border-[var(--border)]" />
-            {/* Edit */}
-            <button
-              onClick={() => {
-                setShowContextMenu(false)
-                router.push(`/todos/detail?id=${todo.id}`)
-              }}
-              className="flex w-full items-center gap-3 px-4 py-3 text-sm text-[var(--text-primary)] hover:bg-[var(--bg-raised)]"
-            >
-              <Pencil className="h-4 w-4" />
-              編集
-            </button>
-            {/* Delete */}
-            <button
-              onClick={() => {
-                setShowContextMenu(false)
-                setShowDeleteDialog(true)
-              }}
-              className="flex w-full items-center gap-3 px-4 py-3 text-sm hover:bg-[var(--bg-raised)]"
-              style={{ color: 'var(--error)' }}
-            >
-              <Trash2 className="h-4 w-4" />
-              削除
-            </button>
-          </div>
-        </>
-      )}
 
       {/* Delete confirmation dialog */}
       <DeleteTodoDialog
