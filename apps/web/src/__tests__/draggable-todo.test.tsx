@@ -308,4 +308,37 @@ describe('DraggableTodo', () => {
     const indicator = wrapper.querySelector('[data-testid="drop-indicator"]')
     expect(indicator).not.toBeInTheDocument()
   })
+
+  it('should stop propagation on drop so parent DraggableTodo does not also fire', () => {
+    const parentTodo = makeTodo({ id: 'parent', depth: 0 })
+    const childTodo = makeTodo({ id: 'child', parentId: 'parent', depth: 1 })
+    const draggedTodo = makeTodo({ id: 'dragged', parentId: 'parent', depth: 1 })
+    const allTodos = [parentTodo, childTodo, draggedTodo]
+
+    _setCurrentDraggedId('dragged')
+
+    const parentOnDrop = vi.fn()
+    const childOnDrop = vi.fn()
+
+    render(
+      <DraggableTodo todo={parentTodo} allTodos={allTodos} onDrop={parentOnDrop}>
+        <div>
+          <DraggableTodo todo={childTodo} allTodos={allTodos} onDrop={childOnDrop}>
+            <span>Child</span>
+          </DraggableTodo>
+        </div>
+      </DraggableTodo>
+    )
+
+    const childWrapper = screen.getByTestId('draggable-todo-child')
+    mockRect(childWrapper, 0, 100)
+
+    // Drop on the child (before position)
+    fireDrop(childWrapper, 10)
+
+    // Child's onDrop should be called
+    expect(childOnDrop).toHaveBeenCalledWith('dragged', 'child', 'before')
+    // Parent's onDrop should NOT be called (event should be stopped)
+    expect(parentOnDrop).not.toHaveBeenCalled()
+  })
 })

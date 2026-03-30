@@ -68,6 +68,7 @@ export function DraggableTodo({ todo, allTodos, children, onDrop }: DraggableTod
   const handleDragOver = useCallback(
     (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault()
+      e.stopPropagation()
       const rect = e.currentTarget.getBoundingClientRect()
       const position = getDropPosition(e.clientY, rect)
       setDropIndicator(position)
@@ -75,13 +76,15 @@ export function DraggableTodo({ todo, allTodos, children, onDrop }: DraggableTod
     []
   )
 
-  const handleDragLeave = useCallback(() => {
+  const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.stopPropagation()
     setDropIndicator(null)
   }, [])
 
   const handleDrop = useCallback(
     (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault()
+      e.stopPropagation()
       setDropIndicator(null)
 
       const draggedId = currentDraggedId || e.dataTransfer.getData('text/plain')
