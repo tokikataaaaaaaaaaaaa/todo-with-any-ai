@@ -252,7 +252,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
             const data: UpdateTodo =
               update.id === todoId
                 ? { parentId: newParentId, depth: targetTodo.depth, order: update.order, projectId: effectiveProjectId }
-                : { order: update.order }
+                : { order: update.order, projectId: effectiveProjectId }
             return apiClient.updateTodo(update.id, data)
           })
         )

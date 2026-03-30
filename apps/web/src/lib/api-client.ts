@@ -70,6 +70,7 @@ export const apiClient = {
   },
 
   async updateTodo(id: string, data: UpdateTodo): Promise<Todo> {
+    console.log('[API] updateTodo:', id, JSON.stringify(data))
     return request<Todo>(`/todos/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
