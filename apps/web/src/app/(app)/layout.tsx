@@ -66,20 +66,22 @@ export default function AppLayout({
             >
               <Menu className="h-5 w-5" />
             </button>
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--primary)]">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path
-                  d="M3 7.5L6 10.5L11 4"
-                  stroke="var(--bg)"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-            <span className="font-bold tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
-              Todo with Any AI
-            </span>
+            <Link href="/todos" className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--primary)]">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path
+                    d="M3 7.5L6 10.5L11 4"
+                    stroke="var(--bg)"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+              <span className="font-bold tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
+                Todo with Any AI
+              </span>
+            </Link>
           </div>
           <div className="flex items-center gap-1">
             <ThemeToggle />

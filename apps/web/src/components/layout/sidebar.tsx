@@ -3,7 +3,7 @@
 import { useMemo } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutGrid, Clock, Calendar, Plus, Zap } from 'lucide-react'
+import { LayoutGrid, Clock, Calendar, Plus, Zap, BookOpen } from 'lucide-react'
 import { useTodoStore } from '@/stores/todo-store'
 import { useProjectStore } from '@/stores/project-store'
 import { useFilterStore, type FilterType } from '@/stores/filter-store'
@@ -173,6 +173,19 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         >
           <Zap className="h-4 w-4" />
           <span>Sprints</span>
+        </Link>
+        <Link
+          href="/guide"
+          data-testid={testIdPrefix ? `${testIdPrefix}-guide-link` : 'guide-link'}
+          className={cn(
+            'flex items-center gap-3 rounded-[var(--radius-md)] px-3 py-2 text-sm font-medium transition-colors',
+            pathname === '/guide'
+              ? 'border-l-[3px] border-[var(--accent)] bg-[var(--bg-raised)] text-[var(--text)]'
+              : 'border-l-[3px] border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-raised)]'
+          )}
+        >
+          <BookOpen className="h-4 w-4" />
+          <span>MCP Guide</span>
         </Link>
       </div>
     </nav>
