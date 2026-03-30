@@ -276,7 +276,7 @@ describe('TodoCreateForm - submit with all attributes', () => {
         endTime: null,
         priority: null,
         categoryIcon: null,
-  description: null,
+        description: null,
         projectId: null,
         urgencyLevelId: null,
       })
