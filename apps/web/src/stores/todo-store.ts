@@ -198,10 +198,10 @@ export const useTodoStore = create<TodoState>((set, get) => ({
         useSnackbarStore.getState().addMessage('error', '操作に失敗しました')
       }
     } else {
-      // before or after: reorder within the same parent
+      // before or after: reorder within the same parent AND same project
       const newParentId = targetTodo.parentId
       const siblings = prevTodos
-        .filter((t) => t.parentId === newParentId && t.id !== todoId)
+        .filter((t) => t.parentId === newParentId && t.id !== todoId && t.projectId === effectiveProjectId)
         .sort((a, b) => a.order - b.order)
 
       const targetIndex = siblings.findIndex((t) => t.id === targetId)
@@ -223,25 +223,27 @@ export const useTodoStore = create<TodoState>((set, get) => ({
       console.log('[D&D] siblingUpdates:', siblingUpdates)
 
       // Optimistic update: update all siblings' orders + moved todo's parentId/depth
-      set({
-        todos: prevTodos.map((t) => {
-          const update = siblingUpdates.find((u) => u.id === t.id)
-          if (t.id === todoId) {
-            return {
-              ...t,
-              parentId: newParentId,
-              depth: targetTodo.depth,
-              order: update?.order ?? t.order,
-              projectId: effectiveProjectId,
-            }
+      const newTodos = prevTodos.map((t) => {
+        const update = siblingUpdates.find((u) => u.id === t.id)
+        if (t.id === todoId) {
+          const result = {
+            ...t,
+            parentId: newParentId,
+            depth: targetTodo.depth,
+            order: update?.order ?? t.order,
+            projectId: effectiveProjectId,
           }
-          if (update) {
-            return { ...t, order: update.order }
-          }
-          return t
-        }),
-        error: null,
+          console.log('[D&D] moved todo update:', { id: t.id, oldProjectId: t.projectId, newProjectId: result.projectId })
+          return result
+        }
+        if (update) {
+          console.log('[D&D] sibling update:', { id: t.id, projectId: t.projectId, newOrder: update.order })
+          return { ...t, order: update.order }
+        }
+        return t
       })
+      console.log('[D&D] all todos after optimistic update:', newTodos.filter(t => t.projectId).map(t => ({ id: t.id, title: t.title?.substring(0, 10), projectId: t.projectId })))
+      set({ todos: newTodos, error: null })
 
       try {
         // Send API updates for all changed siblings

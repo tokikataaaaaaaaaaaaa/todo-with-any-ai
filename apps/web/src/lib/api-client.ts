@@ -62,6 +62,7 @@ export const apiClient = {
   },
 
   async createTodo(data: CreateTodo): Promise<Todo> {
+    console.log('[API] createTodo body:', JSON.stringify(data))
     return request<Todo>('/todos', {
       method: 'POST',
       body: JSON.stringify(data),
