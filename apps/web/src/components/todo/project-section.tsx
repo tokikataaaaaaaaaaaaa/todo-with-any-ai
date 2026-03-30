@@ -58,9 +58,9 @@ export function ProjectSection({
         </span>
       </div>
 
-      {/* Todo items */}
+      {/* Todo items (sorted by order) */}
       <div>
-        {todos.map((todo) => (
+        {[...todos].sort((a, b) => a.order - b.order).map((todo) => (
           <TodoNode key={todo.id} todo={todo} todos={allTodos} depth={0} />
         ))}
       </div>

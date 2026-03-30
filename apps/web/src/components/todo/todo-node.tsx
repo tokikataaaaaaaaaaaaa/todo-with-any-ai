@@ -354,7 +354,7 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
       {/* Render children if expanded */}
       {hasChildren && isExpanded && (
         <div>
-          {children.map((child) => (
+          {[...children].sort((a, b) => a.order - b.order).map((child) => (
             <TodoNode
               key={child.id}
               todo={child}
