@@ -33,6 +33,7 @@ const makeTodo = (overrides: Partial<Todo> = {}): Todo => ({
   depth: 0,
   priority: null,
   categoryIcon: null,
+  description: null,
   createdAt: '2026-01-01T00:00:00Z',
   updatedAt: '2026-01-01T00:00:00Z',
   ...overrides,
@@ -105,6 +106,7 @@ describe('useTodoStore', () => {
         dueDate: null,
         priority: null,
         categoryIcon: null,
+        description: null,
       }
       const serverTodo = makeTodo({ id: 'server-1', title: 'New Todo' })
       mockApiClient.createTodo.mockResolvedValueOnce(serverTodo)
@@ -132,6 +134,7 @@ describe('useTodoStore', () => {
           dueDate: null,
           priority: null,
           categoryIcon: null,
+          description: null,
         })
       })
 

@@ -75,6 +75,7 @@ export function TodoCreateForm({ defaultProjectId, compact }: TodoCreateFormProp
   const [endTime, setEndTime] = useState('')
   const [priority, setPriority] = useState<Priority>(null)
   const [categoryIcon, setCategoryIcon] = useState<CategoryIcon>(null)
+  const [description, setDescription] = useState('')
 
   const {
     register,
@@ -100,6 +101,7 @@ export function TodoCreateForm({ defaultProjectId, compact }: TodoCreateFormProp
       categoryIcon: categoryIcon,
       projectId: selectedProjectId || null,
       urgencyLevelId: null,
+      description: description || null,
     })
     reset()
     setSelectedProjectId('')
@@ -108,6 +110,7 @@ export function TodoCreateForm({ defaultProjectId, compact }: TodoCreateFormProp
     setEndTime('')
     setPriority(null)
     setCategoryIcon(null)
+    setDescription('')
   }
 
   return (
@@ -282,6 +285,24 @@ export function TodoCreateForm({ defaultProjectId, compact }: TodoCreateFormProp
                 )
               })}
             </div>
+          </div>
+
+          {/* Description */}
+          <div className="flex gap-2">
+            <label htmlFor="create-description" className="w-20 shrink-0 pt-1 text-xs text-[var(--text-secondary)]">
+              メモ
+            </label>
+            <textarea
+              id="create-description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              maxLength={5000}
+              rows={2}
+              placeholder="詳細な情報やメモを入力..."
+              className="flex-1 resize-y rounded border border-[var(--border)] bg-[var(--bg-surface)] px-2 py-1 text-sm outline-none focus:border-[var(--accent)]"
+              style={{ fontFamily: 'var(--font-body)' }}
+              disabled={isSubmitting}
+            />
           </div>
         </div>
       )}

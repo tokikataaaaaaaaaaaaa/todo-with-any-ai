@@ -242,6 +242,7 @@ describe('TodoCreateForm - submit with all attributes', () => {
         parentId: null,
         order: 0,
         depth: 0,
+        description: null,
         dueDate: '2026-07-01',
         startTime: null,
         endTime: null,
@@ -275,6 +276,7 @@ describe('TodoCreateForm - submit with all attributes', () => {
         endTime: null,
         priority: null,
         categoryIcon: null,
+  description: null,
         projectId: null,
         urgencyLevelId: null,
       })

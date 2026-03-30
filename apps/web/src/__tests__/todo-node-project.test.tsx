@@ -50,6 +50,7 @@ const makeTodo = (overrides: Partial<Todo> = {}): Todo => ({
   depth: 0,
   priority: null,
   categoryIcon: null,
+  description: null,
   projectId: null,
   urgencyLevelId: null,
   createdAt: '2026-01-01T00:00:00Z',

@@ -27,6 +27,7 @@ const todoBaseSchema = z.object({
     .enum(["work", "personal", "shopping", "health", "study", "idea"])
     .nullable()
     .default(null),
+  description: z.string().max(5000).nullable().default(null),
   createdAt: z.string(),
   updatedAt: z.string(),
 });

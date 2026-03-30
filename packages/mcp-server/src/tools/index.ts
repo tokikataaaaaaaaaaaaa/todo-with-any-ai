@@ -97,6 +97,7 @@ export function registerTools(server: McpServer, client: ApiClient): void {
         .enum(["work", "personal", "shopping", "health", "study", "idea"])
         .optional()
         .describe("カテゴリアイコン"),
+      description: z.string().max(5000).optional().describe("メモ・詳細情報（5000文字以内）"),
     },
     async (args) => handleToolCall(client, "todos_create", args)
   );
@@ -115,6 +116,7 @@ export function registerTools(server: McpServer, client: ApiClient): void {
         .enum(["work", "personal", "shopping", "health", "study", "idea"])
         .optional()
         .describe("カテゴリアイコン"),
+      description: z.string().max(5000).optional().describe("メモ・詳細情報（5000文字以内）"),
     },
     async (args) => handleToolCall(client, "todos_update", args)
   );

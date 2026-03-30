@@ -143,6 +143,7 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
       urgencyLevelId: null,
       startTime: null,
       endTime: null,
+      description: null,
     })
     } finally {
       setAddingChild(false)

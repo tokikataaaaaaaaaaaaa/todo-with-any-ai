@@ -30,6 +30,7 @@ export async function todosCreate(
   if (args.endTime !== undefined) data.endTime = args.endTime;
   if (args.priority !== undefined) data.priority = args.priority;
   if (args.categoryIcon !== undefined) data.categoryIcon = args.categoryIcon;
+  if (args.description !== undefined) data.description = args.description;
 
   const todo = await client.createTodo(data as Parameters<ApiClient["createTodo"]>[0]);
 

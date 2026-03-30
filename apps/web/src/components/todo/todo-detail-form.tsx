@@ -47,6 +47,7 @@ export function TodoDetailForm({
   const [parentId, setParentId] = useState(todo.parentId ?? '')
   const [urgencyLevelId, setUrgencyLevelId] = useState(todo.urgencyLevelId ?? '')
   const [projectId, setProjectId] = useState(todo.projectId ?? '')
+  const [description, setDescription] = useState(todo.description ?? '')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const parentOptions = useMemo(
@@ -70,9 +71,10 @@ export function TodoDetailForm({
       (endTime || null) !== (todo.endTime || null) ||
       (parentId || null) !== (todo.parentId || null) ||
       (urgencyLevelId || null) !== (todo.urgencyLevelId || null) ||
-      (projectId || null) !== (todo.projectId || null)
+      (projectId || null) !== (todo.projectId || null) ||
+      (description || null) !== (todo.description || null)
     )
-  }, [title, completed, dueDate, startTime, endTime, parentId, urgencyLevelId, projectId, todo])
+  }, [title, completed, dueDate, startTime, endTime, parentId, urgencyLevelId, projectId, description, todo])
 
   const handleSave = () => {
     onSave({
@@ -84,6 +86,7 @@ export function TodoDetailForm({
       parentId: parentId || null,
       urgencyLevelId: urgencyLevelId || null,
       projectId: projectId || null,
+      description: description || null,
     })
   }
 
@@ -113,6 +116,23 @@ export function TodoDetailForm({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className="flex-1 border-b border-[var(--border)] bg-transparent py-1 text-lg font-medium outline-none focus:border-[var(--accent)]"
+        />
+      </div>
+
+      {/* Description */}
+      <div>
+        <label htmlFor="description" className="mb-2 block text-sm font-medium text-[var(--text-secondary)]">
+          メモ
+        </label>
+        <textarea
+          id="description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          maxLength={5000}
+          rows={4}
+          placeholder="詳細な情報やメモを入力..."
+          className="w-full resize-y rounded-lg border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+          style={{ fontFamily: 'var(--font-body)' }}
         />
       </div>
 

@@ -159,6 +159,7 @@ export class TodoService {
       priority: parsed.priority ?? null,
       urgencyLevelId: parsed.urgencyLevelId ?? null,
       categoryIcon: parsed.categoryIcon ?? null,
+      description: parsed.description ?? null,
       createdAt: now,
       updatedAt: now,
     }
