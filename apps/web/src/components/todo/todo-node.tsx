@@ -212,7 +212,8 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
             router.push(`/todos/detail?id=${todo.id}`)
           }}
           className={cn(
-            'min-w-0 flex-1 cursor-pointer truncate text-left text-[15px] transition-all duration-200',
+            'min-w-0 flex-1 cursor-pointer text-left text-[15px] transition-all duration-200',
+            'line-clamp-3 sm:truncate sm:line-clamp-none',
             todo.completed && 'text-[var(--text-secondary)] line-through'
           )}
           style={{ fontFamily: 'var(--font-body)' }}

@@ -104,18 +104,24 @@ export function TodoDetailForm({
   return (
     <div className="space-y-6">
       {/* Completed + Title */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-start gap-3">
         <input
           type="checkbox"
           checked={completed}
           onChange={(e) => setCompleted(e.target.checked)}
-          className="h-5 w-5 rounded border-[var(--border-strong)]"
+          className="mt-2 h-5 w-5 rounded border-[var(--border-strong)]"
         />
-        <input
-          type="text"
+        <textarea
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="flex-1 border-b border-[var(--border)] bg-transparent py-1 text-lg font-medium outline-none focus:border-[var(--accent)]"
+          rows={1}
+          className="w-full flex-1 resize-none overflow-hidden border-b border-[var(--border)] bg-transparent py-2 text-lg font-semibold outline-none focus:border-[var(--accent)]"
+          style={{ fontFamily: 'var(--font-display)', minHeight: '2.5rem' }}
+          onInput={(e) => {
+            const target = e.target as HTMLTextAreaElement
+            target.style.height = 'auto'
+            target.style.height = target.scrollHeight + 'px'
+          }}
         />
       </div>
 
