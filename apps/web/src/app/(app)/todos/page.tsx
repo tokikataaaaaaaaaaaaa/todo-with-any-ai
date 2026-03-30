@@ -159,7 +159,7 @@ export default function TodosPage() {
   const showGrouped = filterType === 'all' || filterType === undefined
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-10">
+    <div className="mx-auto max-w-2xl overflow-x-hidden px-4 py-8 sm:px-10">
       {/* Header */}
       <div className="mb-1">
         <h1

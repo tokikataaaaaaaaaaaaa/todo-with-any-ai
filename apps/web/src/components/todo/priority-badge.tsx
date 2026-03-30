@@ -13,6 +13,12 @@ const fallbackLabels = {
   low: 'Low',
 } as const
 
+const fallbackLabelsShort = {
+  high: 'H',
+  medium: 'M',
+  low: 'L',
+} as const
+
 interface PriorityBadgeProps {
   priority?: 'high' | 'medium' | 'low' | null
   urgencyLevelId?: string | null
@@ -27,11 +33,12 @@ export function PriorityBadge({ priority, urgencyLevelId, urgencyLevels }: Prior
       return (
         <span
           data-testid={`priority-badge-urgency`}
-          className="inline-flex items-center gap-1 rounded-[var(--radius-md)] px-1.5 py-0.5 text-[10px] sm:px-2 sm:text-[11px] font-semibold tracking-wide text-white"
+          className="inline-flex flex-shrink-0 items-center gap-1 rounded-[var(--radius-md)] px-1.5 py-0.5 text-[10px] sm:px-2 sm:text-[11px] font-semibold tracking-wide text-white"
           style={{ backgroundColor: level.color }}
         >
           {level.icon && <span>{level.icon}</span>}
-          {level.name}
+          <span data-testid="priority-label-sp" className="sm:hidden">{level.name}</span>
+          <span data-testid="priority-label-desktop" className="hidden sm:inline">{level.name}</span>
         </span>
       )
     }
@@ -44,11 +51,12 @@ export function PriorityBadge({ priority, urgencyLevelId, urgencyLevels }: Prior
     <span
       data-testid={`priority-badge-${priority}`}
       className={cn(
-        'inline-flex items-center rounded-[var(--radius-md)] px-1.5 py-0.5 text-[10px] sm:px-2 sm:text-[11px] font-semibold tracking-wide',
+        'inline-flex flex-shrink-0 items-center rounded-[var(--radius-md)] px-1.5 py-0.5 text-[10px] sm:px-2 sm:text-[11px] font-semibold tracking-wide',
         fallbackStyles[priority]
       )}
     >
-      {fallbackLabels[priority]}
+      <span data-testid="priority-label-sp" className="sm:hidden">{fallbackLabelsShort[priority]}</span>
+      <span data-testid="priority-label-desktop" className="hidden sm:inline">{fallbackLabels[priority]}</span>
     </span>
   )
 }

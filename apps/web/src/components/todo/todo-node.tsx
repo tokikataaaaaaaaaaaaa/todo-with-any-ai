@@ -164,7 +164,7 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
     <div>
       <div
         data-testid="todo-row"
-        className="group flex items-center gap-3 border-b border-[var(--border)] transition-colors duration-150 hover:bg-[var(--bg-raised)]"
+        className="group flex items-center gap-3 overflow-hidden border-b border-[var(--border)] transition-colors duration-150 hover:bg-[var(--bg-raised)]"
         style={{
           padding: '12px 16px',
           paddingLeft: `${depth * 24 + 16}px`,
@@ -212,7 +212,7 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
             router.push(`/todos/detail?id=${todo.id}`)
           }}
           className={cn(
-            'flex-1 cursor-pointer truncate text-left text-[15px] transition-all duration-200',
+            'min-w-0 flex-1 cursor-pointer truncate text-left text-[15px] transition-all duration-200',
             todo.completed && 'text-[var(--text-secondary)] line-through'
           )}
           style={{ fontFamily: 'var(--font-body)' }}

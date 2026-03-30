@@ -117,7 +117,7 @@ export default function AppLayout({
       </header>
       <div className="flex flex-1">
         <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        <main className="flex-1 p-4 pb-20 sm:pb-4">{children}</main>
+        <main className="flex-1 overflow-x-hidden p-4 pb-20 sm:pb-4">{children}</main>
       </div>
       <BottomNav />
     </div>
