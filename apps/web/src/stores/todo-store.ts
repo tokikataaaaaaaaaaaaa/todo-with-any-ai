@@ -247,15 +247,21 @@ export const useTodoStore = create<TodoState>((set, get) => ({
 
       try {
         // Send API updates for all changed siblings
-        await Promise.all(
+        const results = await Promise.all(
           siblingUpdates.map((update) => {
             const data: UpdateTodo =
               update.id === todoId
                 ? { parentId: newParentId, depth: targetTodo.depth, order: update.order, projectId: effectiveProjectId }
                 : { order: update.order, projectId: effectiveProjectId }
+            console.log('[D&D] API update sending:', update.id, JSON.stringify(data))
             return apiClient.updateTodo(update.id, data)
           })
         )
+        // Verify all results have correct projectId
+        console.log('[D&D] API results after update:')
+        results.forEach(r => {
+          console.log(`  ${r.id} ${r.title?.substring(0, 15)} projectId=${r.projectId} parentId=${r.parentId}`)
+        })
       } catch (e) {
         set({ todos: prevTodos, error: (e as Error).message })
         useSnackbarStore.getState().addMessage('error', '操作に失敗しました')

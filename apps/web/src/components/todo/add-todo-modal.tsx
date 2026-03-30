@@ -18,10 +18,11 @@ export function AddTodoModal({ open, onClose }: AddTodoModalProps) {
         className="fixed inset-0 z-50 bg-black/40"
         onClick={onClose}
       />
-      {/* Bottom sheet */}
+      {/* Bottom sheet - stopPropagation prevents backdrop close on tap */}
       <div
-        className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl bg-[var(--bg-surface)] p-4 shadow-2xl"
+        className="fixed bottom-0 left-0 right-0 z-[51] rounded-t-2xl bg-[var(--bg-surface)] p-4 shadow-2xl"
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)' }}
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Drag handle bar */}
         <div
