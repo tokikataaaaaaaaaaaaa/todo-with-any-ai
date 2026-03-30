@@ -56,6 +56,28 @@ function getDropPosition(clientY: number, rect: DOMRect): DropPosition {
  * Simple approach: always draggable, drag starts from anywhere.
  * The drag handle in TodoNode is purely visual — any part of the row can initiate drag.
  */
+// Debug log visible on screen
+const debugLogs: string[] = []
+function dlog(...args: unknown[]) {
+  const msg = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')
+  console.log(...args)
+  debugLogs.push(`${new Date().toISOString().substring(11,19)} ${msg}`)
+  if (debugLogs.length > 10) debugLogs.shift()
+  // Force re-render of debug overlay
+  if (typeof window !== 'undefined') {
+    const el = document.getElementById('dnd-debug-overlay')
+    if (el) el.textContent = debugLogs.join('\n')
+  }
+}
+
+// Mount debug overlay once
+if (typeof window !== 'undefined' && !document.getElementById('dnd-debug-overlay')) {
+  const overlay = document.createElement('pre')
+  overlay.id = 'dnd-debug-overlay'
+  overlay.style.cssText = 'position:fixed;top:60px;right:8px;z-index:9999;background:rgba(0,0,0,0.85);color:#0f0;font-size:10px;padding:8px;border-radius:8px;max-width:300px;max-height:200px;overflow:auto;pointer-events:none;font-family:monospace;'
+  document.body.appendChild(overlay)
+}
+
 export function DraggableTodo({ todo, allTodos, children, onDrop }: DraggableTodoProps) {
   const [dropIndicator, setDropIndicator] = useState<DropPosition | null>(null)
 
@@ -65,7 +87,7 @@ export function DraggableTodo({ todo, allTodos, children, onDrop }: DraggableTod
       e.dataTransfer.setData('text/plain', todo.id)
       e.dataTransfer.effectAllowed = 'move'
       currentDraggedId = todo.id
-      console.log('[D&D] dragStart:', todo.id, todo.title)
+      dlog('[D&D] dragStart:', todo.id, todo.title)
     },
     [todo.id, todo.title]
   )
@@ -93,23 +115,34 @@ export function DraggableTodo({ todo, allTodos, children, onDrop }: DraggableTod
       setDropIndicator(null)
 
       const draggedId = currentDraggedId || e.dataTransfer.getData('text/plain')
-      console.log('[D&D] drop:', { draggedId, targetId: todo.id })
-      if (!draggedId || draggedId === todo.id) return
+      dlog('[D&D] drop:', { draggedId, targetId: todo.id, targetTitle: todo.title })
+      if (!draggedId || draggedId === todo.id) { dlog('[D&D] SKIP: same or no id'); return }
 
       const draggedTodo = allTodos.find((t) => t.id === draggedId)
-      if (!draggedTodo) return
+      if (!draggedTodo) { dlog('[D&D] SKIP: dragged not found in allTodos, len=', allTodos.length); return }
 
-      if (draggedTodo.projectId !== todo.projectId) return
+      // Cross-project check: resolve effective projectId by walking up parents
+      const getEffectiveProjectId = (t: Todo): string | null => {
+        if (t.projectId) return t.projectId
+        if (t.parentId) {
+          const parent = allTodos.find(p => p.id === t.parentId)
+          if (parent) return getEffectiveProjectId(parent)
+        }
+        return null
+      }
+      const draggedProjectId = getEffectiveProjectId(draggedTodo)
+      const targetProjectId = getEffectiveProjectId(todo)
+      if (draggedProjectId !== targetProjectId) { dlog('[D&D] SKIP: cross-project', draggedProjectId, '!=', targetProjectId); return }
 
       const descendants = getDescendantIds(draggedId, allTodos)
-      if (descendants.has(todo.id)) return
+      if (descendants.has(todo.id)) { dlog('[D&D] SKIP: circular ref'); return }
 
       const rect = e.currentTarget.getBoundingClientRect()
       const position = getDropPosition(e.clientY, rect)
 
-      if (position === 'child' && todo.depth >= 9) return
+      if (position === 'child' && todo.depth >= 9) { dlog('[D&D] SKIP: depth limit'); return }
 
-      console.log('[D&D] calling onDrop:', { draggedId, targetId: todo.id, position })
+      dlog('[D&D] onDrop:', { draggedId, targetId: todo.id, position })
       onDrop(draggedId, todo.id, position)
     },
     [todo, allTodos, onDrop]
