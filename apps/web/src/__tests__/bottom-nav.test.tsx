@@ -6,14 +6,16 @@ import { BottomNav } from '@/components/ui/bottom-nav'
 let mockPathname = '/todos'
 vi.mock('next/navigation', () => ({
   usePathname: () => mockPathname,
+  useRouter: () => ({ push: vi.fn() }),
 }))
 
 describe('BottomNav', () => {
-  it('renders four navigation links', () => {
+  it('renders four navigation links and one add button', () => {
     render(<BottomNav />)
     const nav = screen.getByRole('navigation', { name: /bottom/i })
     const links = nav.querySelectorAll('a')
     expect(links).toHaveLength(4)
+    expect(screen.getByTestId('bottom-nav-add')).toBeInTheDocument()
   })
 
   it('highlights the current page (todos)', () => {

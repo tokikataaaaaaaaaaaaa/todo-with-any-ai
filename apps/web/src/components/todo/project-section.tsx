@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { TodoNode } from './todo-node'
 import { TodoCreateForm } from './todo-create-form'
+import { useTodoStore } from '@/stores/todo-store'
 import type { Todo } from '@todo-with-any-ai/shared'
 
 interface ProjectSectionProps {
@@ -22,6 +23,7 @@ export function ProjectSection({
   allTodos,
   projectId,
 }: ProjectSectionProps) {
+  const moveTodo = useTodoStore((s) => s.moveTodo)
   const [showAddForm, setShowAddForm] = useState(false)
 
   const total = todos.length
@@ -59,8 +61,19 @@ export function ProjectSection({
         </span>
       </div>
 
-      {/* Todo items (sorted by order) */}
-      <div>
+      {/* Todo items (sorted by order) - drop zone for root-level reordering */}
+      <div
+        data-testid={`project-drop-zone-${projectId ?? 'uncategorized'}`}
+        onDragOver={(e) => { e.preventDefault(); e.stopPropagation() }}
+        onDrop={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          const draggedId = e.dataTransfer.getData('text/plain')
+          if (draggedId) {
+            moveTodo(draggedId, 'root', projectId ?? '')
+          }
+        }}
+      >
         {[...todos].sort((a, b) => a.order - b.order).map((todo) => (
           <TodoNode key={todo.id} todo={todo} todos={allTodos} depth={0} />
         ))}

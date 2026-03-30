@@ -104,7 +104,7 @@ export function TodoCreateForm({ defaultProjectId, compact }: TodoCreateFormProp
       description: description || null,
     })
     reset()
-    setSelectedProjectId('')
+    setSelectedProjectId(defaultProjectId ?? '')
     setDueDate('')
     setStartTime('')
     setEndTime('')

@@ -13,7 +13,7 @@ interface TodoState {
   updateTodo: (id: string, data: UpdateTodo) => Promise<void>
   deleteTodo: (id: string) => Promise<void>
   toggleComplete: (id: string) => Promise<void>
-  moveTodo: (todoId: string, targetId: string, position: 'child' | 'before' | 'after') => Promise<void>
+  moveTodo: (todoId: string, targetId: string, position: 'child' | 'before' | 'after' | string) => Promise<void>
   toggleExpand: (id: string) => void
   reset: () => void
 }
@@ -114,10 +114,45 @@ export const useTodoStore = create<TodoState>((set, get) => ({
     }
   },
 
-  moveTodo: async (todoId: string, targetId: string, position: 'child' | 'before' | 'after') => {
+  moveTodo: async (todoId: string, targetId: string, position: 'child' | 'before' | 'after' | string) => {
     console.log('[D&D] moveTodo called:', { todoId, targetId, position })
     const prevTodos = get().todos
     const movedTodo = prevTodos.find((t) => t.id === todoId)
+
+    // Special case: drop onto project root drop zone
+    if (targetId === 'root' && movedTodo) {
+      const projectId = position || null // position carries the projectId
+      const rootSiblings = prevTodos
+        .filter((t) => t.parentId === null && t.projectId === projectId && t.id !== todoId)
+        .sort((a, b) => a.order - b.order)
+      const newOrder = rootSiblings.length
+
+      const updateData: UpdateTodo = {
+        parentId: null,
+        depth: 0,
+        order: newOrder,
+        projectId: projectId,
+      }
+
+      set({
+        todos: prevTodos.map((t) =>
+          t.id === todoId ? { ...t, ...updateData } : t
+        ),
+        error: null,
+      })
+
+      try {
+        const serverTodo = await apiClient.updateTodo(todoId, updateData)
+        set({
+          todos: get().todos.map((t) => (t.id === todoId ? serverTodo : t)),
+        })
+      } catch (e) {
+        set({ todos: prevTodos, error: (e as Error).message })
+        useSnackbarStore.getState().addMessage('error', '\u64CD\u4F5C\u306B\u5931\u6557\u3057\u307E\u3057\u305F')
+      }
+      return
+    }
+
     const targetTodo = prevTodos.find((t) => t.id === targetId)
     if (!movedTodo || !targetTodo) {
       console.log('[D&D] moveTodo: todo not found', { movedTodo: !!movedTodo, targetTodo: !!targetTodo })
