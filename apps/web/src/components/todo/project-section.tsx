@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { TodoNode } from './todo-node'
-import { useTodoStore } from '@/stores/todo-store'
+import { TodoCreateForm } from './todo-create-form'
 import type { Todo } from '@todo-with-any-ai/shared'
 
 interface ProjectSectionProps {
@@ -22,39 +22,10 @@ export function ProjectSection({
   allTodos,
   projectId,
 }: ProjectSectionProps) {
-  const createTodo = useTodoStore((s) => s.createTodo)
   const [showAddForm, setShowAddForm] = useState(false)
-  const [newTitle, setNewTitle] = useState('')
-  const [adding, setAdding] = useState(false)
 
   const total = todos.length
   const completed = todos.filter((t) => t.completed).length
-
-  const handleAdd = async () => {
-    if (!newTitle.trim() || adding) return
-    const title = newTitle.trim()
-    setNewTitle('')
-    setShowAddForm(false)
-    setAdding(true)
-    try {
-    await createTodo({
-      title,
-      completed: false,
-      parentId: null,
-      order: todos.length,
-      depth: 0,
-      dueDate: null,
-      priority: null,
-      categoryIcon: null,
-      projectId: projectId,
-      urgencyLevelId: null,
-      startTime: null,
-      endTime: null,
-    })
-    } finally {
-      setAdding(false)
-    }
-  }
 
   return (
     <div
@@ -94,35 +65,10 @@ export function ProjectSection({
         ))}
       </div>
 
-      {/* Add task button / inline form */}
+      {/* Add task - reuse TodoCreateForm with project pre-selected */}
       {showAddForm ? (
-        <div className="flex items-center gap-2 border-t border-[var(--border)] px-4 py-2.5">
-          <input
-            type="text"
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.nativeEvent.isComposing && e.keyCode !== 229) handleAdd()
-              if (e.key === 'Escape') { setShowAddForm(false); setNewTitle('') }
-            }}
-            placeholder="タスク名を入力..."
-            className="flex-1 rounded border border-[var(--border)] bg-[var(--bg-surface)] px-2 py-1 text-sm outline-none focus:border-[var(--accent)]"
-            autoFocus
-            aria-label="New task title"
-          />
-          <button
-            onClick={handleAdd}
-            disabled={!newTitle.trim()}
-            className="rounded bg-[var(--accent)] px-3 py-1 text-xs font-medium text-white disabled:opacity-50"
-          >
-            追加
-          </button>
-          <button
-            onClick={() => { setShowAddForm(false); setNewTitle('') }}
-            className="rounded px-2 py-1 text-xs text-[var(--text-secondary)] hover:bg-[var(--bg-raised)]"
-          >
-            取消
-          </button>
+        <div className="border-t border-[var(--border)]">
+          <TodoCreateForm defaultProjectId={projectId} compact />
         </div>
       ) : (
         <button

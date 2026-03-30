@@ -48,20 +48,26 @@ const PRIORITIES: { value: Priority; label: string }[] = [
   { value: null, label: 'なし' },
 ]
 
-export function TodoCreateForm() {
+interface TodoCreateFormProps {
+  defaultProjectId?: string | null
+  compact?: boolean
+}
+
+export function TodoCreateForm({ defaultProjectId, compact }: TodoCreateFormProps = {}) {
   const createTodo = useTodoStore((s) => s.createTodo)
   const projects = useProjectStore((s) => s.projects)
   const filterType = useFilterStore((s) => s.filterType)
   const filterProjectId = useFilterStore((s) => s.projectId)
-  const [selectedProjectId, setSelectedProjectId] = useState(
-    filterType === 'project' && filterProjectId ? filterProjectId : ''
-  )
+  const initialProjectId = defaultProjectId ?? (filterType === 'project' && filterProjectId ? filterProjectId : '')
+  const [selectedProjectId, setSelectedProjectId] = useState(initialProjectId)
 
   useEffect(() => {
-    if (filterType === 'project' && filterProjectId) {
+    if (defaultProjectId) {
+      setSelectedProjectId(defaultProjectId)
+    } else if (filterType === 'project' && filterProjectId) {
       setSelectedProjectId(filterProjectId)
     }
-  }, [filterType, filterProjectId])
+  }, [filterType, filterProjectId, defaultProjectId])
 
   const [showDetails, setShowDetails] = useState(false)
   const [dueDate, setDueDate] = useState('')
