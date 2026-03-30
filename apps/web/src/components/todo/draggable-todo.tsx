@@ -33,11 +33,22 @@ function getDescendantIds(todoId: string, allTodos: Todo[]): Set<string> {
   return descendants
 }
 
+/**
+ * Approximate height of a single todo row in pixels.
+ * The DraggableTodo wrapper may be much taller when children are expanded.
+ * We use this to define fixed-pixel zones so that the "before"/"after"
+ * drop targets remain usable regardless of how many children are expanded.
+ */
+const ROW_HEIGHT_PX = 48
+
 function getDropPosition(clientY: number, rect: DOMRect): DropPosition {
   const relativeY = clientY - rect.top
-  const ratio = rect.height > 0 ? relativeY / rect.height : 0.5
-  if (ratio < 0.25) return 'before'
-  if (ratio > 0.75) return 'after'
+  // Top zone: "before" (insert as sibling above)
+  if (relativeY < ROW_HEIGHT_PX * 0.33) return 'before'
+  // Bottom zone: "after" (insert as sibling below)
+  // For tall wrappers (expanded children), anything below the row area is "after"
+  if (relativeY > ROW_HEIGHT_PX * 0.67) return 'after'
+  // Middle zone: "child" (nest inside this todo)
   return 'child'
 }
 

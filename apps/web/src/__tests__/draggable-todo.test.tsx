@@ -118,7 +118,7 @@ describe('DraggableTodo', () => {
     expect(setDataMock).toHaveBeenCalledWith('text/plain', 'drag-item')
   })
 
-  it('should call onDrop with child position when dropped on center', () => {
+  it('should call onDrop with child position when dropped on middle zone', () => {
     const draggedTodo = makeTodo({ id: 'dragged', depth: 0 })
     const targetTodo = makeTodo({ id: 'target', depth: 0 })
     const allTodos = [draggedTodo, targetTodo]
@@ -134,8 +134,8 @@ describe('DraggableTodo', () => {
     const wrapper = screen.getByTestId('draggable-todo-target')
     mockRect(wrapper, 0, 100)
 
-    // clientY=50, ratio=0.5 -> child
-    fireDrop(wrapper, 50)
+    // clientY=24, within the "child" zone (ROW_HEIGHT*0.33=16 to ROW_HEIGHT*0.67=32)
+    fireDrop(wrapper, 24)
 
     expect(mockOnDrop).toHaveBeenCalledWith('dragged', 'target', 'child')
   })
@@ -200,8 +200,8 @@ describe('DraggableTodo', () => {
     const wrapper = screen.getByTestId('draggable-todo-target')
     mockRect(wrapper, 0, 100)
 
-    // center drop -> child position, but depth 9 + 1 = 10 -> blocked
-    fireDrop(wrapper, 50)
+    // Drop in "child" zone (ROW_HEIGHT*0.33=16 to ROW_HEIGHT*0.67=32), depth 9 + 1 = 10 -> blocked
+    fireDrop(wrapper, 24)
 
     expect(mockOnDrop).not.toHaveBeenCalled()
   })
