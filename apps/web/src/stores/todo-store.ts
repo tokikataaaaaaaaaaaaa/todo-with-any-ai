@@ -120,15 +120,31 @@ export const useTodoStore = create<TodoState>((set, get) => ({
     const targetTodo = prevTodos.find((t) => t.id === targetId)
     if (!movedTodo || !targetTodo) return
 
-    let updateData: UpdateTodo
-
     if (position === 'child') {
       // Make movedTodo a child of targetTodo
       const existingChildren = prevTodos.filter((t) => t.parentId === targetId)
-      updateData = {
+      const updateData: UpdateTodo = {
         parentId: targetId,
         depth: targetTodo.depth + 1,
         order: existingChildren.length,
+      }
+
+      // Optimistic update
+      set({
+        todos: prevTodos.map((t) =>
+          t.id === todoId ? { ...t, ...updateData } : t
+        ),
+        error: null,
+      })
+
+      try {
+        const serverTodo = await apiClient.updateTodo(todoId, updateData)
+        set({
+          todos: get().todos.map((t) => (t.id === todoId ? serverTodo : t)),
+        })
+      } catch (e) {
+        set({ todos: prevTodos, error: (e as Error).message })
+        useSnackbarStore.getState().addMessage('error', '操作に失敗しました')
       }
     } else {
       // before or after: reorder within the same parent
@@ -139,31 +155,55 @@ export const useTodoStore = create<TodoState>((set, get) => ({
 
       const targetIndex = siblings.findIndex((t) => t.id === targetId)
       const insertIndex = position === 'before' ? targetIndex : targetIndex + 1
-      const newOrder = insertIndex
 
-      updateData = {
-        parentId: newParentId,
-        depth: targetTodo.depth,
-        order: newOrder,
+      // Build new ordered list with movedTodo inserted at the right position
+      const newSiblingOrder = [...siblings]
+      newSiblingOrder.splice(insertIndex, 0, movedTodo)
+
+      // Calculate updates for all siblings that need new order values
+      const siblingUpdates: { id: string; order: number }[] = []
+      for (let i = 0; i < newSiblingOrder.length; i++) {
+        const sibling = newSiblingOrder[i]
+        if (sibling.order !== i || sibling.id === todoId) {
+          siblingUpdates.push({ id: sibling.id, order: i })
+        }
       }
-    }
 
-    // Optimistic update
-    set({
-      todos: prevTodos.map((t) =>
-        t.id === todoId ? { ...t, ...updateData } : t
-      ),
-      error: null,
-    })
-
-    try {
-      const serverTodo = await apiClient.updateTodo(todoId, updateData)
+      // Optimistic update: update all siblings' orders + moved todo's parentId/depth
       set({
-        todos: get().todos.map((t) => (t.id === todoId ? serverTodo : t)),
+        todos: prevTodos.map((t) => {
+          const update = siblingUpdates.find((u) => u.id === t.id)
+          if (t.id === todoId) {
+            return {
+              ...t,
+              parentId: newParentId,
+              depth: targetTodo.depth,
+              order: update?.order ?? t.order,
+            }
+          }
+          if (update) {
+            return { ...t, order: update.order }
+          }
+          return t
+        }),
+        error: null,
       })
-    } catch (e) {
-      set({ todos: prevTodos, error: (e as Error).message })
-      useSnackbarStore.getState().addMessage('error', '操作に失敗しました')
+
+      try {
+        // Send API updates for all changed siblings
+        await Promise.all(
+          siblingUpdates.map((update) => {
+            const data: UpdateTodo =
+              update.id === todoId
+                ? { parentId: newParentId, depth: targetTodo.depth, order: update.order }
+                : { order: update.order }
+            return apiClient.updateTodo(update.id, data)
+          })
+        )
+      } catch (e) {
+        set({ todos: prevTodos, error: (e as Error).message })
+        useSnackbarStore.getState().addMessage('error', '操作に失敗しました')
+      }
     }
   },
 

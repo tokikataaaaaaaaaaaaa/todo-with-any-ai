@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import type { Todo } from '@todo-with-any-ai/shared'
 
 export type DropPosition = 'child' | 'before' | 'after'
@@ -51,6 +51,10 @@ function getDropPosition(clientY: number, rect: DOMRect): DropPosition {
 
 export function DraggableTodo({ todo, allTodos, children, onDrop }: DraggableTodoProps) {
   const [dropIndicator, setDropIndicator] = useState<DropPosition | null>(null)
+  const isTouchDevice = useMemo(
+    () => typeof window !== 'undefined' && (navigator?.maxTouchPoints ?? 0) > 0,
+    []
+  )
 
   const handleDragStart = useCallback(
     (e: React.DragEvent<HTMLDivElement>) => {
@@ -112,7 +116,7 @@ export function DraggableTodo({ todo, allTodos, children, onDrop }: DraggableTod
   return (
     <div
       data-testid={`draggable-todo-${todo.id}`}
-      draggable={true}
+      draggable={!isTouchDevice}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}

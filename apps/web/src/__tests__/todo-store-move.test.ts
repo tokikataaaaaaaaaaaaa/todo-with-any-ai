@@ -73,12 +73,12 @@ describe('useTodoStore.moveTodo', () => {
     }))
   })
 
-  it('should update order when position is before', async () => {
+  it('should reorder all siblings when position is before', async () => {
     const todo1 = makeTodo({ id: 'todo-1', order: 0, depth: 0 })
     const todo2 = makeTodo({ id: 'todo-2', order: 1, depth: 0 })
     const todo3 = makeTodo({ id: 'todo-3', order: 2, depth: 0 })
 
-    // Move todo-3 before todo-1
+    // Move todo-3 before todo-1 => new order: todo-3(0), todo-1(1), todo-2(2)
     mockApiClient.updateTodo.mockResolvedValue({
       ...todo3,
       order: 0,
@@ -92,20 +92,33 @@ describe('useTodoStore.moveTodo', () => {
       await useTodoStore.getState().moveTodo('todo-3', 'todo-1', 'before')
     })
 
+    // Verify all siblings got new orders in optimistic state
+    const todos = useTodoStore.getState().todos
+    const orderedTodos = [...todos].filter((t) => t.parentId === null).sort((a, b) => a.order - b.order)
+    expect(orderedTodos.map((t) => t.id)).toEqual(['todo-3', 'todo-1', 'todo-2'])
+
+    // API should be called for all siblings that changed order
     expect(mockApiClient.updateTodo).toHaveBeenCalledWith('todo-3', expect.objectContaining({
-      order: expect.any(Number),
+      order: 0,
       parentId: null,
+    }))
+    expect(mockApiClient.updateTodo).toHaveBeenCalledWith('todo-1', expect.objectContaining({
+      order: 1,
+    }))
+    expect(mockApiClient.updateTodo).toHaveBeenCalledWith('todo-2', expect.objectContaining({
+      order: 2,
     }))
   })
 
-  it('should update order when position is after', async () => {
+  it('should reorder all siblings when position is after', async () => {
     const todo1 = makeTodo({ id: 'todo-1', order: 0, depth: 0 })
     const todo2 = makeTodo({ id: 'todo-2', order: 1, depth: 0 })
     const todo3 = makeTodo({ id: 'todo-3', order: 2, depth: 0 })
 
+    // Move todo-1 after todo-2 => new order: todo-2(0), todo-1(1), todo-3(2)
     mockApiClient.updateTodo.mockResolvedValue({
       ...todo1,
-      order: 2,
+      order: 1,
     })
 
     act(() => {
@@ -116,9 +129,10 @@ describe('useTodoStore.moveTodo', () => {
       await useTodoStore.getState().moveTodo('todo-1', 'todo-2', 'after')
     })
 
-    expect(mockApiClient.updateTodo).toHaveBeenCalledWith('todo-1', expect.objectContaining({
-      order: expect.any(Number),
-    }))
+    // Verify siblings got correct order
+    const todos = useTodoStore.getState().todos
+    const orderedTodos = [...todos].filter((t) => t.parentId === null).sort((a, b) => a.order - b.order)
+    expect(orderedTodos.map((t) => t.id)).toEqual(['todo-2', 'todo-1', 'todo-3'])
   })
 
   it('should recalculate depth for child position', async () => {

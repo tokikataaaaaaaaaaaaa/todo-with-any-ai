@@ -71,7 +71,8 @@ describe('DraggableTodo', () => {
     expect(screen.getByText('Child Content')).toBeInTheDocument()
   })
 
-  it('should set draggable attribute', () => {
+  it('should set draggable attribute on non-touch devices', () => {
+    // jsdom has no ontouchstart by default, so this is a PC environment
     const todo = makeTodo()
     render(
       <DraggableTodo todo={todo} allTodos={[todo]} onDrop={mockOnDrop}>
@@ -80,6 +81,24 @@ describe('DraggableTodo', () => {
     )
     const wrapper = screen.getByTestId('draggable-todo-todo-1')
     expect(wrapper).toHaveAttribute('draggable', 'true')
+  })
+
+  it('should set draggable=false on touch devices', () => {
+    // Simulate touch device via maxTouchPoints
+    const originalMaxTouchPoints = navigator.maxTouchPoints
+    Object.defineProperty(navigator, 'maxTouchPoints', { value: 1, configurable: true })
+
+    const todo = makeTodo()
+    render(
+      <DraggableTodo todo={todo} allTodos={[todo]} onDrop={mockOnDrop}>
+        <span>Drag me</span>
+      </DraggableTodo>
+    )
+    const wrapper = screen.getByTestId('draggable-todo-todo-1')
+    expect(wrapper).toHaveAttribute('draggable', 'false')
+
+    // Cleanup
+    Object.defineProperty(navigator, 'maxTouchPoints', { value: originalMaxTouchPoints, configurable: true })
   })
 
   it('should set dataTransfer on drag start', () => {
