@@ -17,7 +17,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Bottom navigation"
-      className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--border)] bg-[var(--bg-surface)]/95 backdrop-blur-sm sm:hidden"
+      className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--border)] bg-[var(--bg-surface)]/95 backdrop-blur-sm pb-[env(safe-area-inset-bottom)] sm:hidden"
     >
       <div className="flex items-center justify-around py-2">
         {navItems.map((item) => {

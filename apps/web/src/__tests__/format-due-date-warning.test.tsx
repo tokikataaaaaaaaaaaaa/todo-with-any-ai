@@ -102,9 +102,9 @@ describe('formatDueDate - 24h warning (amber)', () => {
       dueDate: yesterday.toISOString(),
     })
     render(<TodoNode todo={todo} todos={[todo]} depth={0} />)
-    const dueDateElements = screen.getAllByText(/overdue/i)
-    const dueDateSpan = dueDateElements.find((el) => el.tagName === 'SPAN')
+    // Overdue label format is now compact: "2d!" instead of "2d overdue!"
+    const dueDateSpan = screen.getByText(/2d!/)
     expect(dueDateSpan).toBeDefined()
-    expect(dueDateSpan!.className).toMatch(/error/)
+    expect(dueDateSpan.className).toMatch(/error/)
   })
 })

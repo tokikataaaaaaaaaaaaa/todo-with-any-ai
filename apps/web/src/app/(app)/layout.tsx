@@ -86,30 +86,32 @@ export default function AppLayout({
           </div>
           <div className="flex items-center gap-1">
             <ThemeToggle />
-            <Link
-              href="/sprints"
-              className={`rounded-[var(--radius-md)] p-1.5 transition-colors hover:bg-[var(--bg-raised)] ${pathname === '/sprints' ? 'text-[var(--accent)]' : 'text-[var(--text-secondary)]'}`}
-            >
-              <Zap className="h-5 w-5" data-testid="sprint-icon" />
-            </Link>
-            <Link
-              href="/calendar"
-              className={`rounded-[var(--radius-md)] p-1.5 transition-colors hover:bg-[var(--bg-raised)] ${pathname === '/calendar' ? 'text-[var(--accent)]' : 'text-[var(--text-secondary)]'}`}
-            >
-              <Calendar className="h-5 w-5" data-testid="calendar-icon" />
-            </Link>
-            <Link
-              href="/activity"
-              className={`rounded-[var(--radius-md)] p-1.5 transition-colors hover:bg-[var(--bg-raised)] ${pathname === '/activity' ? 'text-[var(--accent)]' : 'text-[var(--text-secondary)]'}`}
-            >
-              <ClipboardList className="h-5 w-5" data-testid="activity-icon" />
-            </Link>
-            <Link
-              href="/settings"
-              className={`rounded-[var(--radius-md)] p-1.5 transition-colors hover:bg-[var(--bg-raised)] ${pathname === '/settings' ? 'text-[var(--accent)]' : 'text-[var(--text-secondary)]'}`}
-            >
-              <Settings className="h-5 w-5" data-testid="settings-icon" />
-            </Link>
+            <div data-testid="header-nav-icons" className="hidden sm:flex items-center gap-1">
+              <Link
+                href="/sprints"
+                className={`rounded-[var(--radius-md)] p-1.5 transition-colors hover:bg-[var(--bg-raised)] ${pathname === '/sprints' ? 'text-[var(--accent)]' : 'text-[var(--text-secondary)]'}`}
+              >
+                <Zap className="h-5 w-5" data-testid="sprint-icon" />
+              </Link>
+              <Link
+                href="/calendar"
+                className={`rounded-[var(--radius-md)] p-1.5 transition-colors hover:bg-[var(--bg-raised)] ${pathname === '/calendar' ? 'text-[var(--accent)]' : 'text-[var(--text-secondary)]'}`}
+              >
+                <Calendar className="h-5 w-5" data-testid="calendar-icon" />
+              </Link>
+              <Link
+                href="/activity"
+                className={`rounded-[var(--radius-md)] p-1.5 transition-colors hover:bg-[var(--bg-raised)] ${pathname === '/activity' ? 'text-[var(--accent)]' : 'text-[var(--text-secondary)]'}`}
+              >
+                <ClipboardList className="h-5 w-5" data-testid="activity-icon" />
+              </Link>
+              <Link
+                href="/settings"
+                className={`rounded-[var(--radius-md)] p-1.5 transition-colors hover:bg-[var(--bg-raised)] ${pathname === '/settings' ? 'text-[var(--accent)]' : 'text-[var(--text-secondary)]'}`}
+              >
+                <Settings className="h-5 w-5" data-testid="settings-icon" />
+              </Link>
+            </div>
           </div>
         </nav>
       </header>

@@ -46,7 +46,7 @@ function formatDueDate(
 
   const timeSuffix = formatTimeRange(startTime, endTime)
 
-  if (diffDays < 0) return { label: `${Math.abs(diffDays)}d overdue!${timeSuffix}`, overdue: true, urgent: false }
+  if (diffDays < 0) return { label: `${Math.abs(diffDays)}d!${timeSuffix}`, overdue: true, urgent: false }
   if (diffDays === 0) return { label: `Today${timeSuffix}`, overdue: false, urgent: true }
   if (diffDays === 1) return { label: `Tomorrow${timeSuffix}`, overdue: false, urgent: true }
   return { label: `${diffDays}d${timeSuffix}`, overdue: false, urgent: false }
@@ -220,12 +220,14 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
           {todo.title}
         </button>
 
-        {/* Children progress */}
+        {/* Children progress - hidden on SP to reduce clutter */}
         {hasChildren && (
-          <ChildrenProgress
-            completedCount={children.filter((c) => c.completed).length}
-            totalCount={children.length}
-          />
+          <div data-testid="children-progress-wrapper" className="hidden sm:inline-flex">
+            <ChildrenProgress
+              completedCount={children.filter((c) => c.completed).length}
+              totalCount={children.length}
+            />
+          </div>
         )}
 
         {/* Priority badge */}
@@ -247,50 +249,55 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
           </span>
         )}
 
-        {/* Calendar export button */}
-        {todo.dueDate && (
-          <button
-            onClick={handleDownloadICS}
-            className="flex h-6 w-6 items-center justify-center rounded text-[var(--text-muted)] opacity-100 transition-opacity hover:bg-[var(--accent-light)] hover:text-[var(--accent)] sm:opacity-0 sm:group-hover:opacity-100"
-            aria-label={`カレンダーに追加 "${todo.title}"`}
-          >
-            <CalendarPlus className="h-3 w-3" />
-          </button>
+        {/* Action buttons - hidden for completed todos */}
+        {!todo.completed && (
+          <>
+            {/* Calendar export button - hidden on SP */}
+            {todo.dueDate && (
+              <button
+                onClick={handleDownloadICS}
+                className="hidden sm:flex h-6 w-6 items-center justify-center rounded text-[var(--text-muted)] sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-[var(--accent-light)] hover:text-[var(--accent)]"
+                aria-label={`カレンダーに追加 "${todo.title}"`}
+              >
+                <CalendarPlus className="h-3 w-3" />
+              </button>
+            )}
+
+            {/* Add child button - hidden on SP */}
+            {depth < 9 && (
+              <button
+                data-testid={`add-child-${todo.id}`}
+                onClick={() => setShowChildForm(!showChildForm)}
+                className="hidden sm:flex h-6 w-6 items-center justify-center rounded text-[var(--text-muted)] sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-[var(--accent-light)] hover:text-[var(--accent)]"
+                aria-label={`Add subtask to "${todo.title}"`}
+              >
+                <Plus className="h-3 w-3" />
+              </button>
+            )}
+
+            {/* Edit button - hidden on SP, hover on desktop */}
+            <button
+              data-testid={`edit-todo-${todo.id}`}
+              onClick={() => {
+                router.push(`/todos/detail?id=${todo.id}`)
+              }}
+              className="hidden sm:flex h-6 w-6 items-center justify-center rounded text-[var(--text-muted)] sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-[var(--accent-light)] hover:text-[var(--accent)]"
+              aria-label={`Edit "${todo.title}"`}
+            >
+              <Pencil className="h-3 w-3" />
+            </button>
+
+            {/* Delete button - hidden on SP, hover on desktop */}
+            <button
+              data-testid={`delete-todo-${todo.id}`}
+              onClick={() => setShowDeleteDialog(true)}
+              className="hidden sm:flex h-6 w-6 items-center justify-center rounded text-[var(--text-muted)] sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-[var(--accent-light)] hover:text-[var(--error)]"
+              aria-label={`Delete "${todo.title}"`}
+            >
+              <Trash2 className="h-3 w-3" />
+            </button>
+          </>
         )}
-
-        {/* Add child button */}
-        {depth < 9 && (
-          <button
-            data-testid={`add-child-${todo.id}`}
-            onClick={() => setShowChildForm(!showChildForm)}
-            className="flex h-6 w-6 items-center justify-center rounded text-[var(--text-muted)] opacity-100 transition-opacity hover:bg-[var(--accent-light)] hover:text-[var(--accent)] sm:opacity-0 sm:group-hover:opacity-100"
-            aria-label={`Add subtask to "${todo.title}"`}
-          >
-            <Plus className="h-3 w-3" />
-          </button>
-        )}
-
-        {/* Edit button (visible on hover for desktop, always visible on mobile) */}
-        <button
-          data-testid={`edit-todo-${todo.id}`}
-          onClick={() => {
-            router.push(`/todos/detail?id=${todo.id}`)
-          }}
-          className="flex h-6 w-6 items-center justify-center rounded text-[var(--text-muted)] opacity-100 transition-opacity hover:bg-[var(--accent-light)] hover:text-[var(--accent)] sm:opacity-0 sm:group-hover:opacity-100"
-          aria-label={`Edit "${todo.title}"`}
-        >
-          <Pencil className="h-3 w-3" />
-        </button>
-
-        {/* Delete button (visible on hover for desktop, always visible on mobile) */}
-        <button
-          data-testid={`delete-todo-${todo.id}`}
-          onClick={() => setShowDeleteDialog(true)}
-          className="flex h-6 w-6 items-center justify-center rounded text-[var(--text-muted)] opacity-100 transition-opacity hover:bg-[var(--accent-light)] hover:text-[var(--error)] sm:opacity-0 sm:group-hover:opacity-100"
-          aria-label={`Delete "${todo.title}"`}
-        >
-          <Trash2 className="h-3 w-3" />
-        </button>
       </div>
 
       {/* Delete confirmation dialog */}

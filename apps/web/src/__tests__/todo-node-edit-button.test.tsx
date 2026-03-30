@@ -90,11 +90,13 @@ describe('TodoNode - edit button', () => {
     expect(mockPush).toHaveBeenCalledWith('/todos/detail?id=todo-42')
   })
 
-  it('should be hidden by default and visible on group hover (has opacity-0 class)', () => {
+  it('should be hidden on SP and visible on desktop hover (has hidden sm:flex and sm:opacity-0 classes)', () => {
     const todo = makeTodo({ id: 'todo-1' })
     render(<TodoNode todo={todo} todos={[todo]} depth={0} />)
     const editBtn = screen.getByTestId('edit-todo-todo-1')
-    // Mobile-first: visible by default (opacity-100), hidden on sm+ (sm:opacity-0), shown on group hover (sm:group-hover:opacity-100)
+    // SP: hidden entirely (hidden), Desktop: shown but transparent until hover (sm:flex sm:opacity-0 sm:group-hover:opacity-100)
+    expect(editBtn.className).toContain('hidden')
+    expect(editBtn.className).toContain('sm:flex')
     expect(editBtn.className).toContain('sm:opacity-0')
     expect(editBtn.className).toContain('sm:group-hover:opacity-100')
   })

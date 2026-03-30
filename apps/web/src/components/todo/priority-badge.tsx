@@ -27,7 +27,7 @@ export function PriorityBadge({ priority, urgencyLevelId, urgencyLevels }: Prior
       return (
         <span
           data-testid={`priority-badge-urgency`}
-          className="inline-flex items-center gap-1 rounded-[var(--radius-md)] px-2 py-0.5 text-[11px] font-semibold tracking-wide text-white"
+          className="inline-flex items-center gap-1 rounded-[var(--radius-md)] px-1.5 py-0.5 text-[10px] sm:px-2 sm:text-[11px] font-semibold tracking-wide text-white"
           style={{ backgroundColor: level.color }}
         >
           {level.icon && <span>{level.icon}</span>}
@@ -44,7 +44,7 @@ export function PriorityBadge({ priority, urgencyLevelId, urgencyLevels }: Prior
     <span
       data-testid={`priority-badge-${priority}`}
       className={cn(
-        'inline-flex items-center rounded-[var(--radius-md)] px-2 py-0.5 text-[11px] font-semibold tracking-wide',
+        'inline-flex items-center rounded-[var(--radius-md)] px-1.5 py-0.5 text-[10px] sm:px-2 sm:text-[11px] font-semibold tracking-wide',
         fallbackStyles[priority]
       )}
     >

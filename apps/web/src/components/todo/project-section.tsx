@@ -38,7 +38,8 @@ export function ProjectSection({
     >
       {/* Header */}
       <div
-        className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3.5"
+        data-testid="project-section-header"
+        className="flex items-center justify-between border-b border-[var(--border)] px-3 py-3 sm:px-4 sm:py-3.5"
       >
         <div className="flex items-center gap-2">
           <span className="text-lg">{icon}</span>
