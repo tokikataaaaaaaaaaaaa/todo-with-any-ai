@@ -32,10 +32,13 @@ export function ProjectSection({
 
   const handleAdd = async () => {
     if (!newTitle.trim() || adding) return
+    const title = newTitle.trim()
+    setNewTitle('')
+    setShowAddForm(false)
     setAdding(true)
     try {
     await createTodo({
-      title: newTitle.trim(),
+      title,
       completed: false,
       parentId: null,
       order: todos.length,
@@ -48,8 +51,6 @@ export function ProjectSection({
       startTime: null,
       endTime: null,
     })
-    setNewTitle('')
-    setShowAddForm(false)
     } finally {
       setAdding(false)
     }

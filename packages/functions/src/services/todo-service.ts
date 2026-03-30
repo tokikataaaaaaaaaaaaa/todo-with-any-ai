@@ -150,6 +150,8 @@ export class TodoService {
       title: parsed.title,
       completed: parsed.completed ?? false,
       dueDate: parsed.dueDate ?? null,
+      startTime: parsed.startTime ?? null,
+      endTime: parsed.endTime ?? null,
       parentId: parsed.parentId ?? null,
       order,
       depth,

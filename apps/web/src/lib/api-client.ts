@@ -127,4 +127,39 @@ export const apiClient = {
   async deleteUrgencyLevel(id: string): Promise<void> {
     return request<void>(`/urgency-levels/${id}`, { method: 'DELETE' })
   },
+
+  // Sprint methods
+  async listSprints(): Promise<Sprint[]> {
+    return request<Sprint[]>('/sprints', { method: 'GET' })
+  },
+
+  async createSprint(data: CreateSprint): Promise<Sprint> {
+    return request<Sprint>('/sprints', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  },
+
+  async getSprint(id: string): Promise<Sprint> {
+    return request<Sprint>(`/sprints/${id}`, { method: 'GET' })
+  },
+
+  async updateSprint(id: string, data: UpdateSprint): Promise<Sprint> {
+    return request<Sprint>(`/sprints/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
+  },
+
+  async deleteSprint(id: string): Promise<void> {
+    return request<void>(`/sprints/${id}`, { method: 'DELETE' })
+  },
+
+  async addTodoToSprint(sprintId: string, todoId: string): Promise<Sprint> {
+    return request<Sprint>(`/sprints/${sprintId}/todos/${todoId}`, { method: 'POST' })
+  },
+
+  async removeTodoFromSprint(sprintId: string, todoId: string): Promise<Sprint> {
+    return request<Sprint>(`/sprints/${sprintId}/todos/${todoId}`, { method: 'DELETE' })
+  },
 }

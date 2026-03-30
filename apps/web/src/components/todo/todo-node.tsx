@@ -9,7 +9,8 @@ import { PriorityBadge } from './priority-badge'
 import { CategoryIcon } from './category-icon'
 import { ChildrenProgress } from './children-progress'
 import { CompleteConfirmDialog } from './complete-confirm-dialog'
-import { ChevronDown, ChevronRight, Pencil, Plus, Trash2 } from 'lucide-react'
+import { CalendarPlus, ChevronDown, ChevronRight, Pencil, Plus, Trash2 } from 'lucide-react'
+import { generateICS, downloadICS } from '@/lib/ics-generator'
 import { DeleteTodoDialog } from './delete-todo-dialog'
 import type { Todo } from '@todo-with-any-ai/shared'
 
@@ -19,7 +20,18 @@ interface TodoNodeProps {
   depth: number
 }
 
-function formatDueDate(dueDate: string): { label: string; overdue: boolean; urgent: boolean } {
+function formatTimeRange(startTime?: string | null, endTime?: string | null): string {
+  if (startTime && endTime) return ` ${startTime}-${endTime}`
+  if (startTime) return ` ${startTime}~`
+  if (endTime) return ` ~${endTime}`
+  return ''
+}
+
+function formatDueDate(
+  dueDate: string,
+  startTime?: string | null,
+  endTime?: string | null,
+): { label: string; overdue: boolean; urgent: boolean } {
   const due = new Date(dueDate)
   const now = new Date()
 
@@ -29,10 +41,12 @@ function formatDueDate(dueDate: string): { label: string; overdue: boolean; urge
   const diffMs = dueDay.getTime() - today.getTime()
   const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24))
 
-  if (diffDays < 0) return { label: `${Math.abs(diffDays)}d overdue!`, overdue: true, urgent: false }
-  if (diffDays === 0) return { label: 'Today', overdue: false, urgent: true }
-  if (diffDays === 1) return { label: 'Tomorrow', overdue: false, urgent: true }
-  return { label: `${diffDays}d`, overdue: false, urgent: false }
+  const timeSuffix = formatTimeRange(startTime, endTime)
+
+  if (diffDays < 0) return { label: `${Math.abs(diffDays)}d overdue!${timeSuffix}`, overdue: true, urgent: false }
+  if (diffDays === 0) return { label: `Today${timeSuffix}`, overdue: false, urgent: true }
+  if (diffDays === 1) return { label: `Tomorrow${timeSuffix}`, overdue: false, urgent: true }
+  return { label: `${diffDays}d${timeSuffix}`, overdue: false, urgent: false }
 }
 
 /** Circular checkbox matching Paper & Ink design */
@@ -93,16 +107,31 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
   const hasChildren = children.length > 0
   const isExpanded = expandedIds.has(todo.id)
 
-  const dueDateInfo = todo.dueDate ? formatDueDate(todo.dueDate) : null
+  const dueDateInfo = todo.dueDate ? formatDueDate(todo.dueDate, todo.startTime, todo.endTime) : null
+
+  const handleDownloadICS = () => {
+    if (!todo.dueDate) return
+    const ics = generateICS({
+      title: todo.title,
+      dueDate: todo.dueDate,
+      startTime: todo.startTime,
+      endTime: todo.endTime,
+    })
+    downloadICS(ics, `${todo.title.replace(/[^a-zA-Z0-9\u3040-\u9FFF]/g, '_')}.ics`)
+  }
 
   const [addingChild, setAddingChild] = useState(false)
 
   const handleAddChild = async () => {
     if (!childTitle.trim() || addingChild) return
+    const title = childTitle.trim()
+    setChildTitle('')
+    setShowChildForm(false)
+    if (!expandedIds.has(todo.id)) toggleExpand(todo.id)
     setAddingChild(true)
     try {
     await createTodo({
-      title: childTitle.trim(),
+      title,
       completed: false,
       parentId: todo.id,
       order: children.length,
@@ -115,12 +144,6 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
       startTime: null,
       endTime: null,
     })
-    setChildTitle('')
-    setShowChildForm(false)
-    // Auto-expand parent to show new child
-    if (!expandedIds.has(todo.id)) {
-      toggleExpand(todo.id)
-    }
     } finally {
       setAddingChild(false)
     }
@@ -211,6 +234,17 @@ export function TodoNode({ todo, todos, depth }: TodoNodeProps) {
           >
             {dueDateInfo.label}
           </span>
+        )}
+
+        {/* Calendar export button */}
+        {todo.dueDate && (
+          <button
+            onClick={handleDownloadICS}
+            className="flex h-6 w-6 items-center justify-center rounded text-[var(--text-muted)] opacity-100 transition-opacity hover:bg-[var(--accent-light)] hover:text-[var(--accent)] sm:opacity-0 sm:group-hover:opacity-100"
+            aria-label={`カレンダーに追加 "${todo.title}"`}
+          >
+            <CalendarPlus className="h-3 w-3" />
+          </button>
         )}
 
         {/* Add child button */}
