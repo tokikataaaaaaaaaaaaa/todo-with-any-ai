@@ -88,6 +88,7 @@ export function TodoCreateForm({ defaultProjectId, compact }: TodoCreateFormProp
   })
 
   const onSubmit = async (data: CreateFormData) => {
+    console.log('[CREATE] submitting:', { selectedProjectId, defaultProjectId, filterType, filterProjectId, initialProjectId })
     await createTodo({
       title: data.title,
       completed: false,

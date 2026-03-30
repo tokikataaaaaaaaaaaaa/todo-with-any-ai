@@ -56,26 +56,8 @@ function getDropPosition(clientY: number, rect: DOMRect): DropPosition {
  * Simple approach: always draggable, drag starts from anywhere.
  * The drag handle in TodoNode is purely visual — any part of the row can initiate drag.
  */
-// Debug log visible on screen
-const debugLogs: string[] = []
 function dlog(...args: unknown[]) {
-  const msg = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')
   console.log(...args)
-  debugLogs.push(`${new Date().toISOString().substring(11,19)} ${msg}`)
-  if (debugLogs.length > 10) debugLogs.shift()
-  // Force re-render of debug overlay
-  if (typeof window !== 'undefined') {
-    const el = document.getElementById('dnd-debug-overlay')
-    if (el) el.textContent = debugLogs.join('\n')
-  }
-}
-
-// Mount debug overlay once
-if (typeof window !== 'undefined' && !document.getElementById('dnd-debug-overlay')) {
-  const overlay = document.createElement('pre')
-  overlay.id = 'dnd-debug-overlay'
-  overlay.style.cssText = 'position:fixed;top:60px;right:8px;z-index:9999;background:rgba(0,0,0,0.85);color:#0f0;font-size:10px;padding:8px;border-radius:8px;max-width:300px;max-height:200px;overflow:auto;pointer-events:none;font-family:monospace;'
-  document.body.appendChild(overlay)
 }
 
 export function DraggableTodo({ todo, allTodos, children, onDrop }: DraggableTodoProps) {

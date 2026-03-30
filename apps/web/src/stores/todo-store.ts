@@ -119,6 +119,17 @@ export const useTodoStore = create<TodoState>((set, get) => ({
     const prevTodos = get().todos
     const movedTodo = prevTodos.find((t) => t.id === todoId)
 
+    // Resolve effective projectId by walking up parent chain
+    const getEffectiveProjectId = (todo: Todo): string | null => {
+      if (todo.projectId) return todo.projectId
+      if (todo.parentId) {
+        const parent = prevTodos.find(p => p.id === todo.parentId)
+        if (parent) return getEffectiveProjectId(parent)
+      }
+      return null
+    }
+    const effectiveProjectId = movedTodo ? getEffectiveProjectId(movedTodo) : null
+
     // Special case: drop onto project root drop zone
     if (targetId === 'root' && movedTodo) {
       const projectId = position || null // position carries the projectId
@@ -166,7 +177,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
         parentId: targetId,
         depth: targetTodo.depth + 1,
         order: existingChildren.length,
-        projectId: movedTodo.projectId || targetTodo.projectId,
+        projectId: effectiveProjectId,
       }
 
       // Optimistic update
@@ -221,7 +232,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
               parentId: newParentId,
               depth: targetTodo.depth,
               order: update?.order ?? t.order,
-              projectId: t.projectId || targetTodo.projectId,
+              projectId: effectiveProjectId,
             }
           }
           if (update) {
@@ -238,7 +249,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
           siblingUpdates.map((update) => {
             const data: UpdateTodo =
               update.id === todoId
-                ? { parentId: newParentId, depth: targetTodo.depth, order: update.order, projectId: movedTodo.projectId || targetTodo.projectId }
+                ? { parentId: newParentId, depth: targetTodo.depth, order: update.order, projectId: effectiveProjectId }
                 : { order: update.order }
             return apiClient.updateTodo(update.id, data)
           })
