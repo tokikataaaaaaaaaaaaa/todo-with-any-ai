@@ -45,7 +45,7 @@ export function TodoDetailForm({
   const [startTime, setStartTime] = useState(todo.startTime ?? '')
   const [endTime, setEndTime] = useState(todo.endTime ?? '')
   const [parentId, setParentId] = useState(todo.parentId ?? '')
-  const [urgencyLevelId, setUrgencyLevelId] = useState(todo.urgencyLevelId ?? '')
+  const [priority, setPriority] = useState<string>(todo.priority ?? '')
   const [projectId, setProjectId] = useState(todo.projectId ?? '')
   const [description, setDescription] = useState(todo.description ?? '')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -70,11 +70,11 @@ export function TodoDetailForm({
       (startTime || null) !== (todo.startTime || null) ||
       (endTime || null) !== (todo.endTime || null) ||
       (parentId || null) !== (todo.parentId || null) ||
-      (urgencyLevelId || null) !== (todo.urgencyLevelId || null) ||
+      (priority || null) !== (todo.priority || null) ||
       (projectId || null) !== (todo.projectId || null) ||
       (description || null) !== (todo.description || null)
     )
-  }, [title, completed, dueDate, startTime, endTime, parentId, urgencyLevelId, projectId, description, todo])
+  }, [title, completed, dueDate, startTime, endTime, parentId, priority, projectId, description, todo])
 
   const handleSave = () => {
     onSave({
@@ -84,7 +84,7 @@ export function TodoDetailForm({
       startTime: startTime || null,
       endTime: endTime || null,
       parentId: parentId || null,
-      urgencyLevelId: urgencyLevelId || null,
+      priority: (priority as 'high' | 'medium' | 'low') || null,
       projectId: projectId || null,
       description: description || null,
     })
@@ -136,25 +136,37 @@ export function TodoDetailForm({
         />
       </div>
 
-      {/* Urgency Level */}
+      {/* Priority (same design as create form) */}
       <div>
-        <label htmlFor="urgency-level" className="mb-2 block text-sm font-medium text-[var(--text-secondary)]">
-          緊急度
+        <label className="mb-2 block text-sm font-medium text-[var(--text-secondary)]">
+          優先度
         </label>
-        <select
-          id="urgency-level"
-          aria-label="緊急度"
-          value={urgencyLevelId}
-          onChange={(e) => setUrgencyLevelId(e.target.value)}
-          className="w-full rounded-lg border border-[var(--border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-        >
-          <option value="">なし</option>
-          {urgencyLevels.map((level) => (
-            <option key={level.id} value={level.id}>
-              {level.icon} {level.name}
-            </option>
-          ))}
-        </select>
+        <div className="flex gap-1">
+          {[
+            { value: 'high', label: '高' },
+            { value: 'medium', label: '中' },
+            { value: 'low', label: '低' },
+            { value: '', label: 'なし' },
+          ].map((p) => {
+            const isSelected = priority === p.value || (!priority && p.value === '')
+            return (
+              <button
+                key={p.label}
+                type="button"
+                onClick={() => setPriority(p.value)}
+                aria-label={p.label}
+                aria-pressed={isSelected}
+                className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+                  isSelected
+                    ? 'bg-[var(--accent)] text-white'
+                    : 'bg-[var(--bg-raised)] text-[var(--text-secondary)] hover:bg-[var(--border)]'
+                }`}
+              >
+                {p.label}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       {/* Project */}
