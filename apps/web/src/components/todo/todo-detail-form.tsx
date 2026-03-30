@@ -271,7 +271,7 @@ export function TodoDetailForm({
         type="button"
         disabled={!hasChanges}
         onClick={handleSave}
-        className="w-full rounded-lg bg-[var(--color-primary)] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+        className="w-full rounded-lg bg-[var(--primary)] px-4 py-3 text-sm font-semibold text-[var(--bg)] transition-all hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-30"
       >
         保存する
       </button>
