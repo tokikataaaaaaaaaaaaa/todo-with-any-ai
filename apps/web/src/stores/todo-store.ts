@@ -166,6 +166,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
         parentId: targetId,
         depth: targetTodo.depth + 1,
         order: existingChildren.length,
+        projectId: movedTodo.projectId || targetTodo.projectId,
       }
 
       // Optimistic update
@@ -220,6 +221,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
               parentId: newParentId,
               depth: targetTodo.depth,
               order: update?.order ?? t.order,
+              projectId: t.projectId || targetTodo.projectId,
             }
           }
           if (update) {
@@ -236,7 +238,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
           siblingUpdates.map((update) => {
             const data: UpdateTodo =
               update.id === todoId
-                ? { parentId: newParentId, depth: targetTodo.depth, order: update.order }
+                ? { parentId: newParentId, depth: targetTodo.depth, order: update.order, projectId: movedTodo.projectId || targetTodo.projectId }
                 : { order: update.order }
             return apiClient.updateTodo(update.id, data)
           })
