@@ -24,7 +24,7 @@ const mockTodos = [
     categoryIcon: null,
     description: null,
     projectId: null,
-    urgencyLevelId: null,
+
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
   },
@@ -40,7 +40,7 @@ const mockTodos = [
     categoryIcon: null,
     description: null,
     projectId: null,
-    urgencyLevelId: null,
+
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
   },

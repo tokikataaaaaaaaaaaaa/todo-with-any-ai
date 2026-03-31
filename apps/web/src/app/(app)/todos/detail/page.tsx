@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import { useTodoStore } from '@/stores/todo-store'
 import { useProjectStore } from '@/stores/project-store'
-import { useUrgencyLevelStore } from '@/stores/urgency-level-store'
 import { useSnackbarStore } from '@/stores/snackbar-store'
 import { useAuth } from '@/hooks/use-auth'
 import { TodoDetailForm } from '@/components/todo/todo-detail-form'
@@ -20,16 +19,13 @@ function TodoDetailContent() {
   const fetchTodos = useTodoStore((s) => s.fetchTodos)
   const projects = useProjectStore((s) => s.projects)
   const fetchProjects = useProjectStore((s) => s.fetchProjects)
-  const urgencyLevels = useUrgencyLevelStore((s) => s.levels)
-  const fetchUrgencyLevels = useUrgencyLevelStore((s) => s.fetchLevels)
   const addMessage = useSnackbarStore((s) => s.addMessage)
   const [todo, setTodo] = useState<Todo | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetchProjects()
-    fetchUrgencyLevels()
-  }, [fetchProjects, fetchUrgencyLevels])
+  }, [fetchProjects])
 
   useEffect(() => {
     if (!todoId || authLoading) return
@@ -147,7 +143,6 @@ function TodoDetailContent() {
         onSave={handleSave}
         onDelete={handleDelete}
         projects={projects}
-        urgencyLevels={urgencyLevels}
       />
     </div>
   )

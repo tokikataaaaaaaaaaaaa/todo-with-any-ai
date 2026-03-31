@@ -249,7 +249,7 @@ describe('TodoCreateForm - submit with all attributes', () => {
         priority: 'high',
         categoryIcon: 'work',
         projectId: 'proj-1',
-        urgencyLevelId: null,
+
       })
     })
   })
@@ -278,7 +278,7 @@ describe('TodoCreateForm - submit with all attributes', () => {
         categoryIcon: null,
         description: null,
         projectId: null,
-        urgencyLevelId: null,
+
       })
     })
   })

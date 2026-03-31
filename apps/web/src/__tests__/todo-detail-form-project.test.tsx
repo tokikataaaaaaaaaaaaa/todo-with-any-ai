@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { TodoDetailForm } from '@/components/todo/todo-detail-form'
-import type { Todo, Project, UrgencyLevel } from '@todo-with-any-ai/shared'
+import type { Todo, Project } from '@todo-with-any-ai/shared'
 
 const mockProjects: Project[] = [
   {
@@ -26,8 +26,6 @@ const mockProjects: Project[] = [
   },
 ]
 
-const mockUrgencyLevels: UrgencyLevel[] = []
-
 const baseTodo: Todo = {
   id: 'todo-1',
   title: 'Test Todo',
@@ -40,7 +38,7 @@ const baseTodo: Todo = {
   categoryIcon: null,
   description: null,
   projectId: null,
-  urgencyLevelId: null,
+
   createdAt: '2026-01-01T00:00:00Z',
   updatedAt: '2026-01-01T00:00:00Z',
 }
@@ -63,7 +61,6 @@ describe('TodoDetailForm - Project Selector', () => {
         allTodos={allTodos}
         onSave={mockOnSave}
         onDelete={mockOnDelete}
-        urgencyLevels={mockUrgencyLevels}
         projects={projects ?? mockProjects}
       />
     )

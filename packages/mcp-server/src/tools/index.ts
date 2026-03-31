@@ -1,6 +1,9 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { ApiClient } from "../lib/api-client.js";
+import { createTodoSchema, updateTodoSchema } from "../schemas/todo.js";
+import { createProjectSchema, updateProjectSchema } from "../schemas/project.js";
+import { createSprintSchema, updateSprintSchema } from "../schemas/sprint.js";
 import { todosList } from "./todos-list.js";
 import { todosGet } from "./todos-get.js";
 import { todosCreate } from "./todos-create.js";
@@ -22,9 +25,135 @@ import { sprintsAddTodo } from "./sprints-add-todo.js";
 import { sprintsRemoveTodo } from "./sprints-remove-todo.js";
 import type { ToolResponse } from "./types.js";
 
-/**
- * Handle a tool call by name. Used by both MCP registration and tests.
- */
+// ---------------------------------------------------------------------------
+// Helpers to extract Zod object shapes from shared schemas.
+//
+// createTodoSchema has a .refine() wrapper, so we unwrap via ._def.schema
+// to get the underlying ZodObject. updateTodoSchema is already a ZodObject
+// (partial). For project/sprint schemas, they are plain ZodObjects.
+// ---------------------------------------------------------------------------
+
+function getShape(schema: z.ZodTypeAny): Record<string, z.ZodTypeAny> {
+  // Unwrap ZodEffects (created by .refine())
+  if (schema._def && "schema" in schema._def) {
+    return getShape((schema._def as { schema: z.ZodTypeAny }).schema);
+  }
+  // ZodObject
+  if (schema._def && "shape" in schema._def) {
+    const shapeFn = (schema._def as { shape: () => Record<string, z.ZodTypeAny> }).shape;
+    return typeof shapeFn === "function" ? shapeFn() : shapeFn;
+  }
+  return {};
+}
+
+function pick(
+  schema: z.ZodTypeAny,
+  keys: string[],
+  descriptions: Record<string, string>
+): Record<string, z.ZodTypeAny> {
+  const shape = getShape(schema);
+  const result: Record<string, z.ZodTypeAny> = {};
+  for (const key of keys) {
+    if (shape[key]) {
+      result[key] = descriptions[key]
+        ? shape[key].describe(descriptions[key])
+        : shape[key];
+    }
+  }
+  return result;
+}
+
+// ---------------------------------------------------------------------------
+// MCP tool parameter definitions — derived from shared schemas
+// ---------------------------------------------------------------------------
+
+const todosCreateParams = pick(
+  createTodoSchema,
+  ["title", "projectId", "parentId", "dueDate", "startTime", "endTime", "priority", "categoryIcon", "description"],
+  {
+    title: "タイトル（必須、255文字以内）",
+    projectId: "プロジェクトID",
+    parentId: "親TodoのID（省略でルートに作成）",
+    dueDate: "締切日（YYYY-MM-DD形式）",
+    startTime: "開始時間（HH:MM形式、dueDateが必要）",
+    endTime: "終了時間（HH:MM形式、dueDateが必要）",
+    priority: "優先度",
+    categoryIcon: "カテゴリアイコン",
+    description: "メモ・詳細情報（5000文字以内）",
+  }
+);
+
+const todosUpdateParams = {
+  id: z.string().describe("更新するTodoのID（必須）"),
+  ...pick(
+    updateTodoSchema,
+    ["title", "projectId", "dueDate", "startTime", "endTime", "priority", "categoryIcon", "description"],
+    {
+      title: "タイトル",
+      projectId: "プロジェクトID",
+      dueDate: "締切日（YYYY-MM-DD形式）",
+      startTime: "開始時間（HH:MM形式、dueDateが必要）",
+      endTime: "終了時間（HH:MM形式、dueDateが必要）",
+      priority: "優先度",
+      categoryIcon: "カテゴリアイコン",
+      description: "メモ・詳細情報（5000文字以内）",
+    }
+  ),
+};
+
+const projectsCreateParams = pick(
+  createProjectSchema,
+  ["name", "color", "emoji", "dueDate"],
+  {
+    name: "プロジェクト名（必須、50文字以内）",
+    color: "カラーコード（#RRGGBB形式）",
+    emoji: "絵文字（2文字以内）",
+    dueDate: "締切日（YYYY-MM-DD形式）",
+  }
+);
+
+const projectsUpdateParams = {
+  id: z.string().describe("更新するプロジェクトのID（必須）"),
+  ...pick(
+    updateProjectSchema,
+    ["name", "color", "emoji", "dueDate"],
+    {
+      name: "プロジェクト名",
+      color: "カラーコード（#RRGGBB形式）",
+      emoji: "絵文字",
+      dueDate: "締切日（YYYY-MM-DD形式）",
+    }
+  ),
+};
+
+const sprintsCreateParams = pick(
+  createSprintSchema,
+  ["name", "startDate", "endDate", "todoIds"],
+  {
+    name: "スプリント名（必須、50文字以内）",
+    startDate: "開始日（YYYY-MM-DD形式、必須）",
+    endDate: "終了日（YYYY-MM-DD形式、必須）",
+    todoIds: "追加するTodoのID配列",
+  }
+);
+
+const sprintsUpdateParams = {
+  id: z.string().describe("更新するスプリントのID（必須）"),
+  ...pick(
+    updateSprintSchema,
+    ["name", "startDate", "endDate"],
+    {
+      name: "スプリント名",
+      startDate: "開始日（YYYY-MM-DD形式）",
+      endDate: "終了日（YYYY-MM-DD形式）",
+    }
+  ),
+};
+
+// ---------------------------------------------------------------------------
+// handleToolCall — dispatches tool calls by name
+// ---------------------------------------------------------------------------
+
 export async function handleToolCall(
   client: ApiClient,
   toolName: string,
@@ -85,10 +214,12 @@ export async function handleToolCall(
   }
 }
 
-/**
- * Register all MCP tools with the server.
- */
+// ---------------------------------------------------------------------------
+// registerTools — registers all MCP tools using shared-derived schemas
+// ---------------------------------------------------------------------------
+
 export function registerTools(server: McpServer, client: ApiClient): void {
+  // --- Todos ---
   server.tool(
     "todos_list",
     "Todo一覧を取得します。フィルタで絞り込めます。",
@@ -105,67 +236,35 @@ export function registerTools(server: McpServer, client: ApiClient): void {
   server.tool(
     "todos_get",
     "Todo単体を取得します。",
-    {
-      id: z.string().describe("取得するTodoのID（必須）"),
-    },
+    { id: z.string().describe("取得するTodoのID（必須）") },
     async (args) => handleToolCall(client, "todos_get", args)
   );
 
   server.tool(
     "todos_create",
     "新しいTodoを作成します。",
-    {
-      title: z.string().describe("タイトル（必須、255文字以内）"),
-      projectId: z.string().optional().describe("プロジェクトID"),
-      parentId: z.string().optional().describe("親TodoのID（省略でルートに作成）"),
-      dueDate: z.string().optional().describe("締切日（YYYY-MM-DD形式）"),
-      startTime: z.string().optional().describe("開始時間（HH:MM形式、dueDateが必要）"),
-      endTime: z.string().optional().describe("終了時間（HH:MM形式、dueDateが必要）"),
-      priority: z.enum(["high", "medium", "low"]).optional().describe("優先度"),
-      categoryIcon: z
-        .enum(["work", "personal", "shopping", "health", "study", "idea"])
-        .optional()
-        .describe("カテゴリアイコン"),
-      description: z.string().max(5000).optional().describe("メモ・詳細情報（5000文字以内）"),
-    },
+    todosCreateParams,
     async (args) => handleToolCall(client, "todos_create", args)
   );
 
   server.tool(
     "todos_update",
     "既存のTodoを更新します。",
-    {
-      id: z.string().describe("更新するTodoのID（必須）"),
-      title: z.string().optional().describe("タイトル"),
-      projectId: z.string().optional().describe("プロジェクトID"),
-      dueDate: z.string().optional().describe("締切日（YYYY-MM-DD形式）"),
-      startTime: z.string().optional().describe("開始時間（HH:MM形式、dueDateが必要）"),
-      endTime: z.string().optional().describe("終了時間（HH:MM形式、dueDateが必要）"),
-      priority: z.enum(["high", "medium", "low"]).optional().describe("優先度"),
-      categoryIcon: z
-        .enum(["work", "personal", "shopping", "health", "study", "idea"])
-        .optional()
-        .describe("カテゴリアイコン"),
-      description: z.string().max(5000).optional().describe("メモ・詳細情報（5000文字以内）"),
-    },
+    todosUpdateParams,
     async (args) => handleToolCall(client, "todos_update", args)
   );
 
   server.tool(
     "todos_delete",
     "Todoを削除します（子孫も連鎖削除）。",
-    {
-      id: z.string().describe("削除するTodoのID（必須）"),
-    },
+    { id: z.string().describe("削除するTodoのID（必須）") },
     async (args) => handleToolCall(client, "todos_delete", args)
   );
 
   server.tool(
     "todos_toggle_complete",
     "Todoの完了状態をトグルします。",
-    {
-      id: z.string().describe("トグルするTodoのID（必須）"),
-    },
+    { id: z.string().describe("トグルするTodoのID（必須）") },
     async (args) => handleToolCall(client, "todos_toggle_complete", args)
   );
 
@@ -187,7 +286,7 @@ export function registerTools(server: McpServer, client: ApiClient): void {
     async (args) => handleToolCall(client, "todos_move", args)
   );
 
-  // Project tools
+  // --- Projects ---
   server.tool(
     "projects_list",
     "プロジェクト一覧を取得します。",
@@ -198,25 +297,14 @@ export function registerTools(server: McpServer, client: ApiClient): void {
   server.tool(
     "projects_create",
     "新しいプロジェクトを作成します。",
-    {
-      name: z.string().describe("プロジェクト名（必須、50文字以内）"),
-      color: z.string().optional().describe("カラーコード（#RRGGBB形式）"),
-      emoji: z.string().optional().describe("絵文字（2文字以内）"),
-      dueDate: z.string().optional().describe("締切日（YYYY-MM-DD形式）"),
-    },
+    projectsCreateParams,
     async (args) => handleToolCall(client, "projects_create", args)
   );
 
   server.tool(
     "projects_update",
     "既存のプロジェクトを更新します。",
-    {
-      id: z.string().describe("更新するプロジェクトのID（必須）"),
-      name: z.string().optional().describe("プロジェクト名"),
-      color: z.string().optional().describe("カラーコード（#RRGGBB形式）"),
-      emoji: z.string().optional().describe("絵文字"),
-      dueDate: z.string().optional().describe("締切日（YYYY-MM-DD形式）"),
-    },
+    projectsUpdateParams,
     async (args) => handleToolCall(client, "projects_update", args)
   );
 
@@ -230,7 +318,7 @@ export function registerTools(server: McpServer, client: ApiClient): void {
     async (args) => handleToolCall(client, "projects_delete", args)
   );
 
-  // Sprint tools
+  // --- Sprints ---
   server.tool(
     "sprints_list",
     "スプリント一覧を取得します。",
@@ -241,42 +329,28 @@ export function registerTools(server: McpServer, client: ApiClient): void {
   server.tool(
     "sprints_get",
     "スプリント詳細を取得します。",
-    {
-      id: z.string().describe("取得するスプリントのID（必須）"),
-    },
+    { id: z.string().describe("取得するスプリントのID（必須）") },
     async (args) => handleToolCall(client, "sprints_get", args)
   );
 
   server.tool(
     "sprints_create",
     "新しいスプリントを作成します。",
-    {
-      name: z.string().describe("スプリント名（必須、50文字以内）"),
-      startDate: z.string().describe("開始日（YYYY-MM-DD形式、必須）"),
-      endDate: z.string().describe("終了日（YYYY-MM-DD形式、必須）"),
-      todoIds: z.array(z.string()).optional().describe("追加するTodoのID配列"),
-    },
+    sprintsCreateParams,
     async (args) => handleToolCall(client, "sprints_create", args)
   );
 
   server.tool(
     "sprints_update",
     "既存のスプリントを更新します。",
-    {
-      id: z.string().describe("更新するスプリントのID（必須）"),
-      name: z.string().optional().describe("スプリント名"),
-      startDate: z.string().optional().describe("開始日（YYYY-MM-DD形式）"),
-      endDate: z.string().optional().describe("終了日（YYYY-MM-DD形式）"),
-    },
+    sprintsUpdateParams,
     async (args) => handleToolCall(client, "sprints_update", args)
   );
 
   server.tool(
     "sprints_delete",
     "スプリントを削除します。",
-    {
-      id: z.string().describe("削除するスプリントのID（必須）"),
-    },
+    { id: z.string().describe("削除するスプリントのID（必須）") },
     async (args) => handleToolCall(client, "sprints_delete", args)
   );
 
@@ -299,5 +373,4 @@ export function registerTools(server: McpServer, client: ApiClient): void {
     },
     async (args) => handleToolCall(client, "sprints_remove_todo", args)
   );
-
 }

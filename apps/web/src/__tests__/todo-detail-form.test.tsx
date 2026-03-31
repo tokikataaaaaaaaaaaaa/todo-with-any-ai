@@ -22,7 +22,7 @@ const baseTodo: Todo = {
   categoryIcon: null,
   description: null,
   projectId: null,
-  urgencyLevelId: null,
+
   createdAt: '2026-01-01T00:00:00Z',
   updatedAt: '2026-01-01T00:00:00Z',
 }
@@ -72,29 +72,6 @@ describe('TodoDetailForm', () => {
       const input = screen.getByDisplayValue('Test Todo')
       fireEvent.change(input, { target: { value: 'Updated Title' } })
       expect(screen.getByDisplayValue('Updated Title')).toBeInTheDocument()
-    })
-  })
-
-  describe('urgency selector (replaced priority)', () => {
-    it('should render urgency label instead of priority', () => {
-      renderForm()
-      expect(screen.getByText('緊急度')).toBeInTheDocument()
-      // Old priority selector should not be present
-      expect(screen.queryByText('優先度')).not.toBeInTheDocument()
-    })
-
-    it('should render urgency select element', () => {
-      renderForm()
-      const select = screen.getByLabelText('緊急度')
-      expect(select).toBeInTheDocument()
-      expect(select.tagName).toBe('SELECT')
-    })
-
-    it('should have "なし" as default urgency option', () => {
-      renderForm()
-      const select = screen.getByLabelText('緊急度') as HTMLSelectElement
-      const options = Array.from(select.options)
-      expect(options.some((o) => o.text === 'なし')).toBe(true)
     })
   })
 

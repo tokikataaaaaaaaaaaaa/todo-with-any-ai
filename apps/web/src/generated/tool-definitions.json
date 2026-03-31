@@ -1,0 +1,458 @@
+{
+  "tools": [
+    {
+      "name": "todos_list",
+      "description": "Todo一覧を取得します。フィルタで絞り込めます。",
+      "category": "todos",
+      "params": [
+        {
+          "name": "completed",
+          "type": "boolean",
+          "required": false,
+          "description": "完了状態でフィルタ"
+        },
+        {
+          "name": "parentId",
+          "type": "string",
+          "required": false,
+          "description": "親TodoのIDでフィルタ。'null'でルートのみ"
+        },
+        {
+          "name": "dueBefore",
+          "type": "string",
+          "required": false,
+          "description": "指定日以前の締切でフィルタ（YYYY-MM-DD形式）"
+        },
+        {
+          "name": "sort",
+          "type": "order | dueDate",
+          "required": false,
+          "description": "ソート順。'dueDate'で締切日昇順（null末尾）"
+        },
+        {
+          "name": "projectId",
+          "type": "string",
+          "required": false,
+          "description": "プロジェクトIDでフィルタ"
+        }
+      ]
+    },
+    {
+      "name": "todos_get",
+      "description": "Todo単体を取得します。",
+      "category": "todos",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true,
+          "description": "取得するTodoのID"
+        }
+      ]
+    },
+    {
+      "name": "todos_create",
+      "description": "新しいTodoを作成します。",
+      "category": "todos",
+      "params": [
+        {
+          "name": "title",
+          "type": "string",
+          "required": true,
+          "description": "タイトル（255文字以内）"
+        },
+        {
+          "name": "projectId",
+          "type": "string",
+          "required": false,
+          "description": "プロジェクトID"
+        },
+        {
+          "name": "parentId",
+          "type": "string",
+          "required": false,
+          "description": "親TodoのID（省略でルートに作成）"
+        },
+        {
+          "name": "dueDate",
+          "type": "string",
+          "required": false,
+          "description": "締切日（YYYY-MM-DD形式）"
+        },
+        {
+          "name": "startTime",
+          "type": "string",
+          "required": false,
+          "description": "開始時間（HH:MM形式、dueDateが必要）"
+        },
+        {
+          "name": "endTime",
+          "type": "string",
+          "required": false,
+          "description": "終了時間（HH:MM形式、dueDateが必要）"
+        },
+        {
+          "name": "priority",
+          "type": "high | medium | low",
+          "required": false,
+          "description": "優先度"
+        },
+        {
+          "name": "categoryIcon",
+          "type": "work | personal | shopping | health | study | idea",
+          "required": false,
+          "description": "カテゴリアイコン"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "required": false,
+          "description": "メモ・詳細情報（5000文字以内）"
+        }
+      ]
+    },
+    {
+      "name": "todos_update",
+      "description": "既存のTodoを更新します。",
+      "category": "todos",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true,
+          "description": "更新するTodoのID"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "required": false,
+          "description": "タイトル"
+        },
+        {
+          "name": "projectId",
+          "type": "string",
+          "required": false,
+          "description": "プロジェクトID"
+        },
+        {
+          "name": "dueDate",
+          "type": "string",
+          "required": false,
+          "description": "締切日（YYYY-MM-DD形式）"
+        },
+        {
+          "name": "startTime",
+          "type": "string",
+          "required": false,
+          "description": "開始時間（HH:MM形式、dueDateが必要）"
+        },
+        {
+          "name": "endTime",
+          "type": "string",
+          "required": false,
+          "description": "終了時間（HH:MM形式、dueDateが必要）"
+        },
+        {
+          "name": "priority",
+          "type": "high | medium | low",
+          "required": false,
+          "description": "優先度"
+        },
+        {
+          "name": "categoryIcon",
+          "type": "work | personal | shopping | health | study | idea",
+          "required": false,
+          "description": "カテゴリアイコン"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "required": false,
+          "description": "メモ・詳細情報（5000文字以内）"
+        }
+      ]
+    },
+    {
+      "name": "todos_delete",
+      "description": "Todoを削除します（子孫も連鎖削除）。",
+      "category": "todos",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true,
+          "description": "削除するTodoのID"
+        }
+      ]
+    },
+    {
+      "name": "todos_toggle_complete",
+      "description": "Todoの完了状態をトグルします。",
+      "category": "todos",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true,
+          "description": "トグルするTodoのID"
+        }
+      ]
+    },
+    {
+      "name": "todos_tree",
+      "description": "Todoをツリー構造で取得します。",
+      "category": "todos",
+      "params": []
+    },
+    {
+      "name": "todos_move",
+      "description": "Todoの順序・階層を変更します（ドラッグ&ドロップ相当）。",
+      "category": "todos",
+      "params": [
+        {
+          "name": "todoId",
+          "type": "string",
+          "required": true,
+          "description": "移動するTodoのID"
+        },
+        {
+          "name": "targetId",
+          "type": "string",
+          "required": true,
+          "description": "移動先のTodoのID"
+        },
+        {
+          "name": "position",
+          "type": "child | before | after",
+          "required": true,
+          "description": "配置位置: child=子要素, before=前, after=後"
+        }
+      ]
+    },
+    {
+      "name": "projects_list",
+      "description": "プロジェクト一覧を取得します。",
+      "category": "projects",
+      "params": []
+    },
+    {
+      "name": "projects_create",
+      "description": "新しいプロジェクトを作成します。",
+      "category": "projects",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "description": "プロジェクト名（50文字以内）"
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "required": false,
+          "description": "カラーコード（#RRGGBB形式）"
+        },
+        {
+          "name": "emoji",
+          "type": "string",
+          "required": false,
+          "description": "絵文字（2文字以内）"
+        },
+        {
+          "name": "dueDate",
+          "type": "string",
+          "required": false,
+          "description": "締切日（YYYY-MM-DD形式）"
+        }
+      ]
+    },
+    {
+      "name": "projects_update",
+      "description": "既存のプロジェクトを更新します。",
+      "category": "projects",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true,
+          "description": "更新するプロジェクトのID"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": false,
+          "description": "プロジェクト名"
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "required": false,
+          "description": "カラーコード（#RRGGBB形式）"
+        },
+        {
+          "name": "emoji",
+          "type": "string",
+          "required": false,
+          "description": "絵文字"
+        },
+        {
+          "name": "dueDate",
+          "type": "string",
+          "required": false,
+          "description": "締切日（YYYY-MM-DD形式）"
+        }
+      ]
+    },
+    {
+      "name": "projects_delete",
+      "description": "プロジェクトを削除します。",
+      "category": "projects",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true,
+          "description": "削除するプロジェクトのID"
+        },
+        {
+          "name": "deleteTodos",
+          "type": "boolean",
+          "required": false,
+          "description": "関連するTodoも削除するか（デフォルト: false）"
+        }
+      ]
+    },
+    {
+      "name": "sprints_list",
+      "description": "スプリント一覧を取得します。",
+      "category": "sprints",
+      "params": []
+    },
+    {
+      "name": "sprints_get",
+      "description": "スプリント詳細を取得します。",
+      "category": "sprints",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true,
+          "description": "取得するスプリントのID"
+        }
+      ]
+    },
+    {
+      "name": "sprints_create",
+      "description": "新しいスプリントを作成します。",
+      "category": "sprints",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "description": "スプリント名（50文字以内）"
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "required": true,
+          "description": "開始日（YYYY-MM-DD形式）"
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "required": true,
+          "description": "終了日（YYYY-MM-DD形式）"
+        },
+        {
+          "name": "todoIds",
+          "type": "string[]",
+          "required": false,
+          "description": "追加するTodoのID配列"
+        }
+      ]
+    },
+    {
+      "name": "sprints_update",
+      "description": "既存のスプリントを更新します。",
+      "category": "sprints",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true,
+          "description": "更新するスプリントのID"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": false,
+          "description": "スプリント名"
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "required": false,
+          "description": "開始日（YYYY-MM-DD形式）"
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "required": false,
+          "description": "終了日（YYYY-MM-DD形式）"
+        }
+      ]
+    },
+    {
+      "name": "sprints_delete",
+      "description": "スプリントを削除します。",
+      "category": "sprints",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true,
+          "description": "削除するスプリントのID"
+        }
+      ]
+    },
+    {
+      "name": "sprints_add_todo",
+      "description": "スプリントにTodoを追加します。",
+      "category": "sprints",
+      "params": [
+        {
+          "name": "sprintId",
+          "type": "string",
+          "required": true,
+          "description": "スプリントのID"
+        },
+        {
+          "name": "todoId",
+          "type": "string",
+          "required": true,
+          "description": "追加するTodoのID"
+        }
+      ]
+    },
+    {
+      "name": "sprints_remove_todo",
+      "description": "スプリントからTodoを除去します。",
+      "category": "sprints",
+      "params": [
+        {
+          "name": "sprintId",
+          "type": "string",
+          "required": true,
+          "description": "スプリントのID"
+        },
+        {
+          "name": "todoId",
+          "type": "string",
+          "required": true,
+          "description": "除去するTodoのID"
+        }
+      ]
+    }
+  ]
+}

@@ -52,16 +52,6 @@ vi.mock('@/stores/project-store', () => ({
   }),
 }))
 
-// Mock urgency level store
-vi.mock('@/stores/urgency-level-store', () => ({
-  useUrgencyLevelStore: vi.fn((selector) => {
-    const state = {
-      levels: [],
-      fetchLevels: vi.fn(),
-    }
-    return typeof selector === 'function' ? selector(state) : state
-  }),
-}))
 
 // Mock snackbar store
 vi.mock('@/stores/snackbar-store', () => ({

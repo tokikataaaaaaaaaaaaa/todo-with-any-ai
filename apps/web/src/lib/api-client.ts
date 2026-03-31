@@ -1,4 +1,4 @@
-import type { Todo, TodoTreeNode, CreateTodo, UpdateTodo, Project, CreateProject, UpdateProject, UrgencyLevel, CreateUrgencyLevel, UpdateUrgencyLevel, Sprint, CreateSprint, UpdateSprint } from '@todo-with-any-ai/shared'
+import type { Todo, TodoTreeNode, CreateTodo, UpdateTodo, Project, CreateProject, UpdateProject, Sprint, CreateSprint, UpdateSprint } from '@todo-with-any-ai/shared'
 import { auth } from './firebase'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api'
@@ -106,28 +106,6 @@ export const apiClient = {
   async deleteProject(id: string, deleteTodos?: boolean): Promise<void> {
     const query = deleteTodos ? '?deleteTodos=true' : ''
     return request<void>(`/projects/${id}${query}`, { method: 'DELETE' })
-  },
-
-  async listUrgencyLevels(): Promise<UrgencyLevel[]> {
-    return request<UrgencyLevel[]>('/urgency-levels', { method: 'GET' })
-  },
-
-  async createUrgencyLevel(data: CreateUrgencyLevel): Promise<UrgencyLevel> {
-    return request<UrgencyLevel>('/urgency-levels', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    })
-  },
-
-  async updateUrgencyLevel(id: string, data: UpdateUrgencyLevel): Promise<UrgencyLevel> {
-    return request<UrgencyLevel>(`/urgency-levels/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    })
-  },
-
-  async deleteUrgencyLevel(id: string): Promise<void> {
-    return request<void>(`/urgency-levels/${id}`, { method: 'DELETE' })
   },
 
   // Sprint methods

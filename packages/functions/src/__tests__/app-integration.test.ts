@@ -47,10 +47,6 @@ vi.mock('../services/project-service', () => ({
   ProjectService: vi.fn(() => ({})),
 }))
 
-vi.mock('../services/urgency-level-service', () => ({
-  UrgencyLevelService: vi.fn(() => ({})),
-}))
-
 // We need to mock the authMiddleware to avoid actual Firebase calls
 // but still test that it IS wired up (returns 401 without auth)
 // We'll use partial mocking: let the real authMiddleware run,

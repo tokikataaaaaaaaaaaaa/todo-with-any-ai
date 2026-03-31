@@ -159,7 +159,7 @@ describe('apiClient', () => {
 
   describe('createTodo', () => {
     it('should call POST /todos with body', async () => {
-      const newTodo = { title: 'New Todo', completed: false, parentId: null, order: 0, depth: 0, dueDate: null, startTime: null, endTime: null, priority: null, categoryIcon: null, projectId: null, urgencyLevelId: null, description: null }
+      const newTodo = { title: 'New Todo', completed: false, parentId: null, order: 0, depth: 0, dueDate: null, startTime: null, endTime: null, priority: null, categoryIcon: null, projectId: null, description: null }
       const createdTodo = { id: 'new-1', ...newTodo, createdAt: '2026-01-01', updatedAt: '2026-01-01' }
       mockFetch.mockResolvedValueOnce({
         ok: true,

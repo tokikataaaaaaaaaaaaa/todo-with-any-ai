@@ -7,7 +7,7 @@ import type { Todo } from '@todo-with-any-ai/shared'
 
 const makeTodo = (id: string, title: string, parentId: string | null, depth: number, order: number): Todo => ({
   id, title, completed: false, dueDate: null, startTime: null, endTime: null,
-  parentId, order, depth, projectId: 'proj-1', priority: null, urgencyLevelId: null,
+  parentId, order, depth, projectId: 'proj-1', priority: null,
   categoryIcon: null, description: null, createdAt: '', updatedAt: '',
 })
 

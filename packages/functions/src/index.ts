@@ -3,12 +3,10 @@ import { app } from './app'
 import { setTodoService } from './routes/todos'
 import { setApiKeyService } from './routes/auth'
 import { setProjectService } from './routes/projects'
-import { setUrgencyLevelService } from './routes/urgency-levels'
 import { setSprintService } from './routes/sprints'
 import { TodoService } from './services/todo-service'
 import { ApiKeyService } from './services/api-key-service'
 import { ProjectService } from './services/project-service'
-import { UrgencyLevelService } from './services/urgency-level-service'
 import { SprintService } from './services/sprint-service'
 import { db } from './lib/firebase'
 import type { HttpsFunction } from 'firebase-functions/v2/https'
@@ -17,7 +15,6 @@ import type { HttpsFunction } from 'firebase-functions/v2/https'
 setTodoService(new TodoService(db))
 setApiKeyService(new ApiKeyService(db))
 setProjectService(new ProjectService(db))
-setUrgencyLevelService(new UrgencyLevelService(db))
 setSprintService(new SprintService(db))
 
 export const api: HttpsFunction = onRequest({ invoker: 'public' }, async (req, res) => {

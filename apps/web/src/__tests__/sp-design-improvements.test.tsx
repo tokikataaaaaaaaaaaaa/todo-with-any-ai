@@ -45,13 +45,6 @@ vi.mock('@/stores/project-store', () => ({
   }),
 }))
 
-vi.mock('@/stores/urgency-level-store', () => ({
-  useUrgencyLevelStore: vi.fn((selector) => {
-    const state = { levels: [] }
-    return typeof selector === 'function' ? selector(state) : state
-  }),
-}))
-
 const makeTodo = (overrides: Partial<Todo> = {}): Todo => ({
   id: 'todo-1',
   title: 'Test Todo',

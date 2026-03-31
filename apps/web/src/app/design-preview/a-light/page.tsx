@@ -320,42 +320,6 @@ function SettingsSection() {
         </span>
       </div>
 
-      {/* Urgency */}
-      <label
-        style={{
-          display: "block",
-          fontSize: 12,
-          color: C.muted,
-          marginBottom: 6,
-          fontFamily: "'Geist Mono', monospace",
-        }}
-      >
-        Default urgency
-      </label>
-      <div style={{ display: "flex", gap: 8 }}>
-        {(["Low", "Mid", "High"] as const).map((u) => {
-          const active = u === "Mid";
-          return (
-            <button
-              key={u}
-              style={{
-                padding: "6px 16px",
-                borderRadius: 8,
-                border: active ? "none" : `1px solid ${C.border}`,
-                background: active ? C.gradient : "transparent",
-                color: active ? "#fff" : C.muted,
-                fontSize: 12,
-                fontFamily: "'Geist Mono', monospace",
-                cursor: "pointer",
-                fontWeight: active ? 600 : 400,
-                transition: "all .2s",
-              }}
-            >
-              {u}
-            </button>
-          );
-        })}
-      </div>
     </div>
   );
 }
