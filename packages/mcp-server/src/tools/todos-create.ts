@@ -24,6 +24,7 @@ export async function todosCreate(
   }
 
   const data: Record<string, unknown> = { title };
+  if (args.projectId !== undefined) data.projectId = args.projectId;
   if (args.parentId !== undefined) data.parentId = args.parentId;
   if (args.dueDate !== undefined) data.dueDate = args.dueDate;
   if (args.startTime !== undefined) data.startTime = args.startTime;

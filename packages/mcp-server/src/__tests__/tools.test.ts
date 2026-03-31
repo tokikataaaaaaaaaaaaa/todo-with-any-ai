@@ -131,6 +131,52 @@ describe("handleToolCall", () => {
       });
     });
 
+    it("calls createTodo with projectId", async () => {
+      client.createTodo.mockResolvedValue(sampleTodo);
+
+      await handleToolCall(client as unknown as ApiClient, "todos_create", {
+        title: "Project Task",
+        projectId: "proj-1",
+      });
+
+      expect(client.createTodo).toHaveBeenCalledWith({
+        title: "Project Task",
+        projectId: "proj-1",
+      });
+    });
+
+    it("calls createTodo with description", async () => {
+      client.createTodo.mockResolvedValue(sampleTodo);
+
+      await handleToolCall(client as unknown as ApiClient, "todos_create", {
+        title: "Detailed Task",
+        description: "Some details here",
+      });
+
+      expect(client.createTodo).toHaveBeenCalledWith({
+        title: "Detailed Task",
+        description: "Some details here",
+      });
+    });
+
+    it("calls createTodo with projectId and description together", async () => {
+      client.createTodo.mockResolvedValue(sampleTodo);
+
+      await handleToolCall(client as unknown as ApiClient, "todos_create", {
+        title: "Full Task",
+        projectId: "proj-1",
+        description: "Full details",
+        dueDate: "2026-05-01",
+      });
+
+      expect(client.createTodo).toHaveBeenCalledWith({
+        title: "Full Task",
+        projectId: "proj-1",
+        description: "Full details",
+        dueDate: "2026-05-01",
+      });
+    });
+
     it("returns error when title is missing", async () => {
       const result = await handleToolCall(client as unknown as ApiClient, "todos_create", {});
 
@@ -206,6 +252,32 @@ describe("handleToolCall", () => {
         title: "New Title",
         priority: "low",
         dueDate: "2026-12-31",
+      });
+    });
+
+    it("passes projectId in update", async () => {
+      client.updateTodo.mockResolvedValue(sampleTodo);
+
+      await handleToolCall(client as unknown as ApiClient, "todos_update", {
+        id: "t1",
+        projectId: "proj-2",
+      });
+
+      expect(client.updateTodo).toHaveBeenCalledWith("t1", {
+        projectId: "proj-2",
+      });
+    });
+
+    it("passes description in update", async () => {
+      client.updateTodo.mockResolvedValue(sampleTodo);
+
+      await handleToolCall(client as unknown as ApiClient, "todos_update", {
+        id: "t1",
+        description: "Updated details",
+      });
+
+      expect(client.updateTodo).toHaveBeenCalledWith("t1", {
+        description: "Updated details",
       });
     });
   });

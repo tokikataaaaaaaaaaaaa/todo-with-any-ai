@@ -88,6 +88,7 @@ export function registerTools(server: McpServer, client: ApiClient): void {
     "新しいTodoを作成します。",
     {
       title: z.string().describe("タイトル（必須、255文字以内）"),
+      projectId: z.string().optional().describe("プロジェクトID"),
       parentId: z.string().optional().describe("親TodoのID（省略でルートに作成）"),
       dueDate: z.string().optional().describe("締切日（YYYY-MM-DD形式）"),
       startTime: z.string().optional().describe("開始時間（HH:MM形式、dueDateが必要）"),
@@ -108,6 +109,7 @@ export function registerTools(server: McpServer, client: ApiClient): void {
     {
       id: z.string().describe("更新するTodoのID（必須）"),
       title: z.string().optional().describe("タイトル"),
+      projectId: z.string().optional().describe("プロジェクトID"),
       dueDate: z.string().optional().describe("締切日（YYYY-MM-DD形式）"),
       startTime: z.string().optional().describe("開始時間（HH:MM形式、dueDateが必要）"),
       endTime: z.string().optional().describe("終了時間（HH:MM形式、dueDateが必要）"),

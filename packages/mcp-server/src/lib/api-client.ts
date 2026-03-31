@@ -85,10 +85,14 @@ export class ApiClient {
 
   async createTodo(data: {
     title: string;
+    projectId?: string;
     parentId?: string;
     dueDate?: string;
+    startTime?: string;
+    endTime?: string;
     priority?: string;
     categoryIcon?: string;
+    description?: string;
   }): Promise<Todo> {
     return this.request<Todo>("/todos", {
       method: "POST",
