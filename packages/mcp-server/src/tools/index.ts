@@ -2,18 +2,28 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { ApiClient } from "../lib/api-client.js";
 import { todosList } from "./todos-list.js";
+import { todosGet } from "./todos-get.js";
 import { todosCreate } from "./todos-create.js";
 import { todosUpdate } from "./todos-update.js";
 import { todosDelete } from "./todos-delete.js";
 import { todosToggleComplete } from "./todos-toggle-complete.js";
 import { todosTree } from "./todos-tree.js";
+import { todosMove } from "./todos-move.js";
 import { projectsList } from "./projects-list.js";
 import { projectsCreate } from "./projects-create.js";
 import { projectsUpdate } from "./projects-update.js";
 import { projectsDelete } from "./projects-delete.js";
 import { sprintsList } from "./sprints-list.js";
+import { sprintsGet } from "./sprints-get.js";
 import { sprintsCreate } from "./sprints-create.js";
+import { sprintsUpdate } from "./sprints-update.js";
+import { sprintsDelete } from "./sprints-delete.js";
 import { sprintsAddTodo } from "./sprints-add-todo.js";
+import { sprintsRemoveTodo } from "./sprints-remove-todo.js";
+import { urgencyLevelsList } from "./urgency-levels-list.js";
+import { urgencyLevelsCreate } from "./urgency-levels-create.js";
+import { urgencyLevelsUpdate } from "./urgency-levels-update.js";
+import { urgencyLevelsDelete } from "./urgency-levels-delete.js";
 import type { ToolResponse } from "./types.js";
 
 /**
@@ -28,6 +38,8 @@ export async function handleToolCall(
     switch (toolName) {
       case "todos_list":
         return await todosList(client, args);
+      case "todos_get":
+        return await todosGet(client, args);
       case "todos_create":
         return await todosCreate(client, args);
       case "todos_update":
@@ -38,6 +50,8 @@ export async function handleToolCall(
         return await todosToggleComplete(client, args);
       case "todos_tree":
         return await todosTree(client);
+      case "todos_move":
+        return await todosMove(client, args);
       case "projects_list":
         return await projectsList(client);
       case "projects_create":
@@ -48,10 +62,26 @@ export async function handleToolCall(
         return await projectsDelete(client, args);
       case "sprints_list":
         return await sprintsList(client);
+      case "sprints_get":
+        return await sprintsGet(client, args);
       case "sprints_create":
         return await sprintsCreate(client, args);
+      case "sprints_update":
+        return await sprintsUpdate(client, args);
+      case "sprints_delete":
+        return await sprintsDelete(client, args);
       case "sprints_add_todo":
         return await sprintsAddTodo(client, args);
+      case "sprints_remove_todo":
+        return await sprintsRemoveTodo(client, args);
+      case "urgency_levels_list":
+        return await urgencyLevelsList(client);
+      case "urgency_levels_create":
+        return await urgencyLevelsCreate(client, args);
+      case "urgency_levels_update":
+        return await urgencyLevelsUpdate(client, args);
+      case "urgency_levels_delete":
+        return await urgencyLevelsDelete(client, args);
       default:
         return {
           isError: true,
@@ -79,8 +109,18 @@ export function registerTools(server: McpServer, client: ApiClient): void {
       parentId: z.string().optional().describe("親TodoのIDでフィルタ。'null'でルートのみ"),
       dueBefore: z.string().optional().describe("指定日以前の締切でフィルタ（YYYY-MM-DD形式）"),
       sort: z.enum(["order", "dueDate"]).optional().describe("ソート順。'dueDate'で締切日昇順（null末尾）"),
+      projectId: z.string().optional().describe("プロジェクトIDでフィルタ"),
     },
     async (args) => handleToolCall(client, "todos_list", args)
+  );
+
+  server.tool(
+    "todos_get",
+    "Todo単体を取得します。",
+    {
+      id: z.string().describe("取得するTodoのID（必須）"),
+    },
+    async (args) => handleToolCall(client, "todos_get", args)
   );
 
   server.tool(
@@ -99,6 +139,7 @@ export function registerTools(server: McpServer, client: ApiClient): void {
         .optional()
         .describe("カテゴリアイコン"),
       description: z.string().max(5000).optional().describe("メモ・詳細情報（5000文字以内）"),
+      urgencyLevelId: z.string().optional().describe("緊急度レベルID"),
     },
     async (args) => handleToolCall(client, "todos_create", args)
   );
@@ -119,6 +160,7 @@ export function registerTools(server: McpServer, client: ApiClient): void {
         .optional()
         .describe("カテゴリアイコン"),
       description: z.string().max(5000).optional().describe("メモ・詳細情報（5000文字以内）"),
+      urgencyLevelId: z.string().optional().describe("緊急度レベルID"),
     },
     async (args) => handleToolCall(client, "todos_update", args)
   );
@@ -146,6 +188,17 @@ export function registerTools(server: McpServer, client: ApiClient): void {
     "Todoをツリー構造で取得します。",
     {},
     async () => handleToolCall(client, "todos_tree", {})
+  );
+
+  server.tool(
+    "todos_move",
+    "Todoの順序・階層を変更します（ドラッグ&ドロップ相当）。",
+    {
+      todoId: z.string().describe("移動するTodoのID（必須）"),
+      targetId: z.string().describe("移動先のTodoのID（必須）"),
+      position: z.enum(["child", "before", "after"]).describe("配置位置: 'child'=子要素, 'before'=前, 'after'=後"),
+    },
+    async (args) => handleToolCall(client, "todos_move", args)
   );
 
   // Project tools
@@ -200,6 +253,15 @@ export function registerTools(server: McpServer, client: ApiClient): void {
   );
 
   server.tool(
+    "sprints_get",
+    "スプリント詳細を取得します。",
+    {
+      id: z.string().describe("取得するスプリントのID（必須）"),
+    },
+    async (args) => handleToolCall(client, "sprints_get", args)
+  );
+
+  server.tool(
     "sprints_create",
     "新しいスプリントを作成します。",
     {
@@ -212,6 +274,27 @@ export function registerTools(server: McpServer, client: ApiClient): void {
   );
 
   server.tool(
+    "sprints_update",
+    "既存のスプリントを更新します。",
+    {
+      id: z.string().describe("更新するスプリントのID（必須）"),
+      name: z.string().optional().describe("スプリント名"),
+      startDate: z.string().optional().describe("開始日（YYYY-MM-DD形式）"),
+      endDate: z.string().optional().describe("終了日（YYYY-MM-DD形式）"),
+    },
+    async (args) => handleToolCall(client, "sprints_update", args)
+  );
+
+  server.tool(
+    "sprints_delete",
+    "スプリントを削除します。",
+    {
+      id: z.string().describe("削除するスプリントのID（必須）"),
+    },
+    async (args) => handleToolCall(client, "sprints_delete", args)
+  );
+
+  server.tool(
     "sprints_add_todo",
     "スプリントにTodoを追加します。",
     {
@@ -219,5 +302,55 @@ export function registerTools(server: McpServer, client: ApiClient): void {
       todoId: z.string().describe("追加するTodoのID（必須）"),
     },
     async (args) => handleToolCall(client, "sprints_add_todo", args)
+  );
+
+  server.tool(
+    "sprints_remove_todo",
+    "スプリントからTodoを除去します。",
+    {
+      sprintId: z.string().describe("スプリントのID（必須）"),
+      todoId: z.string().describe("除去するTodoのID（必須）"),
+    },
+    async (args) => handleToolCall(client, "sprints_remove_todo", args)
+  );
+
+  // Urgency Level tools
+  server.tool(
+    "urgency_levels_list",
+    "緊急度レベル一覧を取得します。",
+    {},
+    async () => handleToolCall(client, "urgency_levels_list", {})
+  );
+
+  server.tool(
+    "urgency_levels_create",
+    "新しい緊急度レベルを作成します。",
+    {
+      name: z.string().describe("緊急度名（必須）"),
+      color: z.string().describe("カラーコード（#RRGGBB形式、必須）"),
+      icon: z.string().describe("アイコン名（必須）"),
+    },
+    async (args) => handleToolCall(client, "urgency_levels_create", args)
+  );
+
+  server.tool(
+    "urgency_levels_update",
+    "既存の緊急度レベルを更新します。",
+    {
+      id: z.string().describe("更新する緊急度レベルのID（必須）"),
+      name: z.string().optional().describe("緊急度名"),
+      color: z.string().optional().describe("カラーコード（#RRGGBB形式）"),
+      icon: z.string().optional().describe("アイコン名"),
+    },
+    async (args) => handleToolCall(client, "urgency_levels_update", args)
+  );
+
+  server.tool(
+    "urgency_levels_delete",
+    "緊急度レベルを削除します。",
+    {
+      id: z.string().describe("削除する緊急度レベルのID（必須）"),
+    },
+    async (args) => handleToolCall(client, "urgency_levels_delete", args)
   );
 }

@@ -10,6 +10,7 @@ export async function todosList(
     parentId?: string;
     sort?: 'order' | 'dueDate';
     dueBefore?: string;
+    projectId?: string;
   } = {};
   if (args.completed !== undefined) {
     filters.completed = args.completed as boolean;
@@ -22,6 +23,9 @@ export async function todosList(
   }
   if (args.dueBefore !== undefined) {
     filters.dueBefore = args.dueBefore as string;
+  }
+  if (args.projectId !== undefined) {
+    filters.projectId = args.projectId as string;
   }
 
   const todos = await client.listTodos(filters);

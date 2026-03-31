@@ -1,5 +1,5 @@
 import { Config } from "./config.js";
-import type { Todo, TodoTreeNode, Project, Sprint } from "./types.js";
+import type { Todo, TodoTreeNode, Project, Sprint, UrgencyLevel } from "./types.js";
 
 export class ApiError extends Error {
   constructor(
@@ -56,6 +56,7 @@ export class ApiClient {
     parentId?: string | null;
     sort?: 'order' | 'dueDate';
     dueBefore?: string;
+    projectId?: string;
   }): Promise<Todo[]> {
     const params = new URLSearchParams();
     if (filters?.completed !== undefined) {
@@ -69,6 +70,9 @@ export class ApiClient {
     }
     if (filters?.dueBefore !== undefined) {
       params.set("dueBefore", filters.dueBefore);
+    }
+    if (filters?.projectId !== undefined) {
+      params.set("projectId", filters.projectId);
     }
     const query = params.toString();
     const path = query ? `/todos?${query}` : "/todos";
@@ -93,6 +97,7 @@ export class ApiClient {
     priority?: string;
     categoryIcon?: string;
     description?: string;
+    urgencyLevelId?: string;
   }): Promise<Todo> {
     return this.request<Todo>("/todos", {
       method: "POST",
@@ -174,9 +179,62 @@ export class ApiClient {
     });
   }
 
+  async getSprint(id: string): Promise<Sprint> {
+    return this.request<Sprint>(`/sprints/${id}`);
+  }
+
+  async updateSprint(id: string, data: Record<string, unknown>): Promise<Sprint> {
+    return this.request<Sprint>(`/sprints/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteSprint(id: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/sprints/${id}`, {
+      method: "DELETE",
+    });
+  }
+
   async addTodoToSprint(sprintId: string, todoId: string): Promise<Sprint> {
     return this.request<Sprint>(`/sprints/${sprintId}/todos/${todoId}`, {
       method: "POST",
+    });
+  }
+
+  async removeTodoFromSprint(sprintId: string, todoId: string): Promise<Sprint> {
+    return this.request<Sprint>(`/sprints/${sprintId}/todos/${todoId}`, {
+      method: "DELETE",
+    });
+  }
+
+  // Urgency Level methods
+
+  async listUrgencyLevels(): Promise<UrgencyLevel[]> {
+    return this.request<UrgencyLevel[]>("/urgency-levels");
+  }
+
+  async createUrgencyLevel(data: {
+    name: string;
+    color: string;
+    icon: string;
+  }): Promise<UrgencyLevel> {
+    return this.request<UrgencyLevel>("/urgency-levels", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateUrgencyLevel(id: string, data: Record<string, unknown>): Promise<UrgencyLevel> {
+    return this.request<UrgencyLevel>(`/urgency-levels/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteUrgencyLevel(id: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>(`/urgency-levels/${id}`, {
+      method: "DELETE",
     });
   }
 }
