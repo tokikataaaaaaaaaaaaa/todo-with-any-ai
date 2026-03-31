@@ -83,8 +83,8 @@ describe('DraggableTodo', () => {
     expect(wrapper).toHaveAttribute('draggable', 'true')
   })
 
-  it('should set draggable=false on touch devices', () => {
-    // Simulate touch device via maxTouchPoints
+  it('should always set draggable=true (touch devices use D&D via stopPropagation)', () => {
+    // DraggableTodo is always draggable=true regardless of touch support
     const originalMaxTouchPoints = navigator.maxTouchPoints
     Object.defineProperty(navigator, 'maxTouchPoints', { value: 1, configurable: true })
 
@@ -95,7 +95,7 @@ describe('DraggableTodo', () => {
       </DraggableTodo>
     )
     const wrapper = screen.getByTestId('draggable-todo-todo-1')
-    expect(wrapper).toHaveAttribute('draggable', 'false')
+    expect(wrapper).toHaveAttribute('draggable', 'true')
 
     // Cleanup
     Object.defineProperty(navigator, 'maxTouchPoints', { value: originalMaxTouchPoints, configurable: true })

@@ -102,7 +102,7 @@ describe('SP Todo Actions', () => {
     })
   })
 
-  describe('2. Swipe to delete (SP)', () => {
+  describe.skip('2. Swipe to delete (SP) - feature removed', () => {
     it('should not show delete area initially', () => {
       const todo = makeTodo({ id: 'swipe-1' })
       render(<TodoNode todo={todo} todos={[todo]} depth={0} />)
@@ -183,7 +183,7 @@ describe('SP Todo Actions', () => {
     })
   })
 
-  describe('3. Long press context menu (SP)', () => {
+  describe.skip('3. Long press context menu (SP) - feature removed', () => {
     it('should show context menu after 500ms long press', () => {
       const todo = makeTodo({ id: 'lp-1', title: 'Long Press Me' })
       const sibling = makeTodo({ id: 'lp-2', title: 'Sibling', order: 1 })
@@ -296,8 +296,8 @@ describe('SP Todo Actions', () => {
       expect(editBtn.className).toContain('sm:flex')
 
       const deleteBtn = screen.getByTestId('delete-todo-desk-1')
-      expect(deleteBtn.className).toContain('hidden')
-      expect(deleteBtn.className).toContain('sm:flex')
+      // delete button is always visible (flex), fades in on hover via sm:group-hover:opacity-100
+      expect(deleteBtn.className).toContain('flex')
     })
   })
 })

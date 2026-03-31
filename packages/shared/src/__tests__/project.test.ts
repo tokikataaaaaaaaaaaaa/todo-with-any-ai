@@ -219,20 +219,26 @@ describe("createProjectSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("should reject missing color", () => {
+  it("should use default color when missing", () => {
     const result = createProjectSchema.safeParse({
       name: "Project",
       emoji: "P",
     });
-    expect(result.success).toBe(false);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.color).toBe("#6B7280");
+    }
   });
 
-  it("should reject missing emoji", () => {
+  it("should use default emoji when missing", () => {
     const result = createProjectSchema.safeParse({
       name: "Project",
       color: "#000000",
     });
-    expect(result.success).toBe(false);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.emoji).toBe("📁");
+    }
   });
 
   it("should not include id, order, createdAt, updatedAt fields", () => {
