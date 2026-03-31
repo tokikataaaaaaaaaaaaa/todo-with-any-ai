@@ -51,13 +51,6 @@ vi.mock('@/stores/filter-store', () => ({
   }),
 }))
 
-vi.mock('@/stores/urgency-level-store', () => ({
-  useUrgencyLevelStore: vi.fn((selector) => {
-    const state = { levels: [] }
-    return typeof selector === 'function' ? selector(state) : state
-  }),
-}))
-
 import { ProjectSection } from '@/components/todo/project-section'
 
 const makeTodo = (overrides: Partial<Todo> = {}): Todo => ({
@@ -72,7 +65,7 @@ const makeTodo = (overrides: Partial<Todo> = {}): Todo => ({
   categoryIcon: null,
   description: null,
   projectId: 'p1',
-  urgencyLevelId: null,
+
   createdAt: '2026-01-01T00:00:00Z',
   updatedAt: '2026-01-01T00:00:00Z',
   ...overrides,

@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'
 import { CalendarPlus } from 'lucide-react'
 import { generateICS, downloadICS } from '@/lib/ics-generator'
-import type { Todo, UpdateTodo, UrgencyLevel, Project } from '@todo-with-any-ai/shared'
+import type { Todo, UpdateTodo, Project } from '@todo-with-any-ai/shared'
 
 function isDescendant(candidateId: string, ancestorId: string, allTodos: Todo[]): boolean {
   const visited = new Set<string>()
@@ -27,7 +27,6 @@ interface TodoDetailFormProps {
   allTodos: Todo[]
   onSave: (data: UpdateTodo) => void
   onDelete: () => void
-  urgencyLevels?: UrgencyLevel[]
   projects?: Project[]
 }
 
@@ -36,7 +35,6 @@ export function TodoDetailForm({
   allTodos,
   onSave,
   onDelete,
-  urgencyLevels = [],
   projects = [],
 }: TodoDetailFormProps) {
   const [title, setTitle] = useState(todo.title)

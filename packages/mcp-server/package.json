@@ -1,6 +1,6 @@
 {
   "name": "todo-with-any-ai-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP server for todo-with-any-ai - manage todos from any AI agent",
   "license": "MIT",
   "repository": {
@@ -15,7 +15,8 @@
   },
   "type": "module",
   "scripts": {
-    "build": "tsc",
+    "sync-schemas": "bash scripts/sync-schemas.sh",
+    "build": "bash scripts/sync-schemas.sh && tsc",
     "start": "node dist/index.js",
     "test": "vitest run",
     "lint": "echo 'mcp-server: placeholder lint'"

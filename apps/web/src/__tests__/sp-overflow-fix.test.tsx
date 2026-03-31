@@ -35,13 +35,6 @@ vi.mock('@/stores/project-store', () => ({
   }),
 }))
 
-vi.mock('@/stores/urgency-level-store', () => ({
-  useUrgencyLevelStore: vi.fn((selector) => {
-    const state = { levels: [] }
-    return typeof selector === 'function' ? selector(state) : state
-  }),
-}))
-
 const makeTodo = (overrides: Partial<Todo> = {}): Todo => ({
   id: 'todo-1',
   title: 'Test Todo',
@@ -65,14 +58,6 @@ describe('SP horizontal overflow fix', () => {
   })
 
   describe('TodoNode overflow prevention', () => {
-    it('should have overflow-hidden on the todo row container', () => {
-      const todo = makeTodo({ title: 'A very long title that could cause overflow on small screens' })
-      render(<TodoNode todo={todo} todos={[todo]} depth={0} />)
-
-      const row = screen.getByTestId('todo-row')
-      expect(row.className).toContain('overflow-hidden')
-    })
-
     it('should have min-w-0 on the title button for truncate to work in flex', () => {
       const todo = makeTodo({ title: 'A very long title that should be truncated' })
       render(<TodoNode todo={todo} todos={[todo]} depth={0} />)

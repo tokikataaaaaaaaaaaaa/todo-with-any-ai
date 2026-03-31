@@ -1,4 +1,76 @@
+import toolDefs from '@/generated/tool-definitions.json'
+
+interface ToolParam {
+  name: string
+  type: string
+  required: boolean
+  description: string
+}
+
+interface ToolDef {
+  name: string
+  description: string
+  category: string
+  params: ToolParam[]
+}
+
+const CATEGORIES: { key: string; label: string }[] = [
+  { key: 'todos', label: 'Todos' },
+  { key: 'projects', label: 'Projects' },
+  { key: 'sprints', label: 'Sprints' },
+]
+
+function ToolCard({ tool }: { tool: ToolDef }) {
+  return (
+    <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-raised)] p-3">
+      <div className="mb-1 flex items-baseline gap-2">
+        <code
+          className="text-sm font-semibold text-[var(--accent)]"
+          style={{ fontFamily: 'var(--font-mono)' }}
+        >
+          {tool.name}
+        </code>
+        <span className="text-xs text-[var(--text-secondary)]">{tool.description}</span>
+      </div>
+      {tool.params.length > 0 && (
+        <table className="mt-2 w-full text-xs">
+          <thead>
+            <tr className="text-left text-[var(--text-tertiary)]">
+              <th className="pb-1 pr-2 font-medium">Param</th>
+              <th className="pb-1 pr-2 font-medium">Type</th>
+              <th className="pb-1 pr-2 font-medium">Required</th>
+              <th className="pb-1 font-medium">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tool.params.map((p) => (
+              <tr key={p.name} className="text-[var(--text-secondary)]">
+                <td className="py-0.5 pr-2" style={{ fontFamily: 'var(--font-mono)' }}>
+                  {p.name}
+                </td>
+                <td className="py-0.5 pr-2 whitespace-nowrap" style={{ fontFamily: 'var(--font-mono)' }}>
+                  {p.type}
+                </td>
+                <td className="py-0.5 pr-2">
+                  {p.required ? (
+                    <span className="text-[var(--accent)] font-semibold">Yes</span>
+                  ) : (
+                    <span>-</span>
+                  )}
+                </td>
+                <td className="py-0.5">{p.description}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  )
+}
+
 export default function GuidePage() {
+  const tools = toolDefs.tools as ToolDef[]
+
   return (
     <div className="mx-auto max-w-2xl">
       <h1
@@ -25,7 +97,7 @@ export default function GuidePage() {
           1. APIキーを発行
         </h3>
         <p className="mb-4 text-sm text-[var(--text-secondary)]">
-          設定画面からAPIキーを発行してください。
+          ログイン後、<a href="/settings" style={{ color: 'var(--accent)', textDecoration: 'underline' }}>設定画面</a>の「API Keys」セクションからAPIキーを発行してください。発行されたキーは一度しか表示されないのでコピーして保管してください。
         </p>
 
         <h3 className="mb-2 text-sm font-semibold text-[var(--text)]">
@@ -46,7 +118,7 @@ export default function GuidePage() {
   "mcpServers": {
     "todo-with-any-ai": {
       "command": "npx",
-      "args": ["todo-with-any-ai-mcp", "--api-key=YOUR_API_KEY"],
+      "args": ["-y", "todo-with-any-ai-mcp", "--api-key=YOUR_API_KEY"],
       "env": {
         "TODO_API_URL": "https://todo-with-any-ai.web.app/api"
       }
@@ -58,9 +130,31 @@ export default function GuidePage() {
         <h4 className="mb-1 text-sm font-medium text-[var(--text)]">
           Claude Desktop
         </h4>
-        <p className="mb-4 text-sm text-[var(--text-secondary)]">
-          Claude Desktopの設定に同様のMCPサーバー設定を追加。
+        <p className="mb-2 text-sm text-[var(--text-secondary)]">
+          Claude Desktopの設定ファイルに以下を追加：
         </p>
+        <p className="mb-1 text-xs text-[var(--text-tertiary)]">
+          macOS: ~/Library/Application Support/Claude/claude_desktop_config.json
+        </p>
+        <p className="mb-2 text-xs text-[var(--text-tertiary)]">
+          Windows: %APPDATA%\Claude\claude_desktop_config.json
+        </p>
+        <pre
+          className="mb-4 overflow-x-auto rounded-[var(--radius-md)] bg-[var(--bg-raised)] p-4 text-sm leading-relaxed"
+          style={{ fontFamily: 'var(--font-mono)' }}
+        >
+{`{
+  "mcpServers": {
+    "todo-with-any-ai": {
+      "command": "npx",
+      "args": ["-y", "todo-with-any-ai-mcp", "--api-key=YOUR_API_KEY"],
+      "env": {
+        "TODO_API_URL": "https://todo-with-any-ai.web.app/api"
+      }
+    }
+  }
+}`}
+        </pre>
 
         <h3 className="mb-2 text-sm font-semibold text-[var(--text)]">
           3. 使い方の例
@@ -73,54 +167,31 @@ export default function GuidePage() {
         </ul>
       </section>
 
-      {/* Available Tools */}
+      {/* Available Tools — generated from tool-definitions.json */}
       <section>
         <h2
           className="mb-4 text-lg font-bold"
           style={{ fontFamily: 'var(--font-display)' }}
         >
-          Available Tools
+          Available Tools ({tools.length})
         </h2>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-[var(--border)]">
-                <th className="px-3 py-2 text-left font-semibold text-[var(--text)]">
-                  Tool
-                </th>
-                <th className="px-3 py-2 text-left font-semibold text-[var(--text)]">
-                  Description
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                ['todos_list', 'Todo一覧取得（フィルタ対応）'],
-                ['todos_create', 'Todo作成'],
-                ['todos_update', 'Todo更新'],
-                ['todos_delete', 'Todo削除'],
-                ['todos_toggle_complete', '完了トグル'],
-                ['todos_tree', 'ツリー構造取得'],
-                ['projects_list', 'プロジェクト一覧'],
-                ['projects_create', 'プロジェクト作成'],
-                ['projects_update', 'プロジェクト更新'],
-                ['projects_delete', 'プロジェクト削除'],
-                ['sprints_list', 'スプリント一覧'],
-                ['sprints_create', 'スプリント作成'],
-                ['sprints_add_todo', 'スプリントにTodo追加'],
-              ].map(([tool, desc]) => (
-                <tr key={tool} className="border-b border-[var(--border)]">
-                  <td className="px-3 py-2" style={{ fontFamily: 'var(--font-mono)' }}>
-                    {tool}
-                  </td>
-                  <td className="px-3 py-2 text-[var(--text-secondary)]">
-                    {desc}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+
+        {CATEGORIES.map(({ key, label }) => {
+          const categoryTools = tools.filter((t) => t.category === key)
+          if (categoryTools.length === 0) return null
+          return (
+            <div key={key}>
+              <h3 className="mb-2 mt-6 text-sm font-semibold text-[var(--text)]">
+                {label} ({categoryTools.length})
+              </h3>
+              <div className="mb-4 space-y-3">
+                {categoryTools.map((tool) => (
+                  <ToolCard key={tool.name} tool={tool} />
+                ))}
+              </div>
+            </div>
+          )
+        })}
       </section>
     </div>
   )

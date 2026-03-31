@@ -119,26 +119,6 @@ describe('TodoCreateForm - project selection', () => {
     })
   })
 
-  it('should include urgencyLevelId as null in createTodo call', async () => {
-    mockCreateTodo.mockResolvedValueOnce(undefined)
-
-    render(<TodoCreateForm />)
-
-    const titleInput = screen.getByLabelText('New todo title')
-    fireEvent.change(titleInput, { target: { value: 'Test' } })
-
-    const submitButton = screen.getByLabelText('Create todo')
-    fireEvent.click(submitButton)
-
-    await waitFor(() => {
-      expect(mockCreateTodo).toHaveBeenCalledWith(
-        expect.objectContaining({
-          urgencyLevelId: null,
-        })
-      )
-    })
-  })
-
   it('should reset project selection after successful create', async () => {
     mockProjects = [makeProject({ id: 'p1', name: 'Work' })]
     mockCreateTodo.mockResolvedValueOnce(undefined)

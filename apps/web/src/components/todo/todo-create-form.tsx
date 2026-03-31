@@ -101,7 +101,6 @@ export function TodoCreateForm({ defaultProjectId, compact }: TodoCreateFormProp
       priority: priority,
       categoryIcon: categoryIcon,
       projectId: selectedProjectId || null,
-      urgencyLevelId: null,
       description: description || null,
     })
     reset()

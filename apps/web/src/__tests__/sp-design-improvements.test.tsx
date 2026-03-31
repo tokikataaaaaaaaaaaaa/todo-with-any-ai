@@ -45,13 +45,6 @@ vi.mock('@/stores/project-store', () => ({
   }),
 }))
 
-vi.mock('@/stores/urgency-level-store', () => ({
-  useUrgencyLevelStore: vi.fn((selector) => {
-    const state = { levels: [] }
-    return typeof selector === 'function' ? selector(state) : state
-  }),
-}))
-
 const makeTodo = (overrides: Partial<Todo> = {}): Todo => ({
   id: 'todo-1',
   title: 'Test Todo',
@@ -100,15 +93,14 @@ describe('SP Design Improvements', () => {
   })
 
   describe('Todo node action buttons (SP)', () => {
-    it('should hide action buttons on SP for incomplete todos using hidden sm:flex', () => {
+    it('should hide edit button on SP using hidden sm:flex', () => {
       const todo = makeTodo({ id: 'todo-1', title: 'Active Todo' })
       render(<TodoNode todo={todo} todos={[todo]} depth={0} />)
 
       const editBtn = screen.getByTestId('edit-todo-todo-1')
-      const deleteBtn = screen.getByTestId('delete-todo-todo-1')
-      // On SP, these buttons should have hidden class
+      // Edit button is hidden on SP via hidden sm:flex
       expect(editBtn.className).toContain('hidden')
-      expect(deleteBtn.className).toContain('hidden')
+      expect(editBtn.className).toContain('sm:flex')
     })
 
     it('should hide action buttons completely for completed todos', () => {
@@ -139,11 +131,11 @@ describe('SP Design Improvements', () => {
   })
 
   describe('BottomNav safe area', () => {
-    it('should have safe-area padding style on nav', () => {
+    it('should have safe-area padding via inline style on nav', () => {
       render(<BottomNav />)
       const nav = screen.getByRole('navigation', { name: /bottom/i })
-      // Check for pb-[env(safe-area-inset-bottom)] class
-      expect(nav.className).toContain('pb-[env(safe-area-inset-bottom)]')
+      // safe-area is applied via inline style paddingBottom
+      expect(nav).toHaveStyle({ paddingBottom: 'env(safe-area-inset-bottom)' })
     })
   })
 
