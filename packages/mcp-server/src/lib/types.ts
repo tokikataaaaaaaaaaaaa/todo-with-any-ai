@@ -35,11 +35,3 @@ export interface Sprint {
   updatedAt: string;
 }
 
-export interface UrgencyLevel {
-  id: string;
-  name: string;
-  color: string;
-  icon: string;
-  createdAt: string;
-  updatedAt: string;
-}

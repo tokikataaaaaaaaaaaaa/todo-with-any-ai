@@ -93,7 +93,7 @@ describe("MCP Server E2E (InMemoryTransport)", () => {
   describe("listTools - tool registration", () => {
     it("returns all registered tools", async () => {
       const result = await mcpClient.listTools();
-      // 6 todo + projects + sprints + urgency-levels tools
+      // 8 todo + 4 project + 7 sprint tools
       expect(result.tools.length).toBeGreaterThanOrEqual(6);
     });
 

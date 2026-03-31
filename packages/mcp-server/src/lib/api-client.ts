@@ -1,5 +1,5 @@
 import { Config } from "./config.js";
-import type { Todo, TodoTreeNode, Project, Sprint, UrgencyLevel } from "./types.js";
+import type { Todo, TodoTreeNode, Project, Sprint } from "./types.js";
 
 export class ApiError extends Error {
   constructor(
@@ -97,7 +97,6 @@ export class ApiClient {
     priority?: string;
     categoryIcon?: string;
     description?: string;
-    urgencyLevelId?: string;
   }): Promise<Todo> {
     return this.request<Todo>("/todos", {
       method: "POST",
@@ -208,33 +207,4 @@ export class ApiClient {
     });
   }
 
-  // Urgency Level methods
-
-  async listUrgencyLevels(): Promise<UrgencyLevel[]> {
-    return this.request<UrgencyLevel[]>("/urgency-levels");
-  }
-
-  async createUrgencyLevel(data: {
-    name: string;
-    color: string;
-    icon: string;
-  }): Promise<UrgencyLevel> {
-    return this.request<UrgencyLevel>("/urgency-levels", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
-  }
-
-  async updateUrgencyLevel(id: string, data: Record<string, unknown>): Promise<UrgencyLevel> {
-    return this.request<UrgencyLevel>(`/urgency-levels/${id}`, {
-      method: "PATCH",
-      body: JSON.stringify(data),
-    });
-  }
-
-  async deleteUrgencyLevel(id: string): Promise<{ message: string }> {
-    return this.request<{ message: string }>(`/urgency-levels/${id}`, {
-      method: "DELETE",
-    });
-  }
 }

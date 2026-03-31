@@ -20,10 +20,6 @@ import { sprintsUpdate } from "./sprints-update.js";
 import { sprintsDelete } from "./sprints-delete.js";
 import { sprintsAddTodo } from "./sprints-add-todo.js";
 import { sprintsRemoveTodo } from "./sprints-remove-todo.js";
-import { urgencyLevelsList } from "./urgency-levels-list.js";
-import { urgencyLevelsCreate } from "./urgency-levels-create.js";
-import { urgencyLevelsUpdate } from "./urgency-levels-update.js";
-import { urgencyLevelsDelete } from "./urgency-levels-delete.js";
 import type { ToolResponse } from "./types.js";
 
 /**
@@ -74,14 +70,6 @@ export async function handleToolCall(
         return await sprintsAddTodo(client, args);
       case "sprints_remove_todo":
         return await sprintsRemoveTodo(client, args);
-      case "urgency_levels_list":
-        return await urgencyLevelsList(client);
-      case "urgency_levels_create":
-        return await urgencyLevelsCreate(client, args);
-      case "urgency_levels_update":
-        return await urgencyLevelsUpdate(client, args);
-      case "urgency_levels_delete":
-        return await urgencyLevelsDelete(client, args);
       default:
         return {
           isError: true,
@@ -139,7 +127,6 @@ export function registerTools(server: McpServer, client: ApiClient): void {
         .optional()
         .describe("カテゴリアイコン"),
       description: z.string().max(5000).optional().describe("メモ・詳細情報（5000文字以内）"),
-      urgencyLevelId: z.string().optional().describe("緊急度レベルID"),
     },
     async (args) => handleToolCall(client, "todos_create", args)
   );
@@ -160,7 +147,6 @@ export function registerTools(server: McpServer, client: ApiClient): void {
         .optional()
         .describe("カテゴリアイコン"),
       description: z.string().max(5000).optional().describe("メモ・詳細情報（5000文字以内）"),
-      urgencyLevelId: z.string().optional().describe("緊急度レベルID"),
     },
     async (args) => handleToolCall(client, "todos_update", args)
   );
@@ -314,43 +300,4 @@ export function registerTools(server: McpServer, client: ApiClient): void {
     async (args) => handleToolCall(client, "sprints_remove_todo", args)
   );
 
-  // Urgency Level tools
-  server.tool(
-    "urgency_levels_list",
-    "緊急度レベル一覧を取得します。",
-    {},
-    async () => handleToolCall(client, "urgency_levels_list", {})
-  );
-
-  server.tool(
-    "urgency_levels_create",
-    "新しい緊急度レベルを作成します。",
-    {
-      name: z.string().describe("緊急度名（必須）"),
-      color: z.string().describe("カラーコード（#RRGGBB形式、必須）"),
-      icon: z.string().describe("アイコン名（必須）"),
-    },
-    async (args) => handleToolCall(client, "urgency_levels_create", args)
-  );
-
-  server.tool(
-    "urgency_levels_update",
-    "既存の緊急度レベルを更新します。",
-    {
-      id: z.string().describe("更新する緊急度レベルのID（必須）"),
-      name: z.string().optional().describe("緊急度名"),
-      color: z.string().optional().describe("カラーコード（#RRGGBB形式）"),
-      icon: z.string().optional().describe("アイコン名"),
-    },
-    async (args) => handleToolCall(client, "urgency_levels_update", args)
-  );
-
-  server.tool(
-    "urgency_levels_delete",
-    "緊急度レベルを削除します。",
-    {
-      id: z.string().describe("削除する緊急度レベルのID（必須）"),
-    },
-    async (args) => handleToolCall(client, "urgency_levels_delete", args)
-  );
 }

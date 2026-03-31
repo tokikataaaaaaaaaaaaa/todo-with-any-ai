@@ -3,15 +3,6 @@ import type { ApiClient } from "../lib/api-client.js";
 import { handleToolCall } from "../tools/index.js";
 import type { Todo, Sprint } from "../lib/types.js";
 
-interface UrgencyLevel {
-  id: string;
-  name: string;
-  color: string;
-  icon: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
 function createMockClient() {
   return {
     // Todo methods
@@ -35,11 +26,6 @@ function createMockClient() {
     deleteSprint: vi.fn(),
     addTodoToSprint: vi.fn(),
     removeTodoFromSprint: vi.fn(),
-    // Urgency level methods
-    listUrgencyLevels: vi.fn(),
-    createUrgencyLevel: vi.fn(),
-    updateUrgencyLevel: vi.fn(),
-    deleteUrgencyLevel: vi.fn(),
   };
 }
 
@@ -61,15 +47,6 @@ const sampleSprint: Sprint = {
   startDate: "2026-04-01",
   endDate: "2026-04-14",
   todoIds: ["t1"],
-  createdAt: "2026-01-01T00:00:00Z",
-  updatedAt: "2026-01-01T00:00:00Z",
-};
-
-const sampleUrgencyLevel: UrgencyLevel = {
-  id: "ul-1",
-  name: "Urgent",
-  color: "#FF0000",
-  icon: "fire",
   createdAt: "2026-01-01T00:00:00Z",
   updatedAt: "2026-01-01T00:00:00Z",
 };
@@ -118,39 +95,6 @@ describe("handleToolCall - new tools", () => {
       });
 
       expect(client.listTodos).toHaveBeenCalledWith({ projectId: "proj-1" });
-    });
-  });
-
-  // ===== todos_create with urgencyLevelId =====
-  describe("todos_create with urgencyLevelId", () => {
-    it("passes urgencyLevelId to createTodo", async () => {
-      client.createTodo.mockResolvedValue(sampleTodo);
-
-      await handleToolCall(client as unknown as ApiClient, "todos_create", {
-        title: "Urgent Task",
-        urgencyLevelId: "ul-1",
-      });
-
-      expect(client.createTodo).toHaveBeenCalledWith({
-        title: "Urgent Task",
-        urgencyLevelId: "ul-1",
-      });
-    });
-  });
-
-  // ===== todos_update with urgencyLevelId =====
-  describe("todos_update with urgencyLevelId", () => {
-    it("passes urgencyLevelId in update", async () => {
-      client.updateTodo.mockResolvedValue(sampleTodo);
-
-      await handleToolCall(client as unknown as ApiClient, "todos_update", {
-        id: "t1",
-        urgencyLevelId: "ul-2",
-      });
-
-      expect(client.updateTodo).toHaveBeenCalledWith("t1", {
-        urgencyLevelId: "ul-2",
-      });
     });
   });
 
@@ -383,143 +327,4 @@ describe("handleToolCall - new tools", () => {
     });
   });
 
-  // ===== urgency_levels_list =====
-  describe("urgency_levels_list", () => {
-    it("calls listUrgencyLevels and returns list", async () => {
-      client.listUrgencyLevels.mockResolvedValue([sampleUrgencyLevel]);
-
-      const result = await handleToolCall(
-        client as unknown as ApiClient,
-        "urgency_levels_list",
-        {}
-      );
-
-      expect(client.listUrgencyLevels).toHaveBeenCalled();
-      expect(result.content[0].text).toContain("Urgent");
-    });
-
-    it("returns count of 0 when no urgency levels found", async () => {
-      client.listUrgencyLevels.mockResolvedValue([]);
-
-      const result = await handleToolCall(
-        client as unknown as ApiClient,
-        "urgency_levels_list",
-        {}
-      );
-
-      expect(result.content[0].text).toContain('"count": 0');
-    });
-  });
-
-  // ===== urgency_levels_create =====
-  describe("urgency_levels_create", () => {
-    it("calls createUrgencyLevel and returns created level", async () => {
-      client.createUrgencyLevel.mockResolvedValue(sampleUrgencyLevel);
-
-      const result = await handleToolCall(
-        client as unknown as ApiClient,
-        "urgency_levels_create",
-        { name: "Urgent", color: "#FF0000", icon: "fire" }
-      );
-
-      expect(client.createUrgencyLevel).toHaveBeenCalledWith({
-        name: "Urgent",
-        color: "#FF0000",
-        icon: "fire",
-      });
-      expect(result.content[0].text).toContain("Urgent");
-    });
-
-    it("returns error when name is missing", async () => {
-      const result = await handleToolCall(
-        client as unknown as ApiClient,
-        "urgency_levels_create",
-        { color: "#FF0000", icon: "fire" }
-      );
-
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain("name");
-    });
-
-    it("returns error when color is missing", async () => {
-      const result = await handleToolCall(
-        client as unknown as ApiClient,
-        "urgency_levels_create",
-        { name: "Urgent", icon: "fire" }
-      );
-
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain("color");
-    });
-
-    it("returns error when icon is missing", async () => {
-      const result = await handleToolCall(
-        client as unknown as ApiClient,
-        "urgency_levels_create",
-        { name: "Urgent", color: "#FF0000" }
-      );
-
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain("icon");
-    });
-  });
-
-  // ===== urgency_levels_update =====
-  describe("urgency_levels_update", () => {
-    it("calls updateUrgencyLevel with id and data", async () => {
-      client.updateUrgencyLevel.mockResolvedValue({
-        ...sampleUrgencyLevel,
-        name: "Critical",
-      });
-
-      const result = await handleToolCall(
-        client as unknown as ApiClient,
-        "urgency_levels_update",
-        { id: "ul-1", name: "Critical" }
-      );
-
-      expect(client.updateUrgencyLevel).toHaveBeenCalledWith("ul-1", {
-        name: "Critical",
-      });
-      expect(result.content[0].text).toContain("Critical");
-    });
-
-    it("returns error when id is missing", async () => {
-      const result = await handleToolCall(
-        client as unknown as ApiClient,
-        "urgency_levels_update",
-        { name: "No id" }
-      );
-
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain("id");
-    });
-  });
-
-  // ===== urgency_levels_delete =====
-  describe("urgency_levels_delete", () => {
-    it("calls deleteUrgencyLevel with id", async () => {
-      client.deleteUrgencyLevel.mockResolvedValue({ message: "Deleted" });
-
-      const result = await handleToolCall(
-        client as unknown as ApiClient,
-        "urgency_levels_delete",
-        { id: "ul-1" }
-      );
-
-      expect(client.deleteUrgencyLevel).toHaveBeenCalledWith("ul-1");
-      expect(result.content[0].text).toContain("deleted");
-    });
-
-    it("returns error when id is missing", async () => {
-      const result = await handleToolCall(
-        client as unknown as ApiClient,
-        "urgency_levels_delete",
-        {}
-      );
-
-      expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain("id");
-    });
-  });
 });
