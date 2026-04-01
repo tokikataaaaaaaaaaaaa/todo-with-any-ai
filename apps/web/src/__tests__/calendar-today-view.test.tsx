@@ -11,12 +11,14 @@ vi.mock('next/link', () => ({
 
 const mockTodos: Todo[] = []
 const mockProjects: Project[] = []
+const mockToggleComplete = vi.fn()
 
 vi.mock('@/stores/todo-store', () => ({
   useTodoStore: vi.fn((selector?: (state: unknown) => unknown) => {
     const state = {
       todos: mockTodos,
       fetchTodos: vi.fn(),
+      toggleComplete: mockToggleComplete,
     }
     return typeof selector === 'function' ? selector(state) : state
   }),
@@ -64,6 +66,7 @@ describe('CalendarPage - Today View Tab', () => {
     vi.clearAllMocks()
     mockTodos.length = 0
     mockProjects.length = 0
+    mockToggleComplete.mockReset()
   })
 
   it('should render tab bar with "月ビュー" and "本日ビュー" tabs', () => {
@@ -188,5 +191,37 @@ describe('CalendarPage - Today View Tab', () => {
 
     const todoItem = screen.getByTestId('today-todo-todo-done')
     expect(todoItem).toHaveAttribute('data-completed', 'true')
+  })
+
+  it('should render a checkbox for each todo in today view', () => {
+    const todayStr = getTodayStr()
+    mockTodos.push(makeTodo({ id: 'todo-cb', title: 'チェックボックステスト', dueDate: todayStr }))
+
+    render(<CalendarPage />)
+    fireEvent.click(screen.getByTestId('tab-today-view'))
+
+    expect(screen.getByTestId('today-todo-checkbox-todo-cb')).toBeInTheDocument()
+  })
+
+  it('should call toggleComplete when checkbox is clicked', () => {
+    const todayStr = getTodayStr()
+    mockTodos.push(makeTodo({ id: 'todo-toggle', title: 'トグルテスト', dueDate: todayStr }))
+
+    render(<CalendarPage />)
+    fireEvent.click(screen.getByTestId('tab-today-view'))
+    fireEvent.click(screen.getByTestId('today-todo-checkbox-todo-toggle'))
+
+    expect(mockToggleComplete).toHaveBeenCalledWith('todo-toggle')
+  })
+
+  it('should show checkbox as checked for completed todos', () => {
+    const todayStr = getTodayStr()
+    mockTodos.push(makeTodo({ id: 'todo-checked', title: '完了済み', dueDate: todayStr, completed: true }))
+
+    render(<CalendarPage />)
+    fireEvent.click(screen.getByTestId('tab-today-view'))
+
+    const checkbox = screen.getByTestId('today-todo-checkbox-todo-checked')
+    expect(checkbox).toHaveAttribute('aria-checked', 'true')
   })
 })
