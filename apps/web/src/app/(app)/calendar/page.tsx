@@ -83,6 +83,7 @@ export default function CalendarPage() {
 
   const todos = useTodoStore((s) => s.todos)
   const fetchTodos = useTodoStore((s) => s.fetchTodos)
+  const toggleComplete = useTodoStore((s) => s.toggleComplete)
   const projects = useProjectStore((s) => s.projects)
   const fetchProjects = useProjectStore((s) => s.fetchProjects)
 
@@ -215,20 +216,39 @@ export default function CalendarPage() {
                   ? projectColorMap.get(todo.projectId) || '#9CA3AF'
                   : '#9CA3AF'
                 return (
-                  <Link key={todo.id} href={`/todos/detail?id=${todo.id}`}>
-                    <div
-                      data-testid={`today-todo-${todo.id}`}
-                      data-completed={todo.completed ? 'true' : 'false'}
-                      className={`rounded-[var(--radius-md)] border border-[var(--border)] border-l-4 px-3 py-2 text-sm transition-colors hover:bg-[var(--bg-raised)] ${
-                        todo.completed
-                          ? 'line-through text-[var(--text-muted)]'
-                          : 'text-[var(--text)]'
-                      }`}
-                      style={{ borderLeftColor: color }}
+                  <div
+                    key={todo.id}
+                    className="flex items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border)] border-l-4 px-3 py-2 transition-colors hover:bg-[var(--bg-raised)]"
+                    style={{ borderLeftColor: color }}
+                  >
+                    <button
+                      data-testid={`today-todo-checkbox-${todo.id}`}
+                      role="checkbox"
+                      aria-checked={todo.completed}
+                      aria-label={`完了にする: ${todo.title}`}
+                      onClick={() => toggleComplete(todo.id)}
+                      className="flex h-[22px] w-[22px] flex-shrink-0 items-center justify-center rounded-full border-2 transition-all duration-200"
+                      style={{
+                        borderColor: todo.completed ? 'var(--accent)' : 'var(--border-strong)',
+                        background: todo.completed ? 'var(--accent)' : 'transparent',
+                      }}
                     >
-                      {todo.title}
-                    </div>
-                  </Link>
+                      {todo.completed && (
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                          <path d="M2.5 6.5L5 9L9.5 3.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </button>
+                    <Link href={`/todos/detail?id=${todo.id}`} className="flex-1">
+                      <div
+                        data-testid={`today-todo-${todo.id}`}
+                        data-completed={todo.completed ? 'true' : 'false'}
+                        className={`text-sm ${todo.completed ? 'line-through text-[var(--text-muted)]' : 'text-[var(--text)]'}`}
+                      >
+                        {todo.title}
+                      </div>
+                    </Link>
+                  </div>
                 )
               })}
             </div>
