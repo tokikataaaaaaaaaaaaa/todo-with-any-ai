@@ -14,7 +14,11 @@ export async function todosUpdate(
     };
   }
 
-  const { id: _id, ...data } = args;
+  const { id: _id, ...rawData } = args;
+  // undefined値を除外して、明示的に指定されたフィールドのみ送信
+  const data = Object.fromEntries(
+    Object.entries(rawData).filter(([, v]) => v !== undefined)
+  );
   const todo = await client.updateTodo(id, data);
 
   return {
