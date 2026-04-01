@@ -36,7 +36,8 @@ export default function LoginPage() {
         window.location.href = '/todos'
       }, 500)
     }
-  }, [user, loading, addMessage])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, loading])
 
   const handleGithubLogin = async () => {
     setError(null)
