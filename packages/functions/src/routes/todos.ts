@@ -31,12 +31,14 @@ todosRoute.get('/', async (c) => {
 
   const completedParam = c.req.query('completed')
   const parentIdParam = c.req.query('parentId')
+  const projectIdParam = c.req.query('projectId')
   const sortParam = c.req.query('sort')
   const dueBeforeParam = c.req.query('dueBefore')
 
   const filters: {
     completed?: boolean
     parentId?: string | null
+    projectId?: string | null
     sort?: 'order' | 'dueDate'
     dueBefore?: string
   } = {}
@@ -46,6 +48,9 @@ todosRoute.get('/', async (c) => {
   }
   if (parentIdParam !== undefined) {
     filters.parentId = parentIdParam === 'null' ? null : parentIdParam
+  }
+  if (projectIdParam !== undefined) {
+    filters.projectId = projectIdParam === 'null' ? null : projectIdParam
   }
   if (sortParam === 'dueDate' || sortParam === 'order') {
     filters.sort = sortParam

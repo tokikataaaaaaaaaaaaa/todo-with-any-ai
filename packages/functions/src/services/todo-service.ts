@@ -19,6 +19,7 @@ export class TodoService {
     filters?: {
       completed?: boolean
       parentId?: string | null
+      projectId?: string | null
       sort?: 'order' | 'dueDate'
       dueBefore?: string
     }
@@ -31,6 +32,9 @@ export class TodoService {
       }
       if (filters.parentId !== undefined) {
         query = query.where('parentId', '==', filters.parentId)
+      }
+      if (filters.projectId !== undefined) {
+        query = query.where('projectId', '==', filters.projectId)
       }
     }
 
