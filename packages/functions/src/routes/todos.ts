@@ -140,7 +140,13 @@ todosRoute.patch('/:id', async (c) => {
     return c.json({ error: 'Validation error', details: parsed.error.issues }, 400)
   }
 
-  const todo = await service.updateTodo(userId, todoId, parsed.data)
+  // parseによってdefault値が補完されるため、元のbodyに存在するキーのみ抽出する
+  const bodyKeys = new Set(Object.keys(body as object))
+  const updateData = Object.fromEntries(
+    Object.entries(parsed.data).filter(([k]) => bodyKeys.has(k))
+  )
+
+  const todo = await service.updateTodo(userId, todoId, updateData)
   if (!todo) {
     return c.json({ error: 'Todo not found' }, 404)
   }
