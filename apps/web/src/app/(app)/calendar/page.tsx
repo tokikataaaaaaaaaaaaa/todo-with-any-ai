@@ -6,6 +6,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useTodoStore } from '@/stores/todo-store'
 import { useProjectStore } from '@/stores/project-store'
 
+type ViewMode = 'month' | 'today'
+
 interface CalendarDay {
   date: Date
   dateStr: string // YYYY-MM-DD
@@ -74,6 +76,7 @@ function formatDateStr(date: Date): string {
 const MAX_VISIBLE_TODOS = 2
 
 export default function CalendarPage() {
+  const [viewMode, setViewMode] = useState<ViewMode>('month')
   const [currentDate, setCurrentDate] = useState(() => new Date())
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
@@ -111,6 +114,15 @@ export default function CalendarPage() {
     }
     return map
   }, [todos, allActive, disabledProjectIds])
+
+  const todayStr = useMemo(() => {
+    const now = new Date()
+    return formatDateStr(now)
+  }, [])
+
+  const todayTodos = useMemo(() => {
+    return todos.filter((todo) => todo.dueDate === todayStr)
+  }, [todos, todayStr])
 
   const projectColorMap = useMemo(() => {
     const map = new Map<string, string>()
@@ -157,6 +169,75 @@ export default function CalendarPage() {
 
   return (
     <div className="flex flex-col gap-3">
+      {/* View mode tabs */}
+      <div className="flex gap-1 rounded-[var(--radius-lg)] bg-[var(--bg-raised)] p-1">
+        <button
+          data-testid="tab-month-view"
+          data-active={viewMode === 'month' ? 'true' : 'false'}
+          onClick={() => setViewMode('month')}
+          className={`flex-1 rounded-[var(--radius-md)] px-3 py-1.5 text-sm font-medium transition-colors ${
+            viewMode === 'month'
+              ? 'bg-[var(--bg)] text-[var(--text)] shadow-sm'
+              : 'text-[var(--text-secondary)]'
+          }`}
+        >
+          月ビュー
+        </button>
+        <button
+          data-testid="tab-today-view"
+          data-active={viewMode === 'today' ? 'true' : 'false'}
+          onClick={() => setViewMode('today')}
+          className={`flex-1 rounded-[var(--radius-md)] px-3 py-1.5 text-sm font-medium transition-colors ${
+            viewMode === 'today'
+              ? 'bg-[var(--bg)] text-[var(--text)] shadow-sm'
+              : 'text-[var(--text-secondary)]'
+          }`}
+        >
+          本日ビュー
+        </button>
+      </div>
+
+      {/* Today view */}
+      {viewMode === 'today' && (
+        <div data-testid="today-view" className="flex flex-col gap-2">
+          <p className="text-sm font-semibold text-[var(--text-secondary)]">{todayStr}</p>
+          {todayTodos.length === 0 ? (
+            <div
+              data-testid="today-view-empty"
+              className="rounded-[var(--radius-lg)] border border-[var(--border)] p-6 text-center text-sm text-[var(--text-muted)]"
+            >
+              今日の期限のタスクはありません
+            </div>
+          ) : (
+            <div className="flex flex-col gap-1">
+              {todayTodos.map((todo) => {
+                const color = todo.projectId
+                  ? projectColorMap.get(todo.projectId) || '#9CA3AF'
+                  : '#9CA3AF'
+                return (
+                  <Link key={todo.id} href={`/todos/detail?id=${todo.id}`}>
+                    <div
+                      data-testid={`today-todo-${todo.id}`}
+                      data-completed={todo.completed ? 'true' : 'false'}
+                      className={`rounded-[var(--radius-md)] border border-[var(--border)] border-l-4 px-3 py-2 text-sm transition-colors hover:bg-[var(--bg-raised)] ${
+                        todo.completed
+                          ? 'line-through text-[var(--text-muted)]'
+                          : 'text-[var(--text)]'
+                      }`}
+                      style={{ borderLeftColor: color }}
+                    >
+                      {todo.title}
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Month view */}
+      {viewMode === 'month' && <>
       {/* Filter chips */}
       <div
         data-testid="filter-chip-bar"
@@ -298,6 +379,7 @@ export default function CalendarPage() {
           )
         })}
       </div>
+      </>}
     </div>
   )
 }
