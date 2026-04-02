@@ -37,7 +37,7 @@ jobs:
           channelId: live
           projectId: todo-with-any-ai
 
-      - name: Deploy Functions
-        run: npx firebase-tools deploy --only functions --project todo-with-any-ai
+      - name: Deploy Functions and Indexes
+        run: npx firebase-tools deploy --only functions,firestore:indexes --project todo-with-any-ai
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/gcloud.json
